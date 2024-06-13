@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
@@ -22,6 +24,8 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+        Logger.recordOutput("Shooter/State", currentState.toString());
+
         switch (currentState) {
             case AMP:
                 
