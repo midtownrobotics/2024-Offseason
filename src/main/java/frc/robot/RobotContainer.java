@@ -15,9 +15,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.RobotState;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
+
+  private Climber climber = new Climber();
+  private Intake intake = new Intake();
+  private Shooter shooter = new Shooter();
+  private RobotState robotState = new RobotState(shooter, climber, intake);
+
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
