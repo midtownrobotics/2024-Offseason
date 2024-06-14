@@ -37,7 +37,7 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         Logger.recordOutput("Shooter/State", currentState.toString());
 
-        flywheelIO.setVoltage(0, 0);
+        flywheelIO.setSpeed(0, 0);
 
         switch (currentState) {
             case AMP:
