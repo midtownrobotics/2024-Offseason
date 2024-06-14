@@ -8,6 +8,6 @@ public interface PivotIO {
 
     }
     
-    public void setVoltage(double voltage);
+    public void setAngle(double angle);
     public void updateInputs(PivotIOInputs inputs);
 }

@@ -31,7 +31,7 @@ public class RobotContainer {
   private Intake intake = new Intake();
 
   private FlywheelIO flywheelIO = new FlywheelIONeo(0, 0);
-  private PivotIO pivotIO = new PivotIONeo(0);
+  private PivotIO pivotIO = new PivotIONeo(0, 0);
   private Shooter shooter = new Shooter(flywheelIO, pivotIO);
 
   private RobotState robotState = new RobotState(shooter, climber, intake);
