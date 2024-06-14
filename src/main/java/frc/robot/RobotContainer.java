@@ -18,14 +18,22 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.RobotState;
-import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.Shooter.Flywheel.FlywheelIO;
+import frc.robot.subsystems.Shooter.Flywheel.FlywheelIONeo;
+import frc.robot.subsystems.Shooter.Pivot.PivotIO;
+import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 
 public class RobotContainer {
 
   private Climber climber = new Climber();
+  
   private Intake intake = new Intake();
-  private Shooter shooter = new Shooter();
+
+  private FlywheelIO flywheelIO = new FlywheelIONeo(0, 0);
+  private PivotIO pivotIO = new PivotIONeo(0);
+  private Shooter shooter = new Shooter(flywheelIO, pivotIO);
+
   private RobotState robotState = new RobotState(shooter, climber, intake);
 
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
