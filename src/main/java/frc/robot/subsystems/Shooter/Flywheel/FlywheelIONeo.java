@@ -31,12 +31,14 @@ public class FlywheelIONeo implements FlywheelIO {
         leftWheelPID.setI(OuttakeConstants.FLYWHEEL_SPEED_I);
         leftWheelPID.setD(OuttakeConstants.FLYWHEEL_SPEED_D);
         leftWheelPID.setFF(OuttakeConstants.FLYWHEEL_SPEED_FF);
+        leftWheelPID.setOutputRange(0, 1);
 
         rightWheelPID = rightWheelNeo.getPIDController();
         rightWheelPID.setP(OuttakeConstants.FLYWHEEL_SPEED_P);
         rightWheelPID.setI(OuttakeConstants.FLYWHEEL_SPEED_I);
         rightWheelPID.setD(OuttakeConstants.FLYWHEEL_SPEED_D);
         rightWheelPID.setFF(OuttakeConstants.FLYWHEEL_SPEED_FF);
+        rightWheelPID.setOutputRange(0, 1);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class PivotIONeo implements PivotIO {
-    CANSparkMax pivotNeo;
+    private CANSparkMax pivotNeo;
 
     public PivotIONeo(int pivotNeoID) {
         pivotNeo = new CANSparkMax(pivotNeoID, MotorType.kBrushless);
