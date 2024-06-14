@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.ShooterState;
@@ -8,12 +11,6 @@ public class RobotState extends SubsystemBase {
     private Shooter shooter;
     private Climber climber;
     private Intake intake;
-
-    public RobotState(Shooter shooter, Climber climber, Intake intake) {
-        this.shooter = shooter;
-        this.climber = climber;
-        this.intake = intake;
-    }
 
     public enum State {
         AMP,
@@ -26,10 +23,36 @@ public class RobotState extends SubsystemBase {
         IDLE
     }
 
+    private final LoggedDashboardChooser<State> stateChooser = new LoggedDashboardChooser<>("Robot State");
+
+    public RobotState(Shooter shooter, Climber climber, Intake intake) {
+        stateChooser.addOption("AMP", State.AMP);
+        stateChooser.addOption("SUBWOOFER", State.SUBWOOFER);
+        stateChooser.addOption("REVVING", State.REVVING);
+        stateChooser.addOption("AUTO_AIM", State.AUTO_AIM);
+        stateChooser.addOption("PASSING", State.PASSING);
+        stateChooser.addOption("VOMITING", State.VOMITING);
+        stateChooser.addOption("INTAKING", State.INTAKING);
+        stateChooser.addOption("IDLE", State.IDLE);
+
+        this.shooter = shooter;
+        this.climber = climber;
+        this.intake = intake;
+    }
+
     private State currentState = State.IDLE;
 
     @Override
     public void periodic() {
+
+        if (stateChooser.get() != null) {
+            currentState = stateChooser.get();
+        } else {
+            currentState = State.IDLE;
+        };
+
+        Logger.recordOutput("Robot/State", currentState.toString());
+
         switch (currentState) {
             case AMP:
                 shooter.changeState(ShooterState.AMP);
