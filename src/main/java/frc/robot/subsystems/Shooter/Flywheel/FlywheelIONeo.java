@@ -6,7 +6,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import frc.robot.Constants.OuttakeConstants;
+import frc.robot.Constants.ShooterConstants;
 
 public class FlywheelIONeo implements FlywheelIO {
     private CANSparkMax leftWheelNeo;
@@ -27,17 +27,17 @@ public class FlywheelIONeo implements FlywheelIO {
         rightWheelNeo.burnFlash();
 
         leftWheelPID = leftWheelNeo.getPIDController();
-        leftWheelPID.setP(OuttakeConstants.FLYWHEEL_SPEED_P);
-        leftWheelPID.setI(OuttakeConstants.FLYWHEEL_SPEED_I);
-        leftWheelPID.setD(OuttakeConstants.FLYWHEEL_SPEED_D);
-        leftWheelPID.setFF(OuttakeConstants.FLYWHEEL_SPEED_FF);
+        leftWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P);
+        leftWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I);
+        leftWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D);
+        leftWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF);
         leftWheelPID.setOutputRange(0, 1);
 
         rightWheelPID = rightWheelNeo.getPIDController();
-        rightWheelPID.setP(OuttakeConstants.FLYWHEEL_SPEED_P);
-        rightWheelPID.setI(OuttakeConstants.FLYWHEEL_SPEED_I);
-        rightWheelPID.setD(OuttakeConstants.FLYWHEEL_SPEED_D);
-        rightWheelPID.setFF(OuttakeConstants.FLYWHEEL_SPEED_FF);
+        rightWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P);
+        rightWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I);
+        rightWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D);
+        rightWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF);
         rightWheelPID.setOutputRange(0, 1);
     }
 

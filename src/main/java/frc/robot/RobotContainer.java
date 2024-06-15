@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Ports.ShooterPorts;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -23,6 +24,8 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIO;
 import frc.robot.subsystems.Shooter.Flywheel.FlywheelIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
+import frc.robot.subsystems.Shooter.Roller.RollerIO;
+import frc.robot.subsystems.Shooter.Roller.RollerIONeo;
 
 public class RobotContainer {
 
@@ -30,9 +33,10 @@ public class RobotContainer {
   
   private Intake intake = new Intake();
 
-  private FlywheelIO flywheelIO = new FlywheelIONeo(0, 0);
-  private PivotIO pivotIO = new PivotIONeo(0, 0);
-  private Shooter shooter = new Shooter(flywheelIO, pivotIO);
+  private FlywheelIO flywheelIO = new FlywheelIONeo(ShooterPorts.leftFlywheel, ShooterPorts.rightFlywheel);
+  private PivotIO pivotIO = new PivotIONeo(ShooterPorts.pivot, ShooterPorts.pivotEncoder);
+  private RollerIO rollerIO = new RollerIONeo(ShooterPorts.rollerTop, ShooterPorts.rollerBottom);
+  private Shooter shooter = new Shooter(flywheelIO, pivotIO, rollerIO);
 
   private RobotState robotState = new RobotState(shooter, climber, intake);
 

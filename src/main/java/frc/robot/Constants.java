@@ -9,7 +9,7 @@ public final class Constants {
 
     public static final Mode currentMode = Mode.SIM;
 
-    public static final class OuttakeConstants {
+    public static final class ShooterConstants {
 		public static final double SPEAKER_ANGLE = 0.852;
 		public static final double SPEAKER_SPEED = 3100;
 		public static final double AMP_ANGLE = 0.812;
