@@ -56,36 +56,36 @@ public class RobotState extends SubsystemBase {
 
         switch (currentState) {
             case AMP:
-                shooter.changeState(ShooterState.AMP);
-                intake.changeState(IntakeState.IDLE);
+                shooter.setState(ShooterState.AMP);
+                intake.setState(IntakeState.IDLE);
                 break;
             case SUBWOOFER:
-                shooter.changeState(ShooterState.SUBWOOFER);
-                intake.changeState(IntakeState.IDLE);
+                shooter.setState(ShooterState.SUBWOOFER);
+                intake.setState(IntakeState.IDLE);
                 break;
             case REVVING:
-                shooter.changeState(ShooterState.REVVING);
-                intake.changeState(IntakeState.IDLE);
+                shooter.setState(ShooterState.REVVING);
+                intake.setState(IntakeState.IDLE);
                 break;
             case AUTO_AIM:
-                shooter.changeState(ShooterState.AUTO_AIM);
-                intake.changeState(IntakeState.IDLE);
+                shooter.setState(ShooterState.AUTO_AIM);
+                intake.setState(IntakeState.IDLE);
                 break;
             case PASSING:
-                shooter.changeState(ShooterState.PASSING);
-                intake.changeState(IntakeState.IDLE);
+                shooter.setState(ShooterState.PASSING);
+                intake.setState(IntakeState.IDLE);
                 break;
             case VOMITING:
-                shooter.changeState(ShooterState.VOMITING);
-                intake.changeState(IntakeState.VOMITING);
+                shooter.setState(ShooterState.VOMITING);
+                intake.setState(IntakeState.VOMITING);
                 break;
             case INTAKING:
-                shooter.changeState(ShooterState.IDLE);
-                intake.changeState(IntakeState.INTAKING);
+                shooter.setState(ShooterState.IDLE);
+                intake.setState(IntakeState.INTAKING);
                 break;
             case IDLE:
-                shooter.changeState(ShooterState.IDLE);
-                intake.changeState(IntakeState.IDLE);
+                shooter.setState(ShooterState.IDLE);
+                intake.setState(IntakeState.IDLE);
                 break;
             default:
                 break;

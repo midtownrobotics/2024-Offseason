@@ -40,7 +40,7 @@ public class Shooter extends SubsystemBase {
         this.rollerIO = rollerIO;
     }
 
-    public void changeState(ShooterState to) {
+    public void setState(ShooterState to) {
         currentState = to;
     }
 

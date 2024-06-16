@@ -14,7 +14,7 @@ public class Intake extends SubsystemBase{
 
     private IntakeState currentState = IntakeState.IDLE;
 
-    public void changeState(IntakeState to) {
+    public void setState(IntakeState to) {
         currentState = to;
     }
 

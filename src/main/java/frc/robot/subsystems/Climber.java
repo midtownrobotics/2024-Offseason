@@ -14,7 +14,7 @@ public class Climber extends SubsystemBase{
 
     private ClimberState currentState = ClimberState.IDLE;
 
-    public void changeState(ClimberState to) {
+    public void setState(ClimberState to) {
         currentState = to;
     }
 
