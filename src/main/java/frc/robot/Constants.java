@@ -14,5 +14,8 @@ public final class Constants {
         public static final double WINCH_I = .00005;
         public static final double WINCH_D = .00005;
         public static final double WINCH_FF = .00005; 
+
+        public static final double RIGHT_WINCH_SPEED = .5;
+        public static final double LEFT_WINCH_SPEED = .5;
     }
 }

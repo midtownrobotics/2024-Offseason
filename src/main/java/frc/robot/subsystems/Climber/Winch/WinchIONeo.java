@@ -2,6 +2,7 @@ package frc.robot.subsystems.Climber.Winch;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import frc.robot.Constants.ClimberConstants;
@@ -43,6 +44,7 @@ public class WinchIONeo implements WinchIO {
     }
 
     public void setSpeed(double leftSpeed, double rightSpeed){
-        
+       leftWinchPID.setReference(leftSpeed, ControlType.kVelocity);
+       rightWinchPID.setReference(rightSpeed, ControlType.kVelocity);
     }
 }
