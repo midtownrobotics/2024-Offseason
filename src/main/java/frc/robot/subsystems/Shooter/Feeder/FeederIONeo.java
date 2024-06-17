@@ -1,22 +1,20 @@
-package frc.robot.subsystems.Shooter.Roller;
+package frc.robot.subsystems.Shooter.Feeder;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 
-public class RollerIONeo implements RollerIO {
+public class FeederIONeo implements FeederIO {
 
     private CANSparkMax rollerTopNeo;
     private CANSparkMax rollerBottomNeo;
 
-    public RollerIONeo(int rollerTopID, int rollerBottomID) {
+    public FeederIONeo(int rollerTopID, int rollerBottomID) {
         rollerTopNeo = new CANSparkMax(rollerTopID, MotorType.kBrushless);
-        rollerTopNeo.restoreFactoryDefaults();
         rollerTopNeo.setIdleMode(IdleMode.kCoast);
         rollerTopNeo.burnFlash();
 
         rollerBottomNeo = new CANSparkMax(rollerBottomID, MotorType.kBrushless);
-        rollerBottomNeo.restoreFactoryDefaults();
         rollerBottomNeo.setIdleMode(IdleMode.kCoast);
         rollerBottomNeo.burnFlash();
     }
@@ -28,7 +26,7 @@ public class RollerIONeo implements RollerIO {
     }
 
     @Override
-    public void updateInputs(RollerIOInputs inputs) {
+    public void updateInputs(FeederIOInputs inputs) {
         
     }
 }
