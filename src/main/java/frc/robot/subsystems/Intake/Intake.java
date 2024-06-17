@@ -24,24 +24,20 @@ public class Intake extends SubsystemBase{
         this.rollerIO = rollerIO;
     }
 
-    public void changeState(IntakeState to) {
+    public void setState(IntakeState to) {
         currentSetState = to;
     }
 
     @Override
     public void periodic() {
 
-        IntakeState state = currentSetState;
+        Logger.recordOutput("Intake/State", currentSetState.toString());
 
-        if (beamBreakTripped == true) {
-            state = IntakeState.IDLE;
-        }
-
-        Logger.recordOutput("Intake/State", state.toString());
-
-        switch (state) {
+        switch (currentSetState) {
             case INTAKING:
-                rollerIO.setSpeed(1);
+                if (beamBreakTripped == false) {
+                    rollerIO.setSpeed(1);
+                }
                 break;
             case VOMITING:
                 rollerIO.setSpeed(-1);

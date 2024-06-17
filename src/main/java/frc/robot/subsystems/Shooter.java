@@ -18,7 +18,7 @@ public class Shooter extends SubsystemBase {
 
     private ShooterState currentState = ShooterState.IDLE;
 
-    public void changeState(ShooterState to) {
+    public void setState(ShooterState to) {
         currentState = to;
     }
 
