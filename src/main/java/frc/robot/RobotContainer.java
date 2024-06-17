@@ -14,17 +14,23 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Ports.IntakePorts;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.RobotState;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.Roller.RollerIO;
+import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 
 public class RobotContainer {
 
   private Climber climber = new Climber();
-  private Intake intake = new Intake();
+
+  private RollerIO rollerIO = new RollerIONeo(IntakePorts.runExternal, IntakePorts.runInternal);
+  private Intake intake = new Intake(rollerIO);
+
   private Shooter shooter = new Shooter();
   private RobotState robotState = new RobotState(shooter, climber, intake);
 
