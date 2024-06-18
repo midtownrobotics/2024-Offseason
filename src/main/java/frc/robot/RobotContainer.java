@@ -33,12 +33,7 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
 public class RobotContainer {
 
   private Climber climber;
-  
   private Intake intake;
-
-  private FlywheelIO flywheelIO;
-  private PivotIO pivotIO;
-  private FeederIO feederIO;
   private Shooter shooter;
 
   private RobotState robotState;
@@ -84,6 +79,10 @@ public class RobotContainer {
     climber = new Climber();
   
     intake = new Intake();
+
+    FlywheelIO flywheelIO;
+    PivotIO pivotIO;
+    FeederIO feederIO;
 
     if (Constants.currentMode == Constants.Mode.REAL) {
       flywheelIO = new FlywheelIONeo(ShooterPorts.leftFlywheel, ShooterPorts.rightFlywheel);
