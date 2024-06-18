@@ -10,6 +10,7 @@ public final class Constants {
     }
 
     public static final Mode currentMode = Mode.REAL;
+    public static final boolean tuningMode = true;
 
     public static final class ShooterConstants {
 		public static LoggedDashboardNumber SPEAKER_ANGLE = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ANGLE", 0.852);
