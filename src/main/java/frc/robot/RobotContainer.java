@@ -21,6 +21,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.RobotState;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIODIO;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 
@@ -29,7 +31,8 @@ public class RobotContainer {
   private Climber climber = new Climber();
 
   private RollerIO rollerIO = new RollerIONeo(IntakePorts.runExternal, IntakePorts.runInternal);
-  private Intake intake = new Intake(rollerIO);
+  private BeamBreakIODIO beamBreakIIO = new BeamBreakIODIO(IntakePorts.beamBreak);
+  private Intake intake = new Intake(rollerIO, beamBreakIIO);
 
   private Shooter shooter = new Shooter();
   private RobotState robotState = new RobotState(shooter, climber, intake);

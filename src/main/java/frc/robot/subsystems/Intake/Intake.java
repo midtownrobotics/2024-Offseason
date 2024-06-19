@@ -3,11 +3,13 @@ package frc.robot.subsystems.Intake;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 
 public class Intake extends SubsystemBase{
 
     private RollerIO rollerIO;
+    private BeamBreakIO beamBreakIIO;
 
     public enum IntakeState {
         INTAKING,
@@ -16,12 +18,11 @@ public class Intake extends SubsystemBase{
         IDLE
     }
 
-    private boolean beamBreakTripped = false; // TODO: Actually add beam break code
-
     private IntakeState currentSetState = IntakeState.IDLE;
 
-    public Intake(RollerIO rollerIO) {
+    public Intake(RollerIO rollerIO, BeamBreakIO beamBreakIIO) {
         this.rollerIO = rollerIO;
+        this.beamBreakIIO = beamBreakIIO;
     }
 
     public void setState(IntakeState to) {
@@ -35,15 +36,17 @@ public class Intake extends SubsystemBase{
 
         switch (currentSetState) {
             case INTAKING:
-                if (beamBreakTripped == false) {
+                if (beamBreakIIO.getIsBroken() == false) {
                     rollerIO.setSpeed(1);
+                } else {
+                    rollerIO.setSpeed(0);
                 }
                 break;
             case VOMITING:
                 rollerIO.setSpeed(-1);
                 break;
             case TUNING:
-                
+                // TODO
                 break;
             case IDLE:
                 rollerIO.setSpeed(0);
