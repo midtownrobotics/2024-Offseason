@@ -20,10 +20,13 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.RobotState;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Climber.Climber;
+import frc.robot.subsystems.Climber.Winch.WinchIO;
+import frc.robot.subsystems.Climber.Winch.WinchIONeo;
 
 public class RobotContainer {
 
-  private Climber climber = new Climber();
+  private WinchIO winchIO = new WinchIONeo(50, 51);
+  private Climber climber = new Climber(winchIO);
   private Intake intake = new Intake();
   private Shooter shooter = new Shooter();
   private RobotState robotState = new RobotState(shooter, climber, intake);

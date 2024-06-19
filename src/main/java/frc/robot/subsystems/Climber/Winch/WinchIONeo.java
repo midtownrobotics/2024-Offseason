@@ -44,7 +44,7 @@ public class WinchIONeo implements WinchIO {
     }
 
     public void setSpeed(double leftSpeed, double rightSpeed){
-       leftWinchPID.setReference(leftSpeed, ControlType.kVelocity);
-       rightWinchPID.setReference(rightSpeed, ControlType.kVelocity);
+       rightWinchNeo.set(rightSpeed);
+       leftWinchNeo.set(leftSpeed);
     }
 }
