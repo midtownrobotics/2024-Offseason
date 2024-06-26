@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase{
     public void setState(IntakeState to) {
         currentSetState = to;
     }
-
+ 
     @Override
     public void periodic() {
 
@@ -36,7 +36,7 @@ public class Intake extends SubsystemBase{
 
         switch (currentSetState) {
             case INTAKING:
-                if (beamBreakIIO.getIsBroken() == false) {
+                if (!beamBreakIIO.getIsBroken()) {
                     rollerIO.setSpeed(1);
                 } else {
                     rollerIO.setSpeed(0);
