@@ -9,4 +9,10 @@ public final class Ports {
         public static final int rollerTop = 30;     //CAN
         public static final int rollerBottom = 31;  //CAN
     }
+
+    public static final class IntakePorts {
+        public static final int runInternal = 40;
+        public static final int runExternal = 41;
+        public static final int beamBreak = 6;
+    }
 }

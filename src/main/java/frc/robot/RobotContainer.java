@@ -15,10 +15,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.ShooterPorts;
+import frc.robot.Ports.IntakePorts;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
@@ -29,12 +29,19 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIODIO;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIOSim;
+import frc.robot.subsystems.Intake.Roller.RollerIO;
+import frc.robot.subsystems.Intake.Roller.RollerIONeo;
+import frc.robot.subsystems.Intake.Roller.RollerIOSim;
 
 public class RobotContainer {
 
-  private Climber climber;
-  private Intake intake;
+  private Climber climber = new Climber();
   private Shooter shooter;
+  private Intake intake;
 
   private RobotState robotState;
 
@@ -77,8 +84,6 @@ public class RobotContainer {
 
   public void initializeSubsystems() {
     climber = new Climber();
-  
-    intake = new Intake();
 
     FlywheelIO flywheelIO;
     PivotIO pivotIO;
@@ -95,6 +100,19 @@ public class RobotContainer {
     }
 
     shooter = new Shooter(flywheelIO, pivotIO, feederIO);
+
+    BeamBreakIO beamBreakIO;
+    RollerIO rollerIO;
+
+    if (Constants.currentMode == Constants.Mode.REAL) {
+      beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
+      rollerIO = new RollerIONeo(IntakePorts.runExternal, IntakePorts.runInternal);
+    } else {
+      beamBreakIO = new BeamBreakIOSim();
+      rollerIO = new RollerIOSim();
+    }
+
+    intake = new Intake(rollerIO, beamBreakIO);
 
     robotState = new RobotState(shooter, climber, intake);
   }
