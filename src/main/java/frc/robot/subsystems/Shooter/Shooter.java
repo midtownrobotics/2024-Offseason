@@ -6,9 +6,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
+import frc.robot.subsystems.Shooter.Feeder.FeederIOInputsAutoLogged;
 import frc.robot.subsystems.Shooter.Flywheel.FlywheelIO;
 import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOInputsAutoLogged;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
+import frc.robot.subsystems.Shooter.Pivot.PivotIOInputsAutoLogged;
 
 public class Shooter extends SubsystemBase {
 
@@ -17,6 +19,8 @@ public class Shooter extends SubsystemBase {
     private FeederIO feederIO;
 
     private FlywheelIOInputsAutoLogged flywheelIOInputs = new FlywheelIOInputsAutoLogged();
+    private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
+    private FeederIOInputsAutoLogged feederIOInputs = new FeederIOInputsAutoLogged();
 
     // For tuning the shooter. Only takes effect if in TUNING state.
     private LoggedDashboardNumber flywheelLeftSpeed = new LoggedDashboardNumber("Shooter/Tuning/FlywheelLeftSpeed");
@@ -52,6 +56,12 @@ public class Shooter extends SubsystemBase {
 
         flywheelIO.updateInputs(flywheelIOInputs);
         Logger.processInputs("Shooter/Flywheel", flywheelIOInputs);
+
+        pivotIO.updateInputs(pivotIOInputs);
+        Logger.processInputs("Shooter/Pivot", pivotIOInputs);
+
+        feederIO.updateInputs(feederIOInputs);
+        Logger.processInputs("Shooter/Feeder", feederIOInputs);
 
         Logger.recordOutput("Shooter/State", currentState.toString());
 

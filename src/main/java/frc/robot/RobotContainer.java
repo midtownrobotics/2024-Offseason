@@ -83,7 +83,12 @@ public class RobotContainer {
   }
 
   public void initializeSubsystems() {
+    
+    // Climber
+
     climber = new Climber();
+
+    // Shooter
 
     FlywheelIO flywheelIO;
     PivotIO pivotIO;
@@ -101,6 +106,8 @@ public class RobotContainer {
 
     shooter = new Shooter(flywheelIO, pivotIO, feederIO);
 
+    // Intake
+
     BeamBreakIO beamBreakIO;
     RollerIO rollerIO;
 
@@ -113,6 +120,8 @@ public class RobotContainer {
     }
 
     intake = new Intake(rollerIO, beamBreakIO);
+
+    // Robot State
 
     robotState = new RobotState(shooter, climber, intake);
   }

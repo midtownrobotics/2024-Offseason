@@ -5,4 +5,9 @@ public class BeamBreakIOSim implements BeamBreakIO {
     public boolean getIsBroken() {
         return false;
     }
+
+    @Override
+    public void updateInputs(BeamBreakIOInputs inputs) {
+
+    }
 }
