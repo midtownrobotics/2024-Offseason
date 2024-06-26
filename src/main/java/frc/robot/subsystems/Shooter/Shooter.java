@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Flywheel.FlywheelIO;
+import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOInputsAutoLogged;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 
 public class Shooter extends SubsystemBase {
@@ -14,6 +15,8 @@ public class Shooter extends SubsystemBase {
     private FlywheelIO flywheelIO;
     private PivotIO pivotIO;
     private FeederIO feederIO;
+
+    private FlywheelIOInputsAutoLogged flywheelIOInputs = new FlywheelIOInputsAutoLogged();
 
     // For tuning the shooter. Only takes effect if in TUNING state.
     private LoggedDashboardNumber flywheelLeftSpeed = new LoggedDashboardNumber("Shooter/Tuning/FlywheelLeftSpeed");
@@ -46,6 +49,10 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
+
+        flywheelIO.updateInputs(flywheelIOInputs);
+        Logger.processInputs("Shooter/Flywheel", flywheelIOInputs);
+
         Logger.recordOutput("Shooter/State", currentState.toString());
 
         switch (currentState) {

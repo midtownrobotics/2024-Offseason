@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.utils.TempuratureConverter;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -29,7 +30,11 @@ public class PivotIONeo implements PivotIO {
 
     @Override
     public void updateInputs(PivotIOInputs inputs) {
-        
+        inputs.pivotOutputVoltage = pivotNeo.getBusVoltage() * pivotNeo.getAppliedOutput();
+        inputs.pivotIsOn = Math.abs(pivotNeo.getAppliedOutput()) > 0.01;
+        inputs.pivotVelocityRPM = pivotNeo.getEncoder().getVelocity();
+        inputs.pivotTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
+        inputs.pivotCurrentAmps = pivotNeo.getOutputCurrent();
     }
 
     @Override
@@ -48,7 +53,7 @@ public class PivotIONeo implements PivotIO {
 
         pidAmount*= 12; // multiply by 12 because the battery is 12 volts
         
-        Logger.recordOutput("Shooter/PowerAppliedToPivot", pidAmount);
+        Logger.recordOutput("Shooter/DesiredVoltage", pidAmount);
 
         pivotNeo.setVoltage(pidAmount);
     }

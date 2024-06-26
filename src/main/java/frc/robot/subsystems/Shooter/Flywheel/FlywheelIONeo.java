@@ -1,15 +1,15 @@
 package frc.robot.subsystems.Shooter.Flywheel;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController;
-
 import org.littletonrobotics.junction.Logger;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkPIDController;
 
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.utils.TempuratureConverter;
 
 public class FlywheelIONeo implements FlywheelIO {
     private CANSparkMax leftWheelNeo;
@@ -44,7 +44,16 @@ public class FlywheelIONeo implements FlywheelIO {
 
     @Override
     public void updateInputs(FlywheelIOInputs inputs) {
-        
+        inputs.leftOutputVoltage = leftWheelNeo.getBusVoltage() * leftWheelNeo.getAppliedOutput();
+        inputs.rightOutputVoltage = rightWheelNeo.getBusVoltage() * rightWheelNeo.getAppliedOutput();
+        inputs.leftIsOn = Math.abs(leftWheelNeo.getAppliedOutput()) > 0.01;
+        inputs.rightIsOn = Math.abs(rightWheelNeo.getAppliedOutput()) > 0.01;
+        inputs.leftVelocityRPM = leftWheelNeo.getEncoder().getVelocity();
+        inputs.rightVelocityRPM = rightWheelNeo.getEncoder().getVelocity();
+        inputs.leftTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(leftWheelNeo.getMotorTemperature());
+        inputs.rightTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(rightWheelNeo.getMotorTemperature());
+        inputs.leftCurrentAmps = leftWheelNeo.getOutputCurrent();
+        inputs.rightCurrentAmps = rightWheelNeo.getOutputCurrent();
     }
 
     @Override
