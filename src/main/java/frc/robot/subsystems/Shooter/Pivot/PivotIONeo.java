@@ -53,7 +53,7 @@ public class PivotIONeo implements PivotIO {
 
         pidAmount*= 12; // multiply by 12 because the battery is 12 volts
         
-        Logger.recordOutput("Shooter/PowerAppliedpivotivot", pidAmount);
+        Logger.recordOutput("Shooter/DesiredVoltage", pidAmount);
 
         pivotNeo.setVoltage(pidAmount);
     }
