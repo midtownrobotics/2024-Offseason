@@ -20,7 +20,8 @@ public class Intake extends SubsystemBase{
         INTAKING,
         VOMITING,
         TUNING,
-        IDLE
+        IDLE,
+        SHOOTING
     }
 
     private IntakeState currentSetState = IntakeState.IDLE;
@@ -52,6 +53,9 @@ public class Intake extends SubsystemBase{
                 } else {
                     rollerIO.setSpeed(0);
                 }
+                break;
+            case SHOOTING:
+                rollerIO.setSpeed(1);
                 break;
             case VOMITING:
                 rollerIO.setSpeed(-1);

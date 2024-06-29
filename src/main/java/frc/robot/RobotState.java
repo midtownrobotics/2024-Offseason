@@ -59,11 +59,11 @@ public class RobotState extends SubsystemBase {
         switch (currentState) {
             case AMP:
                 shooter.setState(ShooterState.AMP);
-                intake.setState(IntakeState.IDLE);
+                intake.setState(IntakeState.SHOOTING);
                 break;
             case SUBWOOFER:
                 shooter.setState(ShooterState.SUBWOOFER);
-                intake.setState(IntakeState.IDLE);
+                intake.setState(IntakeState.SHOOTING);
                 break;
             case REVVING:
                 shooter.setState(ShooterState.REVVING);
