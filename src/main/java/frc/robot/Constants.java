@@ -22,12 +22,14 @@ public final class Constants {
     public static final boolean tuningMode = true;
 
     public static final class ShooterConstants {
-		public static LoggedDashboardNumber SPEAKER_ANGLE = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ANGLE", 0.852);
-		public static LoggedDashboardNumber SPEAKER_SPEED = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_SPEED",3100);
-        public static LoggedDashboardNumber SPEAKER_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ROLLER_VOLTAGE",12);
+		public static LoggedDashboardNumber INTAKING_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/INTAKING_ROLLER_VOLTAGE", 1.2);
 
-		public static LoggedDashboardNumber AMP_ANGLE = new LoggedDashboardNumber("Shooter/Constants/AMP_ANGLE",0.812);
-		public static LoggedDashboardNumber AMP_SPEED = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED",430);
+		public static LoggedDashboardNumber SPEAKER_ANGLE = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ANGLE", 0.852);
+		public static LoggedDashboardNumber SPEAKER_SPEED = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_SPEED", 3100);
+        public static LoggedDashboardNumber SPEAKER_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ROLLER_VOLTAGE", 12);
+
+		public static LoggedDashboardNumber AMP_ANGLE = new LoggedDashboardNumber("Shooter/Constants/AMP_ANGLE", 0.812);
+		public static LoggedDashboardNumber AMP_SPEED = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED", 430);
         public static LoggedDashboardNumber AMP_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/AMP_ROLLER_VOLTAGE", AMP_SPEED.get()/700*12);
 
 		public static LoggedDashboardNumber FLYWHEEL_SPEED_P = new LoggedDashboardNumber("Shooter/Constants/FLYWHEEL_SPEED_P",0.0005);

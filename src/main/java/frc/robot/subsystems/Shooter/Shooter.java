@@ -36,6 +36,7 @@ public class Shooter extends SubsystemBase {
         PASSING,
         VOMITING,
         TUNING,
+        INTAKING,
         IDLE
     }
 
@@ -80,6 +81,9 @@ public class Shooter extends SubsystemBase {
                 flywheelIO.setSpeed(ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
                 feederIO.setVoltage(0);
                 pivotIO.setAngle(ShooterConstants.SPEAKER_ANGLE.get());
+                break;
+            case INTAKING:
+                feederIO.setVoltage(ShooterConstants.INTAKING_ROLLER_VOLTAGE.get());
                 break;
             case AUTO_AIM:
                 // todo
