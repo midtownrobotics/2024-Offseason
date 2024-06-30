@@ -27,7 +27,7 @@ public class Shooter extends SubsystemBase {
     private LoggedDashboardNumber flywheelRightSpeed = new LoggedDashboardNumber("Shooter/Tuning/FlywheelRightSpeed");
     private LoggedDashboardNumber pivotAngle = new LoggedDashboardNumber("Shooter/Tuning/PivotAngle");
     private LoggedDashboardNumber rollerVoltage = new LoggedDashboardNumber("Shooter/Tuning/RollerVoltage");
-
+    
     public enum ShooterState {
         AMP,
         SUBWOOFER,
