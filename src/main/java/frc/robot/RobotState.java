@@ -82,7 +82,7 @@ public class RobotState extends SubsystemBase {
                 intake.setState(IntakeState.VOMITING);
                 break;
             case INTAKING:
-                shooter.setState(ShooterState.IDLE);
+                shooter.setState(ShooterState.INTAKING);
                 intake.setState(IntakeState.INTAKING);
                 break;
             case IDLE:
