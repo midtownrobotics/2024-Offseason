@@ -18,7 +18,6 @@ import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIOSim;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
-import frc.robot.subsystems.NeoSwerveDrive.SwerveDrivetrain;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
@@ -29,6 +28,8 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.drivetrain.DrivetrainInterface;
+import frc.robot.subsystems.drivetrain.NeoSwerveDrive.SwerveDrivetrain;
 
 public class RobotContainer {
 
@@ -36,12 +37,9 @@ public class RobotContainer {
   private Shooter shooter;
   private Intake intake;
 
-  private final SwerveDrivetrain drivetrain = new SwerveDrivetrain();
+  private final DrivetrainInterface drivetrain = new SwerveDrivetrain();
 
   private RobotState robotState;
-
-  // private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
-  // private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0); // My joystick
@@ -56,7 +54,7 @@ public class RobotContainer {
 
   // private final Telemetry logger = new Telemetry(MaxSpeed);
 
-  private static double deadzone(double a, double b, double c, double zone) {
+  public static double deadzone(double a, double b, double c, double zone) {
 		if (Math.sqrt(Math.pow(a, 2)+Math.pow(b, 2)+Math.pow(c, 2)) > zone) {
 			return a * Math.abs(a);
 		} else {
@@ -65,12 +63,8 @@ public class RobotContainer {
 	}
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand(new RunCommand(
-			() -> drivetrain.drive(
-				RobotContainer.deadzone(driver.getLeftY(), driver.getLeftX(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
-				RobotContainer.deadzone(driver.getLeftX(), driver.getLeftY(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
-				RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
-		 	false), drivetrain));
+
+    drivetrain.configureDefaultCommand(driver);
 
     // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
     //     drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
