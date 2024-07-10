@@ -155,7 +155,7 @@ public class RobotContainer {
       rollerIO = new RollerIOSim();
     }
 
-    intake = new Intake(rollerIO, beamBreakIO);
+    intake = new Intake(rollerIO, beamBreakIO, robotState);
 
     // Robot State
 

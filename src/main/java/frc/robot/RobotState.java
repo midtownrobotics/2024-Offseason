@@ -23,6 +23,7 @@ public class RobotState extends SubsystemBase {
         PASSING,
         VOMITING,
         INTAKING,
+        NOTE_HELD,
         IDLE
     }
 
@@ -43,7 +44,7 @@ public class RobotState extends SubsystemBase {
         this.intake = intake;
     }
 
-    private State currentState = State.IDLE;
+    public State currentState = State.IDLE;
 
     @Override
     public void periodic() {
@@ -84,6 +85,10 @@ public class RobotState extends SubsystemBase {
             case INTAKING:
                 shooter.setState(ShooterState.INTAKING);
                 intake.setState(IntakeState.INTAKING);
+                break;
+            case NOTE_HELD:
+                shooter.setState(ShooterState.IDLE);
+                intake.setState(IntakeState.IDLE);
                 break;
             case IDLE:
                 shooter.setState(ShooterState.IDLE);
