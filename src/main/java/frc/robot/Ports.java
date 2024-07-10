@@ -15,4 +15,9 @@ public final class Ports {
         public static final int runExternal = 41;
         public static final int beamBreak = 6;
     }
+    
+    public static final class ClimberPorts {
+        public static final int leftClimberID = 50;
+        public static final int rightClimberID = 51;
+    }
 }

@@ -11,6 +11,11 @@ public final class Constants {
 
     public static final Mode currentMode = Mode.REAL;
     public static final boolean tuningMode = true;
+    public static final LoggedDashboardNumber deadzone = new LoggedDashboardNumber("CONTROLLER_DEADZONE", 0.1);
+    
+    public static final double deadzone(double input) {
+        return Math.abs(input) > deadzone.get() ? input : 0;
+    }
 
     public static final class ShooterConstants {
 		public static LoggedDashboardNumber SPEAKER_ANGLE = new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ANGLE", 0.852);
@@ -32,4 +37,5 @@ public final class Constants {
         public static LoggedDashboardNumber MIN_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE",0.81);
         public static LoggedDashboardNumber MAX_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE",0.99);
     }
+
 }
