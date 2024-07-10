@@ -14,7 +14,6 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
 import frc.robot.Ports.ShooterPorts;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIODIO;
@@ -59,16 +58,16 @@ public class RobotContainer {
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(0);
   private final CommandXboxController operator = new CommandXboxController(1); // My joystick
-  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain // My joystick
+  // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain // My joystick
   // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
   //     .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
   //     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
                                                                // driving in open loop
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-  private final Telemetry logger = new Telemetry(MaxSpeed);
+  // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  // private final Telemetry logger = new Telemetry(MaxSpeed);
   // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
