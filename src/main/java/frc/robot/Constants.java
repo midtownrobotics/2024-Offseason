@@ -26,6 +26,10 @@ public final class Constants {
         return Math.abs(input) > deadzone.get() ? input : 0;
     }
 
+    public static final class IntakeConstants {
+        public static LoggedDashboardNumber BEAMBREAK_DELAY = new LoggedDashboardNumber("Intake/Constants/BEAMBREAK_DELAY", 1);
+    }
+
     public static final class ShooterConstants {
 		public static LoggedDashboardNumber INTAKING_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/INTAKING_ROLLER_VOLTAGE", 1.2);
 
