@@ -20,6 +20,11 @@ public final class Constants {
 
     public static final Mode currentMode = Mode.REAL;
     public static final boolean tuningMode = true;
+    public static final LoggedDashboardNumber deadzone = new LoggedDashboardNumber("CONTROLLER_DEADZONE", 0.1);
+    
+    public static final double deadzone(double input) {
+        return Math.abs(input) > deadzone.get() ? input : 0;
+    }
 
     public static final class ShooterConstants {
 		public static LoggedDashboardNumber INTAKING_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/INTAKING_ROLLER_VOLTAGE", 1.2);
@@ -43,6 +48,7 @@ public final class Constants {
         public static LoggedDashboardNumber MIN_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE",0.81);
         public static LoggedDashboardNumber MAX_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE",0.99);
     }
+
 
     public static final class NeoDrivetrainConstants {
 		// Driving Parameters - Note that these are not the maximum capable speeds of
@@ -120,4 +126,5 @@ public final class Constants {
 		public static final int DRIVING_MOTOR_CURRENT_LIMIT_AMPS = 40; //50; // amps
 		public static final int TURNING_MOTOR_CURRENT_LIMIT_AMPS = 20; // amps
 	}
+
 }

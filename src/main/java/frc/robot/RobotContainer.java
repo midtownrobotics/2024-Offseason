@@ -9,6 +9,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Climber.Climber;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
 import frc.robot.Ports.ShooterPorts;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake.Intake;
@@ -29,10 +33,19 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIODIO;
+import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIOSim;
+import frc.robot.subsystems.Intake.Roller.RollerIO;
+import frc.robot.subsystems.Intake.Roller.RollerIONeo;
+import frc.robot.subsystems.Intake.Roller.RollerIOSim;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
+
 
 public class RobotContainer {
 
-  private Climber climber = new Climber();
+  private Climber climber;
   private Shooter shooter;
   private Intake intake;
 
@@ -44,13 +57,18 @@ public class RobotContainer {
   // private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
-  private final CommandXboxController driver = new CommandXboxController(0); // My joystick
+  private final CommandXboxController driver = new CommandXboxController(0);
+  private final CommandXboxController operator = new CommandXboxController(1); // My joystick
+  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain // My joystick
   // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
   //     .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
   //     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
                                                                // driving in open loop
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  private final Telemetry logger = new Telemetry(MaxSpeed);
   // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -96,8 +114,16 @@ public class RobotContainer {
   public void initializeSubsystems() {
     
     // Climber
+    ClimberIO climberIO;
 
-    climber = new Climber();
+    if (Constants.currentMode == Constants.Mode.REAL){
+      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+    }else {
+      // TODO: make the actual sim stuff for the climber and put it here
+      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+    }
+
+    climber = new Climber(operator, climberIO);
 
     // Shooter
 
