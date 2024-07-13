@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
@@ -34,10 +32,6 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
-import frc.robot.subsystems.Intake.Intake;
-import frc.robot.subsystems.Intake.Roller.RollerIO;
-import frc.robot.subsystems.Intake.Roller.RollerIONeo;
-import frc.robot.subsystems.Intake.Roller.RollerIOSim;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
 
@@ -114,22 +108,6 @@ public class RobotContainer {
 
   public void initializeSubsystems() {
 
-    // Robot State
-
-    robotState = new RobotState(shooter, climber, intake);
-    
-    // Climber
-
-    ClimberIO climberIO;
-
-    if (Constants.currentMode == Constants.Mode.REAL){
-      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
-    }else {
-      climberIO = new ClimberIOSim();
-    }
-
-    climber = new Climber(operator, climberIO);
-
     // Shooter
 
     FlywheelIO flywheelIO;
@@ -159,6 +137,22 @@ public class RobotContainer {
     }
 
     intake = new Intake(rollerIO);
+
+    // Robot State
+
+    robotState = new RobotState(shooter, intake);
+
+    // Climber
+
+    ClimberIO climberIO;
+
+    if (Constants.currentMode == Constants.Mode.REAL){
+      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+    }else {
+      climberIO = new ClimberIOSim();
+    }
+
+    climber = new Climber(operator, climberIO);
 
     // BeamBreak
 

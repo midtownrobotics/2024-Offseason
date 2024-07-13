@@ -12,7 +12,6 @@ import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 
 public class RobotState extends SubsystemBase {
     private Shooter shooter;
-    private Climber climber;
     private Intake intake;
 
     public enum State {
@@ -29,7 +28,7 @@ public class RobotState extends SubsystemBase {
 
     private final LoggedDashboardChooser<State> stateChooser = new LoggedDashboardChooser<>("Robot State");
 
-    public RobotState(Shooter shooter, Climber climber, Intake intake) {
+    public RobotState(Shooter shooter, Intake intake) {
         stateChooser.addOption("AMP", State.AMP);
         stateChooser.addOption("SUBWOOFER", State.SUBWOOFER);
         stateChooser.addOption("REVVING", State.REVVING);
@@ -40,7 +39,6 @@ public class RobotState extends SubsystemBase {
         stateChooser.addOption("IDLE", State.IDLE);
 
         this.shooter = shooter;
-        this.climber = climber;
         this.intake = intake;
     }
 
