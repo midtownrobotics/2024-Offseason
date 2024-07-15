@@ -47,12 +47,12 @@ public class RobotState extends SubsystemBase {
     @Override
     public void periodic() {
 
-        if (stateChooser.get() != null) {
-            currentState = stateChooser.get();
-        } else {
-            currentState = State.IDLE;
-        };
-
+        // if (stateChooser.get() != null) {
+        //     currentState = stateChooser.get();
+        // } else {
+        //     currentState = State.IDLE;
+        // };
+        
         Logger.recordOutput("Robot/State", currentState.toString());
 
         switch (currentState) {
