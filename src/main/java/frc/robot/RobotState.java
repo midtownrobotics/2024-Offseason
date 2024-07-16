@@ -17,8 +17,9 @@ public class RobotState extends SubsystemBase {
 
     public enum State {
         AMP,
+        AMP_REVVING,
         SUBWOOFER,
-        REVVING,
+        SUBWOOFER_REVVING,
         AUTO_AIM,
         PASSING,
         VOMITING,
@@ -27,17 +28,19 @@ public class RobotState extends SubsystemBase {
         IDLE
     }
 
-    private final LoggedDashboardChooser<State> stateChooser = new LoggedDashboardChooser<>("Robot State");
+    // private final LoggedDashboardChooser<State> stateChooser = new LoggedDashboardChooser<>("Robot State");
+
 
     public RobotState(Shooter shooter, Climber climber, Intake intake) {
-        stateChooser.addOption("AMP", State.AMP);
-        stateChooser.addOption("SUBWOOFER", State.SUBWOOFER);
-        stateChooser.addOption("REVVING", State.REVVING);
-        stateChooser.addOption("AUTO_AIM", State.AUTO_AIM);
-        stateChooser.addOption("PASSING", State.PASSING);
-        stateChooser.addOption("VOMITING", State.VOMITING);
-        stateChooser.addOption("INTAKING", State.INTAKING);
-        stateChooser.addOption("IDLE", State.IDLE);
+        // stateChooser.addOption("AMP", State.AMP);
+        // stateChooser.addOption("AMP_REVVING", State.AMP_REVVING);
+        // stateChooser.addOption("SUBWOOFER", State.SUBWOOFER);
+        // stateChooser.addOption("SUBWOOFER_REVVING", State.SUBWOOFER_REVVING);
+        // stateChooser.addOption("AUTO_AIM", State.AUTO_AIM);
+        // stateChooser.addOption("PASSING", State.PASSING);
+        // stateChooser.addOption("VOMITING", State.VOMITING);
+        // stateChooser.addOption("INTAKING", State.INTAKING);
+        // stateChooser.addOption("IDLE", State.IDLE);
 
         this.shooter = shooter;
         this.climber = climber;
@@ -46,14 +49,12 @@ public class RobotState extends SubsystemBase {
 
     public State currentState = State.IDLE;
 
+    public void setState(State state) {
+        currentState = state;
+    }
+
     @Override
     public void periodic() {
-
-        if (stateChooser.get() != null) {
-            currentState = stateChooser.get();
-        } else {
-            currentState = State.IDLE;
-        };
 
         Logger.recordOutput("Robot/State", currentState.toString());
 
@@ -62,12 +63,16 @@ public class RobotState extends SubsystemBase {
                 shooter.setState(ShooterState.AMP);
                 intake.setState(IntakeState.SHOOTING);
                 break;
+            case AMP_REVVING:
+                shooter.setState(ShooterState.AMP_REVVING);
+                intake.setState(IntakeState.IDLE);
+                break;
             case SUBWOOFER:
                 shooter.setState(ShooterState.SUBWOOFER);
                 intake.setState(IntakeState.SHOOTING);
                 break;
-            case REVVING:
-                shooter.setState(ShooterState.REVVING);
+            case SUBWOOFER_REVVING:
+                shooter.setState(ShooterState.SUBWOOFER_REVVING);
                 intake.setState(IntakeState.IDLE);
                 break;
             case AUTO_AIM:
