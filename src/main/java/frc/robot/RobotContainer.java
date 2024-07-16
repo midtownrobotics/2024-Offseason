@@ -8,13 +8,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.Ports.ShooterPorts;
+import frc.robot.RobotState.State;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
-import frc.robot.Ports.ShooterPorts;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIODIO;
@@ -33,14 +34,6 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
-import frc.robot.subsystems.Intake.Intake;
-import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
-import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIODIO;
-import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIOSim;
-import frc.robot.subsystems.Intake.Roller.RollerIO;
-import frc.robot.subsystems.Intake.Roller.RollerIONeo;
-import frc.robot.subsystems.Intake.Roller.RollerIOSim;
-import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
 
 
 public class RobotContainer {
@@ -89,8 +82,36 @@ public class RobotContainer {
 				RobotContainer.deadzone(driver.getLeftX(), driver.getLeftY(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
 				RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
 		 	false), drivetrain));
-    
+
     driver.a().onTrue(new InstantCommand(drivetrain::zeroHeading, drivetrain));
+    driver.x().onTrue(new InstantCommand(drivetrain::setX, drivetrain));
+
+		operator.rightBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.INTAKING), () -> {
+      if (robotState.currentState != State.NOTE_HELD) {
+        robotState.setState(State.IDLE);
+      }
+    }, intake));
+
+		operator.leftBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
+		operator.leftTrigger().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
+
+		operator.rightTrigger().whileTrue(new StartEndCommand(() -> {
+      switch (robotState.currentState) {
+        case SUBWOOFER_REVVING:
+          robotState.setState(State.SUBWOOFER);
+          break;
+        case AMP_REVVING:
+          robotState.setState(State.AMP);
+          break;
+        default:
+          break;
+      }
+    }, () -> robotState.setState(State.IDLE), shooter, intake));
+
+		operator.a().whileTrue(new RunCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
+		operator.x().whileTrue(new RunCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+		operator.b().whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
+
     // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
     //     drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
     //                                                                                        // negative Y (forward)
