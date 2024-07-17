@@ -35,6 +35,15 @@ public class PivotIONeo implements PivotIO {
         inputs.pivotVelocityRPM = pivotNeo.getEncoder().getVelocity();
         inputs.pivotTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
         inputs.pivotCurrentAmps = pivotNeo.getOutputCurrent();
+        inputs.encoderReading = pivotEncoder.getAbsolutePosition();
+
+        double editedEncoderReading = pivotEncoder.getAbsolutePosition();
+
+        if (editedEncoderReading < 0.5) {
+            editedEncoderReading++;
+        }
+
+        inputs.editedEncoderReading = editedEncoderReading;
     }
 
     @Override
