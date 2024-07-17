@@ -40,22 +40,24 @@ public class BeamBreak extends SubsystemBase{
     @Override
     public void periodic() {
 
-        if (!beamBreakIO.getIsBroken() && robotState.currentState != State.NOTE_HELD) {
-            beamBreakBrokenTime = 0;
-        } else {
+        if (beamBreakIO.getIsBroken() && robotState.currentState == State.NOTE_HELD) {
             driver.setRumble(RumbleType.kBothRumble, 1);
             operator.setRumble(RumbleType.kBothRumble, 1);
-            if (beamBreakBrokenTime >= IntakeConstants.BEAMBREAK_DELAY.get()) {
+            if (beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get()) {
                 robotState.currentState = State.NOTE_HELD;
             }
-            if (beamBreakBrokenTime >= IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {
+            if (beamBreakBrokenTime == IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {
                 driver.setRumble(RumbleType.kBothRumble, 0);
                 operator.setRumble(RumbleType.kBothRumble, 0);
             }
             beamBreakBrokenTime++;
+        } else {
+            beamBreakBrokenTime = 0;
         }
+
         Logger.recordOutput("BeamBreak/State", currentState.toString());
         Logger.recordOutput("BeamBreak/Counter", beamBreakBrokenTime);
+
         beamBreakIO.updateInputs(beamBreakIOInputs);
         Logger.processInputs("BeamBreak/Inputs", beamBreakIOInputs);
     }
