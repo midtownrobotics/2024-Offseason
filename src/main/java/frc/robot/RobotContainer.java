@@ -170,7 +170,7 @@ public class RobotContainer {
 
     // Robot State
 
-    robotState = new RobotState(shooter, intake);
+    robotState = new RobotState(shooter, climber, intake);
 
     // Climber
 
