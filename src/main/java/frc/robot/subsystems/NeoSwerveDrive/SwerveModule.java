@@ -134,11 +134,15 @@ public class SwerveModule {
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVelocityRPM", m_turningSparkMax.getEncoder().getVelocity());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningIsOn", Math.abs(m_turningSparkMax.getAppliedOutput()) > 0.01);
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVoltage", m_turningSparkMax.getAppliedOutput() * m_turningSparkMax.getBusVoltage());
+		
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingCurrentAmps", m_drivingSparkMax.getOutputCurrent());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingTempFahrenheit", m_drivingSparkMax.getMotorTemperature());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVelocityRPM", m_drivingSparkMax.getEncoder().getVelocity());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingIsOn", Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01);
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVoltage", m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage());
+
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/state", getState());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/desiredState", getDesiredState());
 	}
 
 	/**
