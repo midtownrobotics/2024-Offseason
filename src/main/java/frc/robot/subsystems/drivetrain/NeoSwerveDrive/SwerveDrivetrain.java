@@ -158,6 +158,10 @@ public class SwerveDrivetrain extends SubsystemBase implements DrivetrainInterfa
 		turnPidController.setTolerance(DEGREE_THRESHOLD); // n degree error tolerated
 	}
 
+	public void resetHeading() {
+		zeroHeading();
+	}
+
 	@Override
 	public void configureDefaultCommand(CommandXboxController driverController) {
 		setDefaultCommand(new RunCommand(
