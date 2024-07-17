@@ -111,8 +111,8 @@ public class RobotContainer {
       }
     }, () -> robotState.setState(State.IDLE), shooter, intake));
 
-		operator.a().whileTrue(new RunCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
-		operator.x().whileTrue(new RunCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+		operator.a().whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
+		operator.x().whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
 		operator.b().whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
 
     // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
