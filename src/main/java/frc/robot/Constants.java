@@ -29,6 +29,9 @@ public final class Constants {
     public static final class IntakeConstants {
         public static LoggedDashboardNumber BEAMBREAK_DELAY = new LoggedDashboardNumber("Intake/Constants/BEAMBREAK_DELAY", 1);
 		public static LoggedDashboardNumber CONTROLLER_RUMBLE_TIME = new LoggedDashboardNumber("Intake/Constants/CONTROLLER_RUMBLE_TIME", 12);
+
+		public static double MOI = 0.00005; // TODO: Actually figure out what the MOI (an hour of erik explaing something to you that somehow ends with a vector)
+		public static double GEARING = 5.26; // TODO: Figure this out too (should be on the side of the gearbox)
     }
 
     public static final class ShooterConstants {
