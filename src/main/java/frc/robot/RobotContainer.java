@@ -33,10 +33,10 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
-import frc.robot.subsystems.drivetrain.DrivetrainInterface;
-import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
+import frc.robot.subsystems.Drivetrain.DrivetrainInterface;
+import frc.robot.subsystems.Drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
 
 public class RobotContainer {
 

@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.drivetrain.NeoSwerveDrive;
+package frc.robot.subsystems.Drivetrain.NeoSwerveDrive;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -29,9 +29,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.subsystems.Drivetrain.DrivetrainInterface;
 import frc.robot.Ports;
 import frc.robot.RobotContainer;
-import frc.robot.subsystems.drivetrain.DrivetrainInterface;
 import frc.robot.utils.NeoSwerveUtils;
 
 /**
