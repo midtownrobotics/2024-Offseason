@@ -30,8 +30,9 @@ public class Shooter extends SubsystemBase {
     
     public enum ShooterState {
         AMP,
+        AMP_REVVING,
         SUBWOOFER,
-        REVVING,
+        SUBWOOFER_REVVING,
         AUTO_AIM,
         PASSING,
         VOMITING,
@@ -72,12 +73,17 @@ public class Shooter extends SubsystemBase {
                 pivotIO.setAngle(ShooterConstants.AMP_ANGLE.get());
                 feederIO.setVoltage(ShooterConstants.AMP_ROLLER_VOLTAGE.get());
                 break;
+            case AMP_REVVING:
+                flywheelIO.setSpeed(ShooterConstants.AMP_SPEED.get(), ShooterConstants.AMP_SPEED.get());
+                pivotIO.setAngle(ShooterConstants.AMP_ANGLE.get());
+                feederIO.setVoltage(0);
+                break;
             case SUBWOOFER:
                 flywheelIO.setSpeed(ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
                 pivotIO.setAngle(ShooterConstants.SPEAKER_ANGLE.get());
                 feederIO.setVoltage(ShooterConstants.SPEAKER_ROLLER_VOLTAGE.get());
                 break;
-            case REVVING:
+            case SUBWOOFER_REVVING:
                 flywheelIO.setSpeed(ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
                 feederIO.setVoltage(0);
                 pivotIO.setAngle(ShooterConstants.SPEAKER_ANGLE.get());

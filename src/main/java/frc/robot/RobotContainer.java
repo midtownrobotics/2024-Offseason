@@ -8,15 +8,20 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
+import frc.robot.subsystems.BeamBreak.BeamBreak;
+import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
+import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
+import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIOSim;
 import frc.robot.Ports.ShooterPorts;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
+import frc.robot.RobotState.State;
+import frc.robot.subsystems.Climber.Climber;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
 import frc.robot.subsystems.Intake.Intake;
-import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
-import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIODIO;
-import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIOSim;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
@@ -32,25 +37,33 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
 import frc.robot.subsystems.drivetrain.DrivetrainInterface;
 import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
 
 public class RobotContainer {
 
-  private Climber climber = new Climber();
+  private Climber climber;
   private Shooter shooter;
   private Intake intake;
+  private BeamBreak beamBreak;
 
   private DrivetrainInterface drivetrain;
 
   private RobotState robotState;
 
   /* Setting up bindings for necessary control of the swerve drive platform */
-  private final CommandXboxController driver = new CommandXboxController(0); // My joystick
+  private final CommandXboxController driver = new CommandXboxController(Ports.driverControllerPort);
+  private final CommandXboxController operator = new CommandXboxController(Ports.operatorControllerPort); // My joystick
+  // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain // My joystick
   // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
   //     .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
   //     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
                                                                // driving in open loop
+  // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+  // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+  // private final Telemetry logger = new Telemetry(MaxSpeed);
   // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -71,6 +84,40 @@ public class RobotContainer {
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
     driver.x().onTrue(new InstantCommand(() -> {}));
 
+		operator.rightBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.INTAKING), () -> {
+      if (robotState.currentState != State.NOTE_HELD) {
+        robotState.setState(State.IDLE);
+      }
+    }, intake));
+
+		operator.leftBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
+		operator.leftTrigger().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
+
+		operator.rightTrigger().whileTrue(new StartEndCommand(() -> {
+      switch (robotState.currentState) {
+        case SUBWOOFER_REVVING:
+          robotState.setState(State.SUBWOOFER);
+          break;
+        case AMP_REVVING:
+          robotState.setState(State.AMP);
+          break;
+        default:
+          break;
+      }
+    }, () -> robotState.setState(State.IDLE), shooter, intake));
+
+		operator.a().whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
+		operator.x().whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+		operator.b().whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
+    // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    // joystick.b().whileTrue(drivetrain
+    //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
+
+    // if (Utils.isSimulation()) {
+    //   drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
+    // }
+    // drivetrain.registerTelemetry(logger::telemeterize);
+
   }
 
   public void initializeSubsystems() {
@@ -82,10 +129,6 @@ public class RobotContainer {
     } else {
       drivetrain = new NeoSwerveDrivetrain();
     }
-    
-    // Climber
-
-    climber = new Climber();
 
     // Shooter
 
@@ -107,22 +150,44 @@ public class RobotContainer {
 
     // Intake
 
-    BeamBreakIO beamBreakIO;
     RollerIO rollerIO;
 
     if (Constants.currentMode == Constants.Mode.REAL) {
-      beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
       rollerIO = new RollerIONeo(IntakePorts.runExternal, IntakePorts.runInternal);
     } else {
-      beamBreakIO = new BeamBreakIOSim();
       rollerIO = new RollerIOSim();
     }
 
-    intake = new Intake(rollerIO, beamBreakIO);
+    intake = new Intake(rollerIO);
 
-    // Robot State
+    // Climber
+
+    ClimberIO climberIO;
+
+    if (Constants.currentMode == Constants.Mode.REAL){
+      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+    } else {
+      climberIO = new ClimberIOSim();
+    }
+
+    climber = new Climber(operator, climberIO);
+    
+        // Robot State
 
     robotState = new RobotState(shooter, climber, intake);
+
+    // BeamBreak
+
+    BeamBreakIO beamBreakIO;
+
+    if (Constants.currentMode == Constants.Mode.REAL) {
+      beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
+    } else {
+      beamBreakIO = new BeamBreakIOSim();
+    }
+
+    beamBreak = new BeamBreak(beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
+
   }
 
   public RobotContainer() { 
