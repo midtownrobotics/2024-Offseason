@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
@@ -17,7 +16,6 @@ import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIOSim;
 import frc.robot.Ports.ShooterPorts;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Climber;
 import frc.robot.RobotState.State;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
@@ -51,23 +49,8 @@ public class RobotContainer {
 
   private RobotState robotState;
 
-  /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driver = new CommandXboxController(Ports.driverControllerPort);
-  private final CommandXboxController operator = new CommandXboxController(Ports.operatorControllerPort); // My joystick
-  // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain // My joystick
-  // private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
-
-  // private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-  //     .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-  //     .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-                                                               // driving in open loop
-  // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-  // private final Telemetry logger = new Telemetry(MaxSpeed);
-  // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-
-  // private final Telemetry logger = new Telemetry(MaxSpeed);
+  private final CommandXboxController operator = new CommandXboxController(Ports.operatorControllerPort);
 
   public static double deadzone(double a, double b, double c, double zone) {
 		if (Math.sqrt(Math.pow(a, 2)+Math.pow(b, 2)+Math.pow(c, 2)) > zone) {
@@ -82,7 +65,7 @@ public class RobotContainer {
     drivetrain.configureDefaultCommand(driver);
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-    driver.x().onTrue(new InstantCommand(() -> {}));
+    driver.x().onTrue(new InstantCommand(() -> drivetrain.setX()));
 
 		operator.rightBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.INTAKING), () -> {
       if (robotState.currentState != State.NOTE_HELD) {

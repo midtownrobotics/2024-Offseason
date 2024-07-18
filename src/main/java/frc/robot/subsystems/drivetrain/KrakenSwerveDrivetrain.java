@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 
 /**
@@ -43,6 +44,10 @@ public class KrakenSwerveDrivetrain extends SwerveDrivetrain implements Subsyste
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
+
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public KrakenSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
@@ -89,6 +94,13 @@ public class KrakenSwerveDrivetrain extends SwerveDrivetrain implements Subsyste
                 .withRotationalRate(driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+    }
+
+    public void setX() { // TODO: test this cuz it probably doesnt work
+        point.withModuleDirection(Rotation2d.fromDegrees(45)).apply(m_requestParameters, Modules[0]);
+        point.withModuleDirection(Rotation2d.fromDegrees(-45)).apply(m_requestParameters, Modules[1]);
+        point.withModuleDirection(Rotation2d.fromDegrees(-45)).apply(m_requestParameters, Modules[2]);
+        point.withModuleDirection(Rotation2d.fromDegrees(45)).apply(m_requestParameters, Modules[3]);
     }
 
     @Override
