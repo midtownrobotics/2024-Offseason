@@ -1,5 +1,6 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardBoolean;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import com.revrobotics.CANSparkBase.IdleMode;
@@ -20,6 +21,9 @@ public final class Constants {
 
     public static final Mode currentMode = Mode.REAL;
     public static final boolean tuningMode = true;
+
+	// if true kraken drivetrain is used otherwise neo is used
+	public static LoggedDashboardBoolean USE_KRAKEN_DRIVETRAIN = new LoggedDashboardBoolean("USE_KRAKEN_DRIVETRAIN", false);
 
     public static final class ShooterConstants {
 		public static LoggedDashboardNumber INTAKING_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/INTAKING_ROLLER_VOLTAGE", 1.2);

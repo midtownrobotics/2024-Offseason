@@ -37,7 +37,7 @@ import frc.robot.utils.NeoSwerveUtils;
 /**
  * The {@code Drivetrain} class contains fields and methods pertaining to the function of the drivetrain.
  */
-public class SwerveDrivetrain extends SubsystemBase implements DrivetrainInterface {
+public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInterface {
 
  	// public static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = 1.340; // adjust as needed so that virtual (turn) position of wheel is zero when straight
 	// public static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = -3.083; // adjust as needed so that virtual (turn) position of wheel is zero when straight
@@ -70,25 +70,25 @@ public class SwerveDrivetrain extends SubsystemBase implements DrivetrainInterfa
 	// end turn settings	
 
 	// Create SwerveModules
-	private final SwerveModule m_frontLeft /* #2 */ = new SwerveModule(
+	private final NeoSwerveModule m_frontLeft /* #2 */ = new NeoSwerveModule(
 		Ports.NeoDrive.FRONT_LEFT_DRIVING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
 		-0.317, false, "FrontLeft");
 
-	private final SwerveModule m_frontRight /* #1 */ = new SwerveModule(
+	private final NeoSwerveModule m_frontRight /* #1 */ = new NeoSwerveModule(
 		Ports.NeoDrive.FRONT_RIGHT_DRIVING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING_ABSOLUTE_ENCODER,
 		0.86, true, "FrontRight");
 
-	private final SwerveModule m_rearLeft /* #3 */ = new SwerveModule(
+	private final NeoSwerveModule m_rearLeft /* #3 */ = new NeoSwerveModule(
 		Ports.NeoDrive.REAR_LEFT_DRIVING,
 		Ports.NeoDrive.REAR_LEFT_TURNING,
 		Ports.NeoDrive.REAR_LEFT_TURNING_ABSOLUTE_ENCODER,
 		-0.9, true, "RearLeft");
 
-	private final SwerveModule m_rearRight /* #4 */ = new SwerveModule(
+	private final NeoSwerveModule m_rearRight /* #4 */ = new NeoSwerveModule(
 		Ports.NeoDrive.REAR_RIGHT_DRIVING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
@@ -129,7 +129,7 @@ public class SwerveDrivetrain extends SubsystemBase implements DrivetrainInterfa
 
 
 	/** Creates a new Drivetrain. */
-	public SwerveDrivetrain() {
+	public NeoSwerveDrivetrain() {
 		m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS); // set virtual position for absolute encoder
 		m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS);
 		m_rearLeft.calibrateVirtualPosition(REAR_LEFT_VIRTUAL_OFFSET_RADIANS);
@@ -408,22 +408,22 @@ public class SwerveDrivetrain extends SubsystemBase implements DrivetrainInterfa
 		return m_gyro.getRate() * (NeoDrivetrainConstants.kGyroReversed ? -1.0 : 1.0);
 	}
 
-	public SwerveModule getFrontLeftModule()
+	public NeoSwerveModule getFrontLeftModule()
 	{
 		return m_frontLeft;
 	}
 
-	public SwerveModule getFrontRightModule()
+	public NeoSwerveModule getFrontRightModule()
 	{
 		return m_frontRight;
 	}
 
-	public SwerveModule getRearLeftModule()
+	public NeoSwerveModule getRearLeftModule()
 	{
 		return m_rearLeft;
 	}
 
-	public SwerveModule getRearRightModule()
+	public NeoSwerveModule getRearRightModule()
 	{
 		return m_rearRight;
 	}

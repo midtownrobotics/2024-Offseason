@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
@@ -30,7 +31,7 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
 import frc.robot.subsystems.drivetrain.DrivetrainInterface;
-import frc.robot.subsystems.drivetrain.NeoSwerveDrive.SwerveDrivetrain;
+import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
 
 public class RobotContainer {
 
@@ -38,7 +39,7 @@ public class RobotContainer {
   private Shooter shooter;
   private Intake intake;
 
-  private final DrivetrainInterface drivetrain = new SwerveDrivetrain();
+  private DrivetrainInterface drivetrain;
 
   private RobotState robotState;
 
@@ -68,29 +69,19 @@ public class RobotContainer {
     drivetrain.configureDefaultCommand(driver);
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-
-    // drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-    //     drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
-    //                                                                                        // negative Y (forward)
-    //         .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-    //         .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-    //     ));
-
-    // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-    // joystick.b().whileTrue(drivetrain
-    //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
-
-    // // reset the field-centric heading on left bumper press
-    // joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
-
-    // if (Utils.isSimulation()) {
-    //   drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
-    // }
-    // drivetrain.registerTelemetry(logger::telemeterize);
+    driver.x().onTrue(new InstantCommand(() -> {}));
 
   }
 
   public void initializeSubsystems() {
+
+    // Drivetrain
+
+    if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is used
+      drivetrain = TunerConstants.DriveTrain;
+    } else {
+      drivetrain = new NeoSwerveDrivetrain();
+    }
     
     // Climber
 

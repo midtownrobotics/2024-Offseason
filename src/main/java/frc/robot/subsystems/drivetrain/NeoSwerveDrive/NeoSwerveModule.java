@@ -24,7 +24,7 @@ import frc.robot.Constants.NeoSwerveModuleConstants;
 /**
  * The {@code SwerveModule} class contains fields and methods pertaining to the function of a swerve module.
  */
-public class SwerveModule {
+public class NeoSwerveModule {
 	private final CANSparkMax m_drivingSparkMax;
 	private final CANSparkMax m_turningSparkMax;
 
@@ -46,7 +46,7 @@ public class SwerveModule {
 	 * Constructs a SwerveModule and configures the driving and turning motor,
 	 * encoder, and PID controller.
 	 */
-	public SwerveModule(int drivingCANId, int turningCANId, int turningAnalogPort, double offset, boolean inverted, String moduleName) {
+	public NeoSwerveModule(int drivingCANId, int turningCANId, int turningAnalogPort, double offset, boolean inverted, String moduleName) {
 		this.moduleName = moduleName;
 
 		m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
