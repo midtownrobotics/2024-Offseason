@@ -2,12 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.NeoSwerveDrive;
+package frc.robot.subsystems.drivetrain.NeoSwerveDrive;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
+import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
@@ -16,15 +13,18 @@ import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.NeoSwerveModuleConstants;
 
 /**
  * The {@code SwerveModule} class contains fields and methods pertaining to the function of a swerve module.
  */
-public class SwerveModule {
+public class NeoSwerveModule {
 	private final CANSparkMax m_drivingSparkMax;
 	private final CANSparkMax m_turningSparkMax;
 
@@ -36,6 +36,8 @@ public class SwerveModule {
 	private final SparkMaxPIDController m_turningPIDController;
 	private double offset = 0;
 
+	private String moduleName;
+
 
 
 	private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
@@ -44,7 +46,9 @@ public class SwerveModule {
 	 * Constructs a SwerveModule and configures the driving and turning motor,
 	 * encoder, and PID controller.
 	 */
-	public SwerveModule(int drivingCANId, int turningCANId, int turningAnalogPort, double offset, boolean inverted) {
+	public NeoSwerveModule(int drivingCANId, int turningCANId, int turningAnalogPort, double offset, boolean inverted, String moduleName) {
+		this.moduleName = moduleName;
+
 		m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
 		m_drivingSparkMax.setInverted(inverted);
 		m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
@@ -122,6 +126,19 @@ public class SwerveModule {
 
 		m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
 		m_drivingEncoder.setPosition(0);
+	}
+
+	public void logMotorInfo() {
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningCurrentAmps", m_turningSparkMax.getOutputCurrent());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningTempFahrenheit", m_turningSparkMax.getMotorTemperature());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVelocityRPM", m_turningSparkMax.getEncoder().getVelocity());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningIsOn", Math.abs(m_turningSparkMax.getAppliedOutput()) > 0.01);
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVoltage", m_turningSparkMax.getAppliedOutput() * m_turningSparkMax.getBusVoltage());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingCurrentAmps", m_drivingSparkMax.getOutputCurrent());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingTempFahrenheit", m_drivingSparkMax.getMotorTemperature());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVelocityRPM", m_drivingSparkMax.getEncoder().getVelocity());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingIsOn", Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01);
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVoltage", m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage());
 	}
 
 	/**

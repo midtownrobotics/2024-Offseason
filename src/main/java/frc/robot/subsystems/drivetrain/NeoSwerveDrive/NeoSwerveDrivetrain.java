@@ -2,7 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.NeoSwerveDrive;
+package frc.robot.subsystems.drivetrain.NeoSwerveDrive;
+
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -16,25 +21,23 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.util.WPIUtilJNI;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.ctre.phoenix.sensors.WPI_Pigeon2;
-import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.NeoDrivetrainConstants;
-import frc.robot.Constants.NeoDrivetrainConstants;
-import frc.robot.utils.NeoSwerveUtils;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
+import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.Ports;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.drivetrain.DrivetrainInterface;
+import frc.robot.utils.NeoSwerveUtils;
 
 /**
  * The {@code Drivetrain} class contains fields and methods pertaining to the function of the drivetrain.
  */
-public class SwerveDrivetrain extends SubsystemBase {
+public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInterface {
 
  	// public static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = 1.340; // adjust as needed so that virtual (turn) position of wheel is zero when straight
 	// public static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = -3.083; // adjust as needed so that virtual (turn) position of wheel is zero when straight
@@ -62,43 +65,34 @@ public class SwerveDrivetrain extends SubsystemBase {
 	static final double TURN_DERIVATIVE_GAIN = 0.0; // 0.0001
 	
 	static final int DEGREE_THRESHOLD = 10; // 3;
-
-	private GenericEntry FLDT;
-	private GenericEntry FLTT;
-	private GenericEntry FRDT;
-	private GenericEntry FRTT;
-	private GenericEntry RRDT;
-	private GenericEntry RRTT;
-	private GenericEntry RLDT;
-	private GenericEntry RLTT;
 	
 	private final static int TURN_ON_TARGET_MINIMUM_COUNT = 10; // number of times/iterations we need to be on target to really be on target
 	// end turn settings	
 
 	// Create SwerveModules
-	private final SwerveModule m_frontLeft /* #2 */ = new SwerveModule(
+	private final NeoSwerveModule m_frontLeft /* #2 */ = new NeoSwerveModule(
 		Ports.NeoDrive.FRONT_LEFT_DRIVING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
-		-0.317, false);
+		-0.317, false, "FrontLeft");
 
-	private final SwerveModule m_frontRight /* #1 */ = new SwerveModule(
+	private final NeoSwerveModule m_frontRight /* #1 */ = new NeoSwerveModule(
 		Ports.NeoDrive.FRONT_RIGHT_DRIVING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING_ABSOLUTE_ENCODER,
-		0.86, true);
+		0.86, true, "FrontRight");
 
-	private final SwerveModule m_rearLeft /* #3 */ = new SwerveModule(
+	private final NeoSwerveModule m_rearLeft /* #3 */ = new NeoSwerveModule(
 		Ports.NeoDrive.REAR_LEFT_DRIVING,
 		Ports.NeoDrive.REAR_LEFT_TURNING,
 		Ports.NeoDrive.REAR_LEFT_TURNING_ABSOLUTE_ENCODER,
-		-0.9, true);
+		-0.9, true, "RearLeft");
 
-	private final SwerveModule m_rearRight /* #4 */ = new SwerveModule(
+	private final NeoSwerveModule m_rearRight /* #4 */ = new NeoSwerveModule(
 		Ports.NeoDrive.REAR_RIGHT_DRIVING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
-		-0.33, false);
+		-0.33, false, "RearRight");
 
 	// The gyro sensor
 	private final AHRS m_gyro = new AHRS(SPI.Port.kMXP); // usign SPI by default, which is what we want.
@@ -135,7 +129,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
 
 	/** Creates a new Drivetrain. */
-	public SwerveDrivetrain() {
+	public NeoSwerveDrivetrain() {
 		m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS); // set virtual position for absolute encoder
 		m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS);
 		m_rearLeft.calibrateVirtualPosition(REAR_LEFT_VIRTUAL_OFFSET_RADIANS);
@@ -162,20 +156,20 @@ public class SwerveDrivetrain extends SubsystemBase {
 		
 		turnPidController.enableContinuousInput(-180, 180); // because -180 degrees is the same as 180 degrees (needs input range to be defined first)
 		turnPidController.setTolerance(DEGREE_THRESHOLD); // n degree error tolerated
+	}
 
-		ShuffleboardTab tempTab = Shuffleboard.getTab("Motor Tempuratures");
-		// Front Left
-		this.FLDT = tempTab.add("FL D Temp", 0).getEntry();
-		this.FLTT = tempTab.add("FL T Temp", 0).getEntry();
-		// Front Right
-		this.FRDT = tempTab.add("FR D Temp", 0).getEntry();
-		this.FRTT = tempTab.add("FR T Temp", 0).getEntry();
-		// Rear Left
-		this.RLDT = tempTab.add("RL D Temp", 0).getEntry();
-		this.RLTT = tempTab.add("RL T Temp", 0).getEntry();
-		// Rear Right
-		this.RRDT = tempTab.add("RR D Temp", 0).getEntry();
-		this.RRTT = tempTab.add("RR T Temp", 0).getEntry();
+	public void resetHeading() {
+		zeroHeading();
+	}
+
+	@Override
+	public void configureDefaultCommand(CommandXboxController driverController) {
+		setDefaultCommand(new RunCommand(
+			() -> drive(
+				RobotContainer.deadzone(driverController.getLeftY(), driverController.getLeftX(), driverController.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
+				RobotContainer.deadzone(driverController.getLeftX(), driverController.getLeftY(), driverController.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
+				RobotContainer.deadzone(driverController.getRightX(), driverController.getLeftY(), driverController.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
+		 	false), this));
 	}
 
 	@Override
@@ -192,18 +186,12 @@ public class SwerveDrivetrain extends SubsystemBase {
 
 		calculateTurnAngleUsingPidController();
 
-		// Sets the tempuratures for the motors
-		FLDT.setDouble(m_frontLeft.getTurningTemp());
-		FLTT.setDouble(m_frontLeft.getTurningTemp());
+		Logger.recordOutput("Robot/Pose", getPose());
 
-		FRDT.setDouble(m_frontRight.getTurningTemp());
-		FRTT.setDouble(m_frontRight.getTurningTemp());
-
-		RLDT.setDouble(m_rearLeft.getTurningTemp());
-		RLTT.setDouble(m_rearLeft.getTurningTemp());
-
-		RRDT.setDouble(m_rearRight.getTurningTemp());
-		RRTT.setDouble(m_rearRight.getTurningTemp());
+		getFrontLeftModule().logMotorInfo();
+		getFrontRightModule().logMotorInfo();
+		getRearLeftModule().logMotorInfo();
+		getRearRightModule().logMotorInfo();
 	}
 
 	/**
@@ -332,7 +320,12 @@ public class SwerveDrivetrain extends SubsystemBase {
 		double xSpeedDelivered = xSpeedCommanded * maxSpeed;
 		double ySpeedDelivered = ySpeedCommanded * maxSpeed;
 
+		Logger.recordOutput("NeoSwerve/xSpeedDesired", xSpeedDelivered);
+		Logger.recordOutput("NeoSwerve/ySpeedDesired", ySpeedDelivered);
+
 		double rotDelivered = m_currentRotation * NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
+
+		Logger.recordOutput("NeoSwerve/rotationDesired", rotDelivered);
 
 		var swerveModuleStates = NeoDrivetrainConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
 			fieldRelative
@@ -415,22 +408,22 @@ public class SwerveDrivetrain extends SubsystemBase {
 		return m_gyro.getRate() * (NeoDrivetrainConstants.kGyroReversed ? -1.0 : 1.0);
 	}
 
-	public SwerveModule getFrontLeftModule()
+	public NeoSwerveModule getFrontLeftModule()
 	{
 		return m_frontLeft;
 	}
 
-	public SwerveModule getFrontRightModule()
+	public NeoSwerveModule getFrontRightModule()
 	{
 		return m_frontRight;
 	}
 
-	public SwerveModule getRearLeftModule()
+	public NeoSwerveModule getRearLeftModule()
 	{
 		return m_rearLeft;
 	}
 
-	public SwerveModule getRearRightModule()
+	public NeoSwerveModule getRearRightModule()
 	{
 		return m_rearRight;
 	}
