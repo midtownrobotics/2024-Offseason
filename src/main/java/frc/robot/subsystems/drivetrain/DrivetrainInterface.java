@@ -6,4 +6,5 @@ public interface DrivetrainInterface {
     void configureDefaultCommand(CommandXboxController driverController);
     void resetHeading();
     void setX();
+    void setBoost(boolean boost);
 }

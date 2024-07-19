@@ -127,6 +127,7 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 
 	private PIDController turnPidController; // the PID controller used to turn
 
+	private boolean speedBoost;
 
 	/** Creates a new Drivetrain. */
 	public NeoSwerveDrivetrain() {
@@ -220,15 +221,19 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 			pose);
 	}
 
-	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean speedBoost) {
-		drive(xSpeed, ySpeed, rot, fieldRelative, false, speedBoost);
+	public void setBoost(boolean boost) {
+		speedBoost = boost;
 	}
 
-	public void drive(double xSpeed, double ySpeed, double rot, boolean speedBoost) {
-		drive(xSpeed, ySpeed, rot, true, speedBoost);
+	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+		drive(xSpeed, ySpeed, rot, fieldRelative);
 	}
 
-	public void drivePID(double xSpeed, double ySpeed, double rot, boolean speedBoost) {
+	public void drive(double xSpeed, double ySpeed, double rot) {
+		drive(xSpeed, ySpeed, rot, true);
+	}
+
+	public void drivePID(double xSpeed, double ySpeed, double rot) {
 		SmartDashboard.putNumber("desired rotation", rot*Constants.NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND/(Math.PI*2));
 		SmartDashboard.putNumber("pigeon rotation", pigeon.getRate() / 360);
 		double error = 0;
@@ -236,11 +241,7 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 			error = rot*Constants.NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND/(Math.PI*2) - pigeon.getRate() / 360;
 		}
 		double kP = 1;
-		drive(xSpeed, ySpeed, kP * error + rot, speedBoost);
-	}
-
-	public void driveBoosted() {
-		
+		drive(xSpeed, ySpeed, kP * error + rot);
 	}
 
 	/**
@@ -253,7 +254,7 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 	 *                      field.
 	 * @param rateLimit     Whether to enable rate limiting for smoother control.
 	 */
-	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit, boolean speedBoost) {
+	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
 		
 		double xSpeedCommanded;
 		double ySpeedCommanded;
@@ -385,7 +386,7 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 
 	public void stop()
 	{
-		drive(0, 0, 0, true, false, false);
+		drive(0, 0, 0, true, false);
 
 		isTurning = false;
 	}
@@ -514,7 +515,7 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 
 		//System.out.println("output: " + output);
 
-		drive(0, 0, output, false, false); // TODO double-check sign
+		drive(0, 0, output, false); // TODO double-check sign
 	}
 }
 

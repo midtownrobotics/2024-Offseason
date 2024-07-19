@@ -67,6 +67,8 @@ public class RobotContainer {
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
     driver.x().onTrue(new InstantCommand(() -> drivetrain.setX()));
 
+    driver.leftTrigger().whileTrue(new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
+
 		operator.rightBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.INTAKING), () -> {
       if (robotState.currentState != State.NOTE_HELD) {
         robotState.setState(State.IDLE);
