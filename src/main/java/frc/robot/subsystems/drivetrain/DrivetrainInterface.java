@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Drivetrain;
+package frc.robot.subsystems.drivetrain;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 

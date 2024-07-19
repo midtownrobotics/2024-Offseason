@@ -8,6 +8,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -16,14 +17,13 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
  * subsystem so it can be used in command-based projects easily.
  */
-public class KrakenSwerveDrivetrain extends SwerveDrivetrain implements Subsystem, DrivetrainInterface {
+public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsystem, DrivetrainInterface {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -43,17 +43,13 @@ public class KrakenSwerveDrivetrain extends SwerveDrivetrain implements Subsyste
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
 
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final Telemetry logger = new Telemetry(MaxSpeed);
-
-    public KrakenSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
+    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
     }
-    public KrakenSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
+    public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, SwerveModuleConstants... modules) {
         super(driveTrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
@@ -62,6 +58,10 @@ public class KrakenSwerveDrivetrain extends SwerveDrivetrain implements Subsyste
 
     public void resetHeading() {
         this.seedFieldRelative();
+    }
+
+    public void setX() {
+        // TODO: Merge in set X
     }
 
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -89,16 +89,9 @@ public class KrakenSwerveDrivetrain extends SwerveDrivetrain implements Subsyste
             applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with
                                                                                             // negative Y (forward)
                 .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                .withRotationalRate(driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-    }
-
-    public void setX() { // TODO: test this cuz it probably doesnt work
-        point.withModuleDirection(Rotation2d.fromDegrees(45)).apply(m_requestParameters, Modules[0]);
-        point.withModuleDirection(Rotation2d.fromDegrees(-45)).apply(m_requestParameters, Modules[1]);
-        point.withModuleDirection(Rotation2d.fromDegrees(-45)).apply(m_requestParameters, Modules[2]);
-        point.withModuleDirection(Rotation2d.fromDegrees(45)).apply(m_requestParameters, Modules[3]);
     }
 
     @Override
