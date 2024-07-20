@@ -4,6 +4,7 @@ package frc.robot.subsystems.Intake.Roller;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
+import edu.wpi.first.math.MathUtil;
 
 public class RollerIOSim implements RollerIO {
     // TODO: make sure we actually use 550s on this
@@ -12,28 +13,38 @@ public class RollerIOSim implements RollerIO {
     Constants.IntakeConstants.GEARING, 
     Constants.IntakeConstants.MOI);
 
-    private final DCMotorSim simRunExternal = new DCMotorSim(DCMotor.getNeo550(1),
+    private final DCMotorSim simRunExternal = new DCMotorSim(
+    DCMotor.getNeo550(1),
     Constants.IntakeConstants.GEARING,
     Constants.IntakeConstants.MOI);
     
     
     @Override
     public void updateInputs(RollerIOInputs inputs) {
-       if (DriverStation.isDisabled()) {
-        simRunInternal.setInputVoltage(0);
-        simRunExternal.setInputVoltage(0);
-       }
 
-       simRunInternal.update(0.02);
-       simRunExternal.update(0.02);
+        simRunInternal.update(0.02);
+        simRunExternal.update(0.02);
 
-       inputs.internalOutputVoltage = simRunInternal.getOutput(0);
+        inputs.internalOutputVoltage = MathUtil.clamp(simRunInternal.getOutput(0), -12.0, 12.0);
+        inputs.externalOutputVoltage = MathUtil.clamp(simRunExternal.getOutput(0), -12.0, 12.0);
+
+        inputs.internalIsOn = simRunInternal.getAngularVelocityRPM() > 0.01;
+        inputs.externalIsOn = simRunExternal.getAngularVelocityRPM() > 0.01;
+
+        inputs.internalVelocityRPM = simRunInternal.getAngularVelocityRPM();
+        inputs.externalVelocityRPM = simRunExternal.getAngularVelocityRPM();
+
+        inputs.externalTempFahrenheit = 0.0; 
+        inputs.internalTempFahrenheit = 0.0;
+        
+        inputs.internalCurrentAmps = simRunInternal.getCurrentDrawAmps();
+        inputs.externalCurrentAmps = simRunExternal.getCurrentDrawAmps();
 
     }
 
     @Override
     public void setSpeed(double speed) {
-        simRunInternal.setInput(speed);
-        simRunExternal.setInput(speed);
+        simRunInternal.setInputVoltage(speed*12);
+        simRunExternal.setInputVoltage(speed*12);
     }
 }

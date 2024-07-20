@@ -18,7 +18,7 @@ public final class Constants {
         REPLAY
     }
 
-    public static final Mode currentMode = Mode.REAL;
+    public static final Mode currentMode = Mode.SIM;
     public static final boolean tuningMode = true;
     public static final LoggedDashboardNumber deadzone = new LoggedDashboardNumber("CONTROLLER_DEADZONE", 0.1);
     
