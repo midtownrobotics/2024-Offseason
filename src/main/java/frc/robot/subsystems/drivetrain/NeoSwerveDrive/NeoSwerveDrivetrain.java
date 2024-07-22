@@ -37,7 +37,7 @@ import frc.robot.utils.NeoSwerveUtils;
 /**
  * The {@code Drivetrain} class contains fields and methods pertaining to the function of the drivetrain.
  */
-public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInterface {
+public class NeoSwerveDrivetrain implements DrivetrainInterface {
 
  	// public static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = 1.340; // adjust as needed so that virtual (turn) position of wheel is zero when straight
 	// public static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = -3.083; // adjust as needed so that virtual (turn) position of wheel is zero when straight
@@ -170,7 +170,7 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 				RobotContainer.deadzone(driverController.getLeftY(), driverController.getLeftX(), driverController.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
 				RobotContainer.deadzone(driverController.getLeftX(), driverController.getLeftY(), driverController.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
 				RobotContainer.deadzone(driverController.getRightX(), driverController.getLeftY(), driverController.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
-		 	false), this));
+		 	true), this));
 	}
 
 	@Override
@@ -226,7 +226,7 @@ public class NeoSwerveDrivetrain extends SubsystemBase implements DrivetrainInte
 	}
 
 	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-		drive(xSpeed, ySpeed, rot, fieldRelative);
+		drive(xSpeed, ySpeed, rot, fieldRelative, false);
 	}
 
 	public void drive(double xSpeed, double ySpeed, double rot) {
