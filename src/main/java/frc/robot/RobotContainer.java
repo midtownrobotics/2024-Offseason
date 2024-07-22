@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.BeamBreakIO.BeamBreakIO;
@@ -29,6 +30,7 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainInterface;
 import frc.robot.subsystems.drivetrain.NeoSwerveDrive.SwerveDrivetrain;
 
@@ -38,7 +40,7 @@ public class RobotContainer {
   private Shooter shooter;
   private Intake intake;
 
-  private final DrivetrainInterface drivetrain = new SwerveDrivetrain();
+  private final DrivetrainInterface drivetrain = TunerConstants.DriveTrain;
 
   private RobotState robotState;
 
