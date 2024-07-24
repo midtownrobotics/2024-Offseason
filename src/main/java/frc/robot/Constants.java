@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import frc.robot.utils.LoggedTunableNumber;
 
 public final class Constants {
 
@@ -46,14 +47,15 @@ public final class Constants {
 		public static LoggedDashboardNumber AMP_SPEED = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED", 430);
         public static LoggedDashboardNumber AMP_ROLLER_VOLTAGE = new LoggedDashboardNumber("Shooter/Constants/AMP_ROLLER_VOLTAGE", AMP_SPEED.get()/700*12);
 
-		public static LoggedDashboardNumber FLYWHEEL_SPEED_P = new LoggedDashboardNumber("Shooter/Constants/FLYWHEEL_SPEED_P",0.0005);
-        public static LoggedDashboardNumber FLYWHEEL_SPEED_I = new LoggedDashboardNumber("Shooter/Constants/FLYWHEEL_SPEED_I",0);
-		public static LoggedDashboardNumber FLYWHEEL_SPEED_D = new LoggedDashboardNumber("Shooter/Constants/FLYWHEEL_SPEED_D",0.0005);
-		public static LoggedDashboardNumber FLYWHEEL_SPEED_FF = new LoggedDashboardNumber("Shooter/Constants/FLYWHEEL_SPEED_FF",0.00024);
+		public static LoggedTunableNumber FLYWHEEL_SPEED_P = new LoggedTunableNumber("Shooter/Constants/FLYWHEEL_SPEED_P",0.0005);
+        public static LoggedTunableNumber FLYWHEEL_SPEED_I = new LoggedTunableNumber("Shooter/Constants/FLYWHEEL_SPEED_I",0);
+		public static LoggedTunableNumber FLYWHEEL_SPEED_D = new LoggedTunableNumber("Shooter/Constants/FLYWHEEL_SPEED_D",0.0005);
+		public static LoggedTunableNumber FLYWHEEL_SPEED_FF = new LoggedTunableNumber("Shooter/Constants/FLYWHEEL_SPEED_FF",0.00024);
 
-        public static LoggedDashboardNumber PIVOT_P = new LoggedDashboardNumber("Shooter/Constants/PIVOT_P",10);
-        public static LoggedDashboardNumber PIVOT_I = new LoggedDashboardNumber("Shooter/Constants/PIVOT_I",0);
-        public static LoggedDashboardNumber PIVOT_D = new LoggedDashboardNumber("Shooter/Constants/PIVOT_D",0);
+        public static LoggedTunableNumber PIVOT_P = new LoggedTunableNumber("Shooter/Constants/PIVOT_P",10);
+        public static LoggedTunableNumber PIVOT_I = new LoggedTunableNumber("Shooter/Constants/PIVOT_I",0);
+        public static LoggedTunableNumber PIVOT_D = new LoggedTunableNumber("Shooter/Constants/PIVOT_D",0);
+
         public static LoggedDashboardNumber MIN_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE",0.81);
         public static LoggedDashboardNumber MAX_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE",0.99);
     }

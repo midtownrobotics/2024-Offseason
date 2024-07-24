@@ -3,6 +3,7 @@ package frc.robot.subsystems.Shooter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
@@ -112,5 +113,6 @@ public class Shooter extends SubsystemBase {
             default:
                 break;
         }
+        flywheelIO.updatePIDControllers();
     }
 }
