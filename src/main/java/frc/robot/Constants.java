@@ -117,17 +117,17 @@ public final class Constants {
 		public static final double TURNING_ENCODER_POSITION_PID_MIN_INPUT_RADIANS = 0; // radians
 		public static final double TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS = (2 * Math.PI); // radians
 
-		public static final double DRIVING_P = 0.04;
-		public static final double DRIVING_I = 0;
-		public static final double DRIVING_D = 0;
-		public static final double DRIVING_FF = 1 / DRIVE_WHEEL_FREE_SPEED_RPS;
+		public static final LoggedTunableNumber DRIVING_P = new LoggedTunableNumber("Drivetrain/constants/DRIVING_P", 0.04);
+		public static final LoggedTunableNumber DRIVING_I = new LoggedTunableNumber("Drivetrain/constants/DRIVING_I", 0);
+		public static final LoggedTunableNumber DRIVING_D = new LoggedTunableNumber("Drivetrain/constants/DRIVING_D", 0);
+		public static final LoggedTunableNumber DRIVING_FF = new LoggedTunableNumber("Drivetrain/constants/DRIVING_FF", 1 / DRIVE_WHEEL_FREE_SPEED_RPS);
 		public static final double DRIVING_MIN_OUTPUT_NORMALIZED = -1;
 		public static final double DRIVING_MAX_OUTPUT_NORMALIZED = 1;
 
-		public static final double TURNING_P = 1.0; //1.0; // 1.0 might be a bit too much - reduce a bit if needed
-		public static final double TURNING_I = 0;
-		public static final double TURNING_D = 0;
-		public static final double TURNING_FF = 0;
+		public static final LoggedTunableNumber TURNING_P = new LoggedTunableNumber("Drivetrain/constants/TURNING_P", 1.0); //1.0; // 1.0 might be a bit too much - reduce a bit if needed
+		public static final LoggedTunableNumber TURNING_I = new LoggedTunableNumber("Drivetrain/constants/TURNING_I", 0);
+		public static final LoggedTunableNumber TURNING_D = new LoggedTunableNumber("Drivetrain/constants/TURNING_D", 0);
+		public static final LoggedTunableNumber TURNING_FF = new LoggedTunableNumber("Drivetrain/constants/TURNING_FF", 0);
 		public static final double TURNING_MIN_OUTPUT_NORMALIZED = -1;
 		public static final double TURNING_MAX_OUTPUT_NORMALIZED = 1;
 
