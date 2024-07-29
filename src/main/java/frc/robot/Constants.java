@@ -11,6 +11,7 @@ public final class Constants {
 
     public static final double JOYSTICK_THRESHOLD = 0.1;
     public static final double CONTROL_LIMITER = 1;
+	public static final double THEORETICAL_RESTING_VOLTAGE = 12;
 
     public static enum Mode {
         REAL,
@@ -55,6 +56,11 @@ public final class Constants {
         public static LoggedDashboardNumber PIVOT_D = new LoggedDashboardNumber("Shooter/Constants/PIVOT_D",0);
         public static LoggedDashboardNumber MIN_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE",0.81);
         public static LoggedDashboardNumber MAX_PIVOT_ANGLE = new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE",0.99);
+
+		public static final class Simulation {
+			public static LoggedDashboardNumber FLYWHEEL_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_GEARING", 5.26);
+			public static LoggedDashboardNumber FLYWHEEL_MOI = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_MOI", .00005);
+		}
     }
 
 

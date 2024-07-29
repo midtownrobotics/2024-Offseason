@@ -7,7 +7,6 @@ import frc.robot.Constants;
 import edu.wpi.first.math.MathUtil;
 
 public class RollerIOSim implements RollerIO {
-    // TODO: make sure we actually use 550s on this
     private final DCMotorSim simRunInternal = new DCMotorSim(
     DCMotor.getNeo550(1),
     Constants.IntakeConstants.GEARING, 
@@ -21,7 +20,6 @@ public class RollerIOSim implements RollerIO {
     
     @Override
     public void updateInputs(RollerIOInputs inputs) {
-
         simRunInternal.update(0.02);
         simRunExternal.update(0.02);
 
@@ -44,7 +42,7 @@ public class RollerIOSim implements RollerIO {
 
     @Override
     public void setSpeed(double speed) {
-        simRunInternal.setInputVoltage(speed*12);
-        simRunExternal.setInputVoltage(speed*12);
+        simRunInternal.setInputVoltage(speed * Constants.THEORETICAL_RESTING_VOLTAGE);
+        simRunExternal.setInputVoltage(speed * Constants.THEORETICAL_RESTING_VOLTAGE);
     }
 }
