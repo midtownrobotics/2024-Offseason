@@ -60,6 +60,9 @@ public final class Constants {
 		public static final class Simulation {
 			public static LoggedDashboardNumber FLYWHEEL_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_GEARING", 5.26);
 			public static LoggedDashboardNumber FLYWHEEL_MOI = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_MOI", .00005);
+
+			public static LoggedDashboardNumber FEEDER_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FEEDER_GEARING", 5.26);
+			public static LoggedDashboardNumber FEEDER_MOI = new LoggedDashboardNumber("Shooter/Constants/Simulation/FEEDER_MOI", .00005);
 		}
     }
 
