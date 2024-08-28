@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
@@ -66,7 +67,9 @@ public class RobotContainer {
     drivetrain.configureDefaultCommand(driver);
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-    driver.x().onTrue(new InstantCommand(() -> drivetrain.setX()));
+    driver.x().whileTrue(new RunCommand(() -> drivetrain.setX(), drivetrain));
+
+    driver.leftTrigger().whileTrue(new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
 
 		operator.rightBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.INTAKING), () -> {
       if (robotState.currentState != State.NOTE_HELD) {
