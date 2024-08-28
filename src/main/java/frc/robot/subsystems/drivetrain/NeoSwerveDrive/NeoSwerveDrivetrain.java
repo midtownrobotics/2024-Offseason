@@ -185,6 +185,11 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 				m_rearRight.getPosition()
 			});
 
+		m_frontLeft.updatePIDControllers();
+		m_frontRight.updatePIDControllers();
+		m_rearLeft.updatePIDControllers();
+		m_rearRight.updatePIDControllers();
+
 		calculateTurnAngleUsingPidController();
 
 		Logger.recordOutput("Robot/Pose", getPose());

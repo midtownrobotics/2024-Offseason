@@ -16,4 +16,5 @@ public interface PivotIO {
     
     public void setAngle(double angle);
     public void updateInputs(PivotIOInputs inputs);
+    public void updatePIDControllers();
 }
