@@ -4,14 +4,14 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface LimelightIO {
     @AutoLog
-    public class LimelighIOInputs {
-        public int aprilTagID;
-        public boolean validTargetExists;
-        public double aprilTagXCameraSpace; 
-        public double aprilTagZCameraSpace; 
+    public class LimelightIOInputs {
+        public int aprilTagID = 0;
+        public boolean validTargetExists = false;
+        public double aprilTagXCameraSpace = 0.0; 
+        public double aprilTagZCameraSpace = 0.0; 
     }
 
    double getAngleOffset();
    double getDistance();
-   void updateInputs(LimelighIOInputs inputs);
+   void updateInputs(LimelightIOInputs inputs);
 }

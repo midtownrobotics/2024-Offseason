@@ -168,7 +168,7 @@ public class RobotContainer {
 
     climber = new Climber(operator, climberIO);
     
-        // Robot State
+    // Robot State
 
     robotState = new RobotState(shooter, climber, intake);
 
@@ -181,16 +181,21 @@ public class RobotContainer {
     } else {
       beamBreakIO = new BeamBreakIOSim();
     }
-    
-    LimelightIO limelightIO;
-
-    if (Constants.currentMode ==  Constants.Mode.REAL) {
-      limelightIO = new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight")); 
-    }
-    
 
     beamBreak = new BeamBreak(beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
 
+    // Limelight
+    
+    LimelightIO limelightIO;
+
+    if (Constants.currentMode == Constants.Mode.REAL) {
+      limelightIO = new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight")); 
+    } else {
+      limelightIO = new LimelightIOSim();
+    }
+
+    limelight = new Limelight(limelightIO);
+    
   }
 
   public RobotContainer() { 

@@ -39,7 +39,7 @@ public class LimelightIOLimelight3 implements LimelightIO{
         return Math.atan2(getAprilTagZCameraSpace(), getAprilTagXCameraSpace());
     } 
 
-    public void updateInputs(LimelighIOInputs inputs) {
+    public void updateInputs(LimelightIOInputs inputs) {
        inputs.aprilTagID = (int)networkTable.getEntry("tid").getInteger(0);
        inputs.validTargetExists = isValidTarget();
        inputs.aprilTagXCameraSpace = getAprilTagXCameraSpace();

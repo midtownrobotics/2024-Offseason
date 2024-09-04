@@ -92,13 +92,13 @@ public class Shooter extends SubsystemBase {
                 feederIO.setVoltage(ShooterConstants.INTAKING_ROLLER_VOLTAGE.get());
                 break;
             case AUTO_AIM:
-                // todo
+                // TODO
                 break;
             case PASSING:
-                // todo
+                // TODO
                 break;
             case VOMITING:
-                // todo
+                // TODO
                 break;
             case TUNING:
                 flywheelIO.setSpeed(flywheelLeftSpeed.get(), flywheelRightSpeed.get());
