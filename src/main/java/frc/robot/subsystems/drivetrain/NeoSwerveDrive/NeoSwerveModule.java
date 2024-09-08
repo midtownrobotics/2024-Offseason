@@ -141,6 +141,9 @@ public class NeoSwerveModule {
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVelocityRPM", m_drivingSparkMax.getEncoder().getVelocity());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingIsOn", Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01);
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVoltage", m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage());
+
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/state", getState());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/desiredState", getDesiredState());
 	}
 
 	/**
