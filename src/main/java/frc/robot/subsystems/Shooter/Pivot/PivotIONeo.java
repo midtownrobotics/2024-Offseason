@@ -6,6 +6,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.TempuratureConverter;
 
 import org.littletonrobotics.junction.Logger;
@@ -35,6 +36,15 @@ public class PivotIONeo implements PivotIO {
         inputs.pivotVelocityRPM = pivotNeo.getEncoder().getVelocity();
         inputs.pivotTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
         inputs.pivotCurrentAmps = pivotNeo.getOutputCurrent();
+        inputs.encoderReading = pivotEncoder.getAbsolutePosition();
+
+        double editedEncoderReading = pivotEncoder.getAbsolutePosition();
+
+        if (editedEncoderReading < 0.5) {
+            editedEncoderReading++;
+        }
+
+        inputs.editedEncoderReading = editedEncoderReading;
     }
 
     @Override
@@ -56,5 +66,11 @@ public class PivotIONeo implements PivotIO {
         Logger.recordOutput("Shooter/DesiredVoltage", pidAmount);
 
         pivotNeo.setVoltage(pidAmount);
+    }
+
+    public void updatePIDControllers() {
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            pivotPID.setPID(ShooterConstants.PIVOT_P.get(), ShooterConstants.PIVOT_I.get(), ShooterConstants.PIVOT_D.get());
+        });
     }
 }

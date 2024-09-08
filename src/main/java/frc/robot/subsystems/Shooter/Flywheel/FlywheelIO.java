@@ -19,4 +19,5 @@ public interface FlywheelIO {
 
     public void setSpeed(double leftSpeed, double rightSpeed);
     public void updateInputs(FlywheelIOInputs inputs);
+    public void updatePIDControllers();
 }
