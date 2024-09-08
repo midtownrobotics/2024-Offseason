@@ -2,7 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.NeoSwerveDrive;
+package frc.robot.subsystems.drivetrain.NeoSwerveDrive;
+
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.kauailabs.navx.frc.AHRS;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -24,16 +29,20 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.subsystems.drivetrain.DrivetrainInterface;
 import frc.robot.Ports;
+import frc.robot.RobotContainer;
 import frc.robot.utils.NeoSwerveUtils;
 
 /**
  * The {@code Drivetrain} class contains fields and methods pertaining to the function of the drivetrain.
  */
-public class SwerveDrivetrain extends SubsystemBase {
+public class NeoSwerveDrivetrain implements DrivetrainInterface {
 
  	// public static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = 1.340; // adjust as needed so that virtual (turn) position of wheel is zero when straight
 	// public static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = -3.083; // adjust as needed so that virtual (turn) position of wheel is zero when straight
@@ -66,25 +75,25 @@ public class SwerveDrivetrain extends SubsystemBase {
 	// end turn settings	
 
 	// Create SwerveModules
-	private final SwerveModule m_frontLeft /* #2 */ = new SwerveModule(
+	private final NeoSwerveModule m_frontLeft /* #2 */ = new NeoSwerveModule(
 		Ports.NeoDrive.FRONT_LEFT_DRIVING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
 		-0.317, false, "FrontLeft");
 
-	private final SwerveModule m_frontRight /* #1 */ = new SwerveModule(
+	private final NeoSwerveModule m_frontRight /* #1 */ = new NeoSwerveModule(
 		Ports.NeoDrive.FRONT_RIGHT_DRIVING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING_ABSOLUTE_ENCODER,
 		0.86, true, "FrontRight");
 
-	private final SwerveModule m_rearLeft /* #3 */ = new SwerveModule(
+	private final NeoSwerveModule m_rearLeft /* #3 */ = new NeoSwerveModule(
 		Ports.NeoDrive.REAR_LEFT_DRIVING,
 		Ports.NeoDrive.REAR_LEFT_TURNING,
 		Ports.NeoDrive.REAR_LEFT_TURNING_ABSOLUTE_ENCODER,
 		-0.9, true, "RearLeft");
 
-	private final SwerveModule m_rearRight /* #4 */ = new SwerveModule(
+	private final NeoSwerveModule m_rearRight /* #4 */ = new NeoSwerveModule(
 		Ports.NeoDrive.REAR_RIGHT_DRIVING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
@@ -123,9 +132,10 @@ public class SwerveDrivetrain extends SubsystemBase {
 
 	private PIDController turnPidController; // the PID controller used to turn
 
+	private boolean speedBoost;
 
 	/** Creates a new Drivetrain. */
-	public SwerveDrivetrain() {
+	public NeoSwerveDrivetrain() {
 		m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS); // set virtual position for absolute encoder
 		m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS);
 		m_rearLeft.calibrateVirtualPosition(REAR_LEFT_VIRTUAL_OFFSET_RADIANS);
@@ -154,6 +164,20 @@ public class SwerveDrivetrain extends SubsystemBase {
 		turnPidController.setTolerance(DEGREE_THRESHOLD); // n degree error tolerated
 	}
 
+	public void resetHeading() {
+		zeroHeading();
+	}
+
+	@Override
+	public void configureDefaultCommand(CommandXboxController driverController) {
+		setDefaultCommand(new RunCommand(
+			() -> drive(
+				RobotContainer.deadzone(driverController.getLeftY(), driverController.getLeftX(), driverController.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
+				RobotContainer.deadzone(driverController.getLeftX(), driverController.getLeftY(), driverController.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
+				RobotContainer.deadzone(driverController.getRightX(), driverController.getLeftY(), driverController.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
+		 	true), this));
+	}
+
 	@Override
 	public void periodic() {
 		// Update the odometry in the periodic block
@@ -165,6 +189,11 @@ public class SwerveDrivetrain extends SubsystemBase {
 				m_rearLeft.getPosition(),
 				m_rearRight.getPosition()
 			});
+
+		m_frontLeft.updatePIDControllers();
+		m_frontRight.updatePIDControllers();
+		m_rearLeft.updatePIDControllers();
+		m_rearRight.updatePIDControllers();
 
 		calculateTurnAngleUsingPidController();
 
@@ -202,15 +231,19 @@ public class SwerveDrivetrain extends SubsystemBase {
 			pose);
 	}
 
-	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean speedBoost) {
-		drive(xSpeed, ySpeed, rot, fieldRelative, false, speedBoost);
+	public void setBoost(boolean boost) {
+		speedBoost = boost;
 	}
 
-	public void drive(double xSpeed, double ySpeed, double rot, boolean speedBoost) {
-		drive(xSpeed, ySpeed, rot, true, speedBoost);
+	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
+		drive(xSpeed, ySpeed, rot, fieldRelative, false);
 	}
 
-	public void drivePID(double xSpeed, double ySpeed, double rot, boolean speedBoost) {
+	public void drive(double xSpeed, double ySpeed, double rot) {
+		drive(xSpeed, ySpeed, rot, true);
+	}
+
+	public void drivePID(double xSpeed, double ySpeed, double rot) {
 		SmartDashboard.putNumber("desired rotation", rot*Constants.NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND/(Math.PI*2));
 		SmartDashboard.putNumber("pigeon rotation", pigeon.getRate() / 360);
 		double error = 0;
@@ -218,11 +251,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 			error = rot*Constants.NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND/(Math.PI*2) - pigeon.getRate() / 360;
 		}
 		double kP = 1;
-		drive(xSpeed, ySpeed, kP * error + rot, speedBoost);
-	}
-
-	public void driveBoosted() {
-		
+		drive(xSpeed, ySpeed, kP * error + rot);
 	}
 
 	/**
@@ -235,7 +264,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 	 *                      field.
 	 * @param rateLimit     Whether to enable rate limiting for smoother control.
 	 */
-	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit, boolean speedBoost) {
+	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit) {
 		
 		double xSpeedCommanded;
 		double ySpeedCommanded;
@@ -367,7 +396,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
 	public void stop()
 	{
-		drive(0, 0, 0, true, false, false);
+		drive(0, 0, 0, true, false);
 
 		isTurning = false;
 	}
@@ -390,22 +419,22 @@ public class SwerveDrivetrain extends SubsystemBase {
 		return m_gyro.getRate() * (NeoDrivetrainConstants.kGyroReversed ? -1.0 : 1.0);
 	}
 
-	public SwerveModule getFrontLeftModule()
+	public NeoSwerveModule getFrontLeftModule()
 	{
 		return m_frontLeft;
 	}
 
-	public SwerveModule getFrontRightModule()
+	public NeoSwerveModule getFrontRightModule()
 	{
 		return m_frontRight;
 	}
 
-	public SwerveModule getRearLeftModule()
+	public NeoSwerveModule getRearLeftModule()
 	{
 		return m_rearLeft;
 	}
 
-	public SwerveModule getRearRightModule()
+	public NeoSwerveModule getRearRightModule()
 	{
 		return m_rearRight;
 	}
@@ -496,7 +525,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
 		//System.out.println("output: " + output);
 
-		drive(0, 0, output, false, false); // TODO double-check sign
+		drive(0, 0, output, false); // TODO double-check sign
 	}
 }
 

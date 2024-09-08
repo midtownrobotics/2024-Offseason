@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Intake.BeamBreakIO;
+package frc.robot.subsystems.BeamBreak.BeamBreakIO;
 
 import org.littletonrobotics.junction.AutoLog;
 

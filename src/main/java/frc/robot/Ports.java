@@ -1,6 +1,10 @@
 package frc.robot;
 
 public final class Ports {
+
+    public static final int driverControllerPort = 0;
+    public static final int operatorControllerPort = 1;
+
     public static final class ShooterPorts {
         public static final int leftFlywheel = 32;  //CAN
         public static final int rightFlywheel = 33; //CAN
@@ -14,6 +18,11 @@ public final class Ports {
         public static final int runInternal = 40;
         public static final int runExternal = 41;
         public static final int beamBreak = 6;
+    }
+    
+    public static final class ClimberPorts {
+        public static final int leftClimberID = 50;
+        public static final int rightClimberID = 51;
     }
 
 
