@@ -33,6 +33,11 @@ public final class Constants {
 		public static LoggedDashboardNumber CONTROLLER_RUMBLE_TIME = new LoggedDashboardNumber("Intake/Constants/CONTROLLER_RUMBLE_TIME", 12);
     }
 
+	public static final class MotorConstants {
+		public static int CURRENT_LIMIT_550 = 35;
+        public static int CURRENT_LIMIT_1650= 60;
+	}
+
 	// if true kraken drivetrain is used otherwise neo is used
 	public static LoggedDashboardBoolean USE_KRAKEN_DRIVETRAIN = new LoggedDashboardBoolean("USE_KRAKEN_DRIVETRAIN", false);
 

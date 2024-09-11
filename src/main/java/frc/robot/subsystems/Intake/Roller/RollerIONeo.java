@@ -2,6 +2,7 @@ package frc.robot.subsystems.Intake.Roller;
 
 import com.revrobotics.CANSparkMax;
 
+import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.TempuratureConverter;
 
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -18,10 +19,12 @@ public class RollerIONeo implements RollerIO {
         runExternal.restoreFactoryDefaults();
         runExternal.setInverted(true);
         runExternal.burnFlash();
+        runExternal.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
 
         runInternal.restoreFactoryDefaults();
         runInternal.setInverted(false);
         runInternal.burnFlash();
+        runInternal.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
     }
 
     @Override
@@ -29,6 +32,7 @@ public class RollerIONeo implements RollerIO {
         runExternal.set(speed);
         runInternal.set(speed);
     }
+
 
     @Override
     public void updateInputs(RollerIOInputs inputs) {

@@ -5,6 +5,7 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import frc.robot.Constants.MotorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.TempuratureConverter;
@@ -23,7 +24,8 @@ public class PivotIONeo implements PivotIO {
         pivotNeo = new CANSparkMax(pivotNeoID, MotorType.kBrushless);
         pivotNeo.setIdleMode(IdleMode.kCoast);
         pivotNeo.burnFlash();
-
+        pivotNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+        
         pivotEncoder = new DutyCycleEncoder(new DigitalInput(pivotEncoderDIOID));
 
         pivotPID = new PIDController(ShooterConstants.PIVOT_P.get(), ShooterConstants.PIVOT_I.get(), ShooterConstants.PIVOT_D.get());

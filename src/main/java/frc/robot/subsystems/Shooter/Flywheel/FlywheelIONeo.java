@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 
+import frc.robot.Constants.MotorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.TempuratureConverter;
@@ -23,10 +24,12 @@ public class FlywheelIONeo implements FlywheelIO {
         leftWheelNeo = new CANSparkMax(leftWheelNeoID, MotorType.kBrushless);
         leftWheelNeo.setIdleMode(IdleMode.kCoast);
         leftWheelNeo.burnFlash();
+        leftWheelNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
 
         rightWheelNeo = new CANSparkMax(rightWheelNeoID, MotorType.kBrushless);
         rightWheelNeo.setIdleMode(IdleMode.kCoast);
         rightWheelNeo.burnFlash();
+        rightWheelNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
 
         leftWheelPID = leftWheelNeo.getPIDController();
         leftWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());

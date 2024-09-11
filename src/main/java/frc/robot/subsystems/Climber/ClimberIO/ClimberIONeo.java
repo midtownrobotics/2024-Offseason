@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Climber.ClimberIO;
 
+import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.TempuratureConverter;
 
 import com.revrobotics.CANSparkMax;
@@ -14,7 +15,9 @@ public class ClimberIONeo implements ClimberIO{
         leftClimber = new CANSparkMax(leftClimberID, MotorType.kBrushless);
 
         rightClimber.burnFlash();
+        rightClimber.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
         leftClimber.burnFlash();
+        leftClimber.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
     }
 
     public void setPower(double rightPower, double leftPower) {
