@@ -64,6 +64,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         // TODO: Merge in set X
     }
 
+    public void setBoost(boolean boost) {}
+
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
     }
