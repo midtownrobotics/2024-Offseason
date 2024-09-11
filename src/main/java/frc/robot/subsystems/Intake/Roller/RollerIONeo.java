@@ -18,13 +18,13 @@ public class RollerIONeo implements RollerIO {
 
         runExternal.restoreFactoryDefaults();
         runExternal.setInverted(true);
-        runExternal.burnFlash();
         runExternal.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+        runExternal.burnFlash();
 
         runInternal.restoreFactoryDefaults();
         runInternal.setInverted(false);
-        runInternal.burnFlash();
         runInternal.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+        runInternal.burnFlash();
     }
 
     @Override

@@ -15,13 +15,13 @@ public class FeederIONeo implements FeederIO {
     public FeederIONeo(int rollerTopID, int rollerBottomID) {
         rollerTopNeo = new CANSparkMax(rollerTopID, MotorType.kBrushless);
         rollerTopNeo.setIdleMode(IdleMode.kCoast);
-        rollerTopNeo.burnFlash();
         rollerTopNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+        rollerTopNeo.burnFlash();
 
         rollerBottomNeo = new CANSparkMax(rollerBottomID, MotorType.kBrushless);
         rollerBottomNeo.setIdleMode(IdleMode.kCoast);
-        rollerBottomNeo.burnFlash();
         rollerBottomNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+        rollerBottomNeo.burnFlash();
     }
 
     @Override

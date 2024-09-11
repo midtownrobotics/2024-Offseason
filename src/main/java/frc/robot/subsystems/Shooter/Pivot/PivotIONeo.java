@@ -23,8 +23,8 @@ public class PivotIONeo implements PivotIO {
     public PivotIONeo(int pivotNeoID, int pivotEncoderDIOID) {
         pivotNeo = new CANSparkMax(pivotNeoID, MotorType.kBrushless);
         pivotNeo.setIdleMode(IdleMode.kCoast);
-        pivotNeo.burnFlash();
         pivotNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+        pivotNeo.burnFlash();
         
         pivotEncoder = new DutyCycleEncoder(new DigitalInput(pivotEncoderDIOID));
 

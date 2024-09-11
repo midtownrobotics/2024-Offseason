@@ -14,10 +14,10 @@ public class ClimberIONeo implements ClimberIO{
         rightClimber = new CANSparkMax(rightClimberID, MotorType.kBrushless);
         leftClimber = new CANSparkMax(leftClimberID, MotorType.kBrushless);
 
-        rightClimber.burnFlash();
         rightClimber.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
-        leftClimber.burnFlash();
+        rightClimber.burnFlash();
         leftClimber.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+        leftClimber.burnFlash();
     }
 
     public void setPower(double rightPower, double leftPower) {
