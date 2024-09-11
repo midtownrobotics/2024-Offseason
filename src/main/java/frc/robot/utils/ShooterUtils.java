@@ -1,8 +1,10 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.util.Units;
 
 public class ShooterUtils {
+  
     public InterpolatingDoubleTreeMap lookupTableShooterAngle;
     public static ShooterUtils instance = new ShooterUtils();
 

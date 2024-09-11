@@ -10,7 +10,9 @@ import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.drivetrain.DrivetrainInterface;
 import frc.robot.Ports;
 import frc.robot.RobotContainer;
@@ -119,6 +122,7 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 			m_rearRight.getPosition()
 		});
 
+	private final SwerveDrivePoseEstimator m_poseEstimator;
 
 	// other variables
 	private boolean isTurning;  // indicates that the drivetrain is turning using the PID controller hereunder
@@ -147,10 +151,23 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 		// Note: the field coordinate system (or global coordinate system) is an absolute coordinate system where a point on the field is designated as the origin.
 		// Positive theta is in the counter-clockwise direction, and the positive x-axis points away from your alliance’s driver station wall,
 		// and the positive y-axis is perpendicular and to the left of the positive x-axis.
-		Translation2d initialTranslation = new Translation2d(Units.inchesToMeters(FIELD_LENGTH_INCHES/2),Units.inchesToMeters(FIELD_WIDTH_INCHES/2)); // mid field
+		// Translation2d initialTranslation = new Translation2d(Units.inchesToMeters(FIELD_LENGTH_INCHES/2),Units.inchesToMeters(FIELD_WIDTH_INCHES/2)); // mid field
+		Translation2d initialTranslation = new Translation2d(1.3, 5.7);
 		Rotation2d initialRotation = new Rotation2d(); 
 		Pose2d initialPose = new Pose2d(initialTranslation,initialRotation);
 		resetOdometry(initialPose);
+
+		m_poseEstimator = new SwerveDrivePoseEstimator(
+			NeoDrivetrainConstants.DRIVE_KINEMATICS,
+			Rotation2d.fromDegrees(GYRO_ORIENTATION * pigeon.getYaw()),
+			new SwerveModulePosition[] {
+				m_frontLeft.getPosition(),
+				m_frontRight.getPosition(),
+				m_rearLeft.getPosition(),
+				m_rearRight.getPosition()
+			},
+			initialPose
+		);
 
 		//creates a PID controller
 		turnPidController = new PIDController(TURN_PROPORTIONAL_GAIN, TURN_INTEGRAL_GAIN, TURN_DERIVATIVE_GAIN);	
@@ -185,9 +202,35 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 				m_rearRight.getPosition()
 			});
 
+		
+		m_poseEstimator.update(Rotation2d.fromDegrees(GYRO_ORIENTATION * pigeon.getYaw()), new SwerveModulePosition[] {
+				m_frontLeft.getPosition(),
+				m_frontRight.getPosition(),
+				m_rearLeft.getPosition(),
+				m_rearRight.getPosition()
+			});
 		calculateTurnAngleUsingPidController();
 
+		LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+      	LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+		Pose2d invertedMt2Pose = new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
+		boolean doRejectUpdate = false;
+		if(Math.abs(m_gyro.getRate()) > 720) { // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+			doRejectUpdate = true;
+		}
+		if(mt2.tagCount == 0) {
+			doRejectUpdate = true;
+		}
+		if(!doRejectUpdate) {
+			m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+			m_poseEstimator.addVisionMeasurement(
+				invertedMt2Pose,
+				mt2.timestampSeconds
+			);
+		}
 		Logger.recordOutput("Robot/Pose", getPose());
+		Logger.recordOutput("Robot/MegatagPose", m_poseEstimator.getEstimatedPosition());
+		Logger.recordOutput("Robot/VisionPose", invertedMt2Pose);
 
 		getFrontLeftModule().logMotorInfo();
 		getFrontRightModule().logMotorInfo();

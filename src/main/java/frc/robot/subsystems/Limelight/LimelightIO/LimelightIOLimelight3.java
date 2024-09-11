@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Limelight.LimelightIO;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 
 public class LimelightIOLimelight3 implements LimelightIO{
@@ -31,8 +32,8 @@ public class LimelightIOLimelight3 implements LimelightIO{
         return getAprilTagPoseCameraSpace()[2];
     }
 
-    public double getDistance() { 
-       return Math.sqrt(getAprilTagXCameraSpace() * getAprilTagXCameraSpace() + getAprilTagZCameraSpace() * getAprilTagZCameraSpace());
+    public double getDistance() { // returns in cm
+       return Math.sqrt(getAprilTagXCameraSpace() * getAprilTagXCameraSpace() + getAprilTagZCameraSpace() * getAprilTagZCameraSpace()) * 100;
     }
 
     public double getAngleOffset() {
@@ -44,5 +45,6 @@ public class LimelightIOLimelight3 implements LimelightIO{
        inputs.validTargetExists = isValidTarget();
        inputs.aprilTagXCameraSpace = getAprilTagXCameraSpace();
        inputs.aprilTagZCameraSpace = getAprilTagZCameraSpace();
+       inputs.distance = getDistance();
     }
 }

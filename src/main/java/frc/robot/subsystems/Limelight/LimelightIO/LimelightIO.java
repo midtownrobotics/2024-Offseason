@@ -8,7 +8,8 @@ public interface LimelightIO {
         public int aprilTagID = 0;
         public boolean validTargetExists = false;
         public double aprilTagXCameraSpace = 0.0; 
-        public double aprilTagZCameraSpace = 0.0; 
+        public double aprilTagZCameraSpace = 0.0;
+        public double distance = 0.0; 
     }
 
    double getAngleOffset();

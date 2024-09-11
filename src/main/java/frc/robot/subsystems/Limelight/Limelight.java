@@ -23,10 +23,6 @@ public class Limelight extends SubsystemBase{
         return limelightIO.getDistance();
    }
 
-   public double getAngleFromDistance() {
-        return ShooterUtils.instance.getAngleFromDistance(getDistance());
-   }
-
    @Override
    public void periodic() {
        limelightIO.updateInputs(limelightIOInputs);
