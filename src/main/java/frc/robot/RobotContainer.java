@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.nio.channels.NetworkChannel;
 
+import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
+
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,7 +22,7 @@ import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIOSim;
 import frc.robot.Ports.ShooterPorts;
-import frc.robot.generated.TunerConstants;
+// import frc.robot.generated.TunerConstants;
 import frc.robot.RobotState.State;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
@@ -42,9 +44,10 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew;
+import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew.SwerveDriveState;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
-import frc.robot.subsystems.drivetrain.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drivetrain.DrivetrainInterface;
 import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
 
@@ -56,7 +59,7 @@ public class RobotContainer {
   private BeamBreak beamBreak;
   private Limelight limelight;
 
-  private NeoSwerveDrivetrain drivetrain;
+  private SwerveDrivetrainNew drivetrain;
 
   private RobotState robotState;
 
@@ -76,7 +79,7 @@ public class RobotContainer {
     drivetrain.configureDefaultCommand(driver);
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-    driver.x().whileTrue(new RunCommand(() -> drivetrain.setX(), drivetrain));
+    driver.x().whileTrue(new StartEndCommand(() -> drivetrain.setState(SwerveDriveState.X), () -> drivetrain.setState(SwerveDriveState.MANUAL), drivetrain));
 
     driver.leftTrigger().whileTrue(new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
 
@@ -127,8 +130,10 @@ public class RobotContainer {
     // if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is used
     //   drivetrain = TunerConstants.DriveTrain;
     // } else {
-      drivetrain = new NeoSwerveDrivetrain();
+      // drivetrain = new NeoSwerveDrivetrain();
     // }
+
+    drivetrain = new SwerveDrivetrainNew();
 
     // Limelight
     
