@@ -5,7 +5,9 @@ import com.revrobotics.CANSparkMax;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import frc.robot.Constants.MotorConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.TempuratureConverter;
 
 import org.littletonrobotics.junction.Logger;
@@ -21,8 +23,9 @@ public class PivotIONeo implements PivotIO {
     public PivotIONeo(int pivotNeoID, int pivotEncoderDIOID) {
         pivotNeo = new CANSparkMax(pivotNeoID, MotorType.kBrushless);
         pivotNeo.setIdleMode(IdleMode.kCoast);
+        pivotNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
         pivotNeo.burnFlash();
-
+        
         pivotEncoder = new DutyCycleEncoder(new DigitalInput(pivotEncoderDIOID));
 
         pivotPID = new PIDController(ShooterConstants.PIVOT_P.get(), ShooterConstants.PIVOT_I.get(), ShooterConstants.PIVOT_D.get());
@@ -65,5 +68,11 @@ public class PivotIONeo implements PivotIO {
         Logger.recordOutput("Shooter/DesiredVoltage", pidAmount);
 
         pivotNeo.setVoltage(pidAmount);
+    }
+
+    public void updatePIDControllers() {
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            pivotPID.setPID(ShooterConstants.PIVOT_P.get(), ShooterConstants.PIVOT_I.get(), ShooterConstants.PIVOT_D.get());
+        });
     }
 }

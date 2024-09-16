@@ -10,4 +10,8 @@ public class FlywheelIOSim implements FlywheelIO  {
     public void updateInputs(FlywheelIOInputs inputs) {
         
     }
+    
+    public void updatePIDControllers() {
+
+    }
 }

@@ -9,6 +9,11 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -209,7 +214,13 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 				m_rearLeft.getPosition(),
 				m_rearRight.getPosition()
 			});
-		calculateTurnAngleUsingPidController();
+
+		m_frontLeft.updatePIDControllers();
+		m_frontRight.updatePIDControllers();
+		m_rearLeft.updatePIDControllers();
+		m_rearRight.updatePIDControllers();
+
+    calculateTurnAngleUsingPidController();
 
 		LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
       	LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");

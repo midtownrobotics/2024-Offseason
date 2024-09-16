@@ -8,7 +8,9 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 
+import frc.robot.Constants.MotorConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.TempuratureConverter;
 
 public class FlywheelIONeo implements FlywheelIO {
@@ -21,10 +23,12 @@ public class FlywheelIONeo implements FlywheelIO {
 
         leftWheelNeo = new CANSparkMax(leftWheelNeoID, MotorType.kBrushless);
         leftWheelNeo.setIdleMode(IdleMode.kCoast);
+        leftWheelNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
         leftWheelNeo.burnFlash();
 
         rightWheelNeo = new CANSparkMax(rightWheelNeoID, MotorType.kBrushless);
         rightWheelNeo.setIdleMode(IdleMode.kCoast);
+        rightWheelNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
         rightWheelNeo.burnFlash();
 
         leftWheelPID = leftWheelNeo.getPIDController();
@@ -73,5 +77,21 @@ public class FlywheelIONeo implements FlywheelIO {
         } else {
             rightWheelPID.setReference(rightSpeed, ControlType.kVelocity);
         }
+    }
+
+    public void updatePIDControllers() {
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            leftWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());
+            leftWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
+            leftWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
+            leftWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+        });
+
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            rightWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());
+            rightWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
+            rightWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
+            rightWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+        });
     }
 }

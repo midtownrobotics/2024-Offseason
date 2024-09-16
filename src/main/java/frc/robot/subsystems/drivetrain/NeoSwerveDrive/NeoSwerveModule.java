@@ -19,7 +19,9 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import frc.robot.Constants;
 import frc.robot.Constants.NeoSwerveModuleConstants;
+import frc.robot.utils.LoggedTunableNumber;
 
 /**
  * The {@code SwerveModule} class contains fields and methods pertaining to the function of a swerve module.
@@ -101,17 +103,17 @@ public class NeoSwerveModule {
 		m_turningPIDController.setPositionPIDWrappingMaxInput(NeoSwerveModuleConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS);
 
 		// Set the PID gains for the driving motor.
-		m_drivingPIDController.setP(NeoSwerveModuleConstants.DRIVING_P);
-		m_drivingPIDController.setI(NeoSwerveModuleConstants.DRIVING_I);
-		m_drivingPIDController.setD(NeoSwerveModuleConstants.DRIVING_D);
-		m_drivingPIDController.setFF(NeoSwerveModuleConstants.DRIVING_FF);
+		m_drivingPIDController.setP(NeoSwerveModuleConstants.DRIVING_P.get());
+		m_drivingPIDController.setI(NeoSwerveModuleConstants.DRIVING_I.get());
+		m_drivingPIDController.setD(NeoSwerveModuleConstants.DRIVING_D.get());
+		m_drivingPIDController.setFF(NeoSwerveModuleConstants.DRIVING_FF.get());
 		m_drivingPIDController.setOutputRange(NeoSwerveModuleConstants.DRIVING_MIN_OUTPUT_NORMALIZED, NeoSwerveModuleConstants.DRIVING_MAX_OUTPUT_NORMALIZED);
 
 		// Set the PID gains for the turning motor.
-		m_turningPIDController.setP(NeoSwerveModuleConstants.TURNING_P);
-		m_turningPIDController.setI(NeoSwerveModuleConstants.TURNING_I);
-		m_turningPIDController.setD(NeoSwerveModuleConstants.TURNING_D);
-		m_turningPIDController.setFF(NeoSwerveModuleConstants.TURNING_FF);
+		m_turningPIDController.setP(NeoSwerveModuleConstants.TURNING_P.get());
+		m_turningPIDController.setI(NeoSwerveModuleConstants.TURNING_I.get());
+		m_turningPIDController.setD(NeoSwerveModuleConstants.TURNING_D.get());
+		m_turningPIDController.setFF(NeoSwerveModuleConstants.TURNING_FF.get());
 		m_turningPIDController.setOutputRange(NeoSwerveModuleConstants.TURNING_MIN_OUTPUT_NORMALIZED, NeoSwerveModuleConstants.TURNING_MAX_OUTPUT_NORMALIZED);
 
 		m_drivingSparkMax.setIdleMode(NeoSwerveModuleConstants.DRIVING_MOTOR_IDLE_MODE);
@@ -139,6 +141,9 @@ public class NeoSwerveModule {
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVelocityRPM", m_drivingSparkMax.getEncoder().getVelocity());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingIsOn", Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01);
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVoltage", m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage());
+
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/state", getState());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/desiredState", getDesiredState());
 	}
 
 	/**
@@ -244,6 +249,22 @@ public class NeoSwerveModule {
 
 	public double getTurningTemp() {
 		return m_turningSparkMax.getMotorTemperature();
+	}
+
+	public void updatePIDControllers() {
+		LoggedTunableNumber.ifChanged(hashCode(), () -> {
+			m_drivingPIDController.setP(Constants.NeoSwerveModuleConstants.DRIVING_P.get());
+			m_drivingPIDController.setI(Constants.NeoSwerveModuleConstants.DRIVING_I.get());
+			m_drivingPIDController.setD(Constants.NeoSwerveModuleConstants.DRIVING_D.get());
+			m_drivingPIDController.setFF(Constants.NeoSwerveModuleConstants.DRIVING_FF.get());
+		});
+
+		LoggedTunableNumber.ifChanged(hashCode(), () -> {
+			m_turningPIDController.setP(Constants.NeoSwerveModuleConstants.TURNING_P.get());
+			m_turningPIDController.setI(Constants.NeoSwerveModuleConstants.TURNING_I.get());
+			m_turningPIDController.setD(Constants.NeoSwerveModuleConstants.TURNING_D.get());
+			m_turningPIDController.setFF(Constants.NeoSwerveModuleConstants.TURNING_FF.get());
+		});
 	}
 
 }
