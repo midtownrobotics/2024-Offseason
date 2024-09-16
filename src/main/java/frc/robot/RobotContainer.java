@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.nio.channels.NetworkChannel;
+
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -24,6 +28,10 @@ import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
+import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
@@ -46,8 +54,9 @@ public class RobotContainer {
   private Shooter shooter;
   private Intake intake;
   private BeamBreak beamBreak;
+  private Limelight limelight;
 
-  private DrivetrainInterface drivetrain;
+  private NeoSwerveDrivetrain drivetrain;
 
   private RobotState robotState;
 
@@ -88,6 +97,9 @@ public class RobotContainer {
         case AMP_REVVING:
           robotState.setState(State.AMP);
           break;
+        case AUTO_AIM_REVVING:
+          robotState.setState(State.AUTO_AIM);
+          break;
         default:
           break;
       }
@@ -95,6 +107,7 @@ public class RobotContainer {
 
 		operator.a().whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
 		operator.x().whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+    operator.y().whileTrue(new InstantCommand(() -> robotState.setState(State.AUTO_AIM_REVVING), shooter));
 		operator.b().whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
     // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     // joystick.b().whileTrue(drivetrain
@@ -111,11 +124,23 @@ public class RobotContainer {
 
     // Drivetrain
 
-    if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is used
-      drivetrain = TunerConstants.DriveTrain;
-    } else {
+    // if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is used
+    //   drivetrain = TunerConstants.DriveTrain;
+    // } else {
       drivetrain = new NeoSwerveDrivetrain();
+    // }
+
+    // Limelight
+    
+    LimelightIO limelightIO;
+
+    if (Constants.currentMode == Constants.Mode.REAL) {
+      limelightIO = new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight")); 
+    } else {
+      limelightIO = new LimelightIOSim();
     }
+
+    limelight = new Limelight(limelightIO);
 
     // Shooter
 
@@ -133,7 +158,7 @@ public class RobotContainer {
       feederIO = new FeederIOSim();
     }
 
-    shooter = new Shooter(flywheelIO, pivotIO, feederIO);
+    shooter = new Shooter(flywheelIO, pivotIO, feederIO, limelight);
 
     // Intake
 
@@ -159,7 +184,7 @@ public class RobotContainer {
 
     climber = new Climber(operator, climberIO);
     
-        // Robot State
+    // Robot State
 
     robotState = new RobotState(shooter, climber, intake);
 
@@ -174,7 +199,7 @@ public class RobotContainer {
     }
 
     beamBreak = new BeamBreak(beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
-
+    
   }
 
   public RobotContainer() { 
