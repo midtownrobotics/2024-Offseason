@@ -1,11 +1,12 @@
 package frc.robot.subsystems.Limelight;
 
+import java.util.Arrays;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOInputsAutoLogged;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
-import frc.robot.utils.ShooterUtils;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOInputsAutoLogged;
 
 public class Limelight extends SubsystemBase{
    private LimelightIO limelightIO;
@@ -21,6 +22,14 @@ public class Limelight extends SubsystemBase{
 
    public double getDistance() {
         return limelightIO.getDistance();
+   }
+
+   public double getTx() {
+     return limelightIO.getTx();
+   }
+
+   public boolean isValidTarget(String[] targetIds) {
+     return limelightIO.getValidTargetExists() && Arrays.stream(targetIds).anyMatch(Integer.toString(limelightIO.getId())::equals);
    }
 
    @Override

@@ -80,6 +80,7 @@ public class RobotContainer {
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
     driver.x().whileTrue(new StartEndCommand(() -> drivetrain.setState(SwerveDriveState.X), () -> drivetrain.setState(SwerveDriveState.MANUAL), drivetrain));
+    driver.y().whileTrue(new StartEndCommand(() -> drivetrain.setState(SwerveDriveState.SPEAKER_AUTO_ALIGN), () -> drivetrain.setState(SwerveDriveState.MANUAL), drivetrain));
 
     driver.leftTrigger().whileTrue(new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
 
@@ -124,16 +125,6 @@ public class RobotContainer {
   }
 
   public void initializeSubsystems() {
-
-    // Drivetrain
-
-    // if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is used
-    //   drivetrain = TunerConstants.DriveTrain;
-    // } else {
-      // drivetrain = new NeoSwerveDrivetrain();
-    // }
-
-    drivetrain = new SwerveDrivetrainNew();
 
     // Limelight
     
@@ -204,6 +195,16 @@ public class RobotContainer {
     }
 
     beamBreak = new BeamBreak(beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
+
+    // Drivetrain
+
+    // if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is used
+    //   drivetrain = TunerConstants.DriveTrain;
+    // } else {
+      // drivetrain = new NeoSwerveDrivetrain();
+    // }
+
+    drivetrain = new SwerveDrivetrainNew(limelight);
     
   }
 
