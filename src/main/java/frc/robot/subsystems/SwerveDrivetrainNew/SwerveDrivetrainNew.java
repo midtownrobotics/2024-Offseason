@@ -55,7 +55,7 @@ public class SwerveDrivetrainNew extends SubsystemBase {
         switch (state) {
             case MANUAL:
                 if (driverChassisSpeeds == null) break;
-                drivetrain.drive(driverChassisSpeeds.vxMetersPerSecond, driverChassisSpeeds.vyMetersPerSecond, driverChassisSpeeds.omegaRadiansPerSecond, true);
+                drivetrain.drive(driverChassisSpeeds);
                 break;
             case AUTO:
                 

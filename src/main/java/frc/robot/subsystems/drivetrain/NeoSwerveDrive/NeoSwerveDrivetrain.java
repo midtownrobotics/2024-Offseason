@@ -276,6 +276,16 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 		speedBoost = boost;
 	}
 
+	public void drive(ChassisSpeeds chassisSpeeds) {
+		drive(
+			chassisSpeeds.vxMetersPerSecond,
+			chassisSpeeds.vyMetersPerSecond, 
+			chassisSpeeds.omegaRadiansPerSecond, 
+			true, 
+			false
+		);
+	}
+
 	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
 		drive(xSpeed, ySpeed, rot, fieldRelative, false);
 	}
