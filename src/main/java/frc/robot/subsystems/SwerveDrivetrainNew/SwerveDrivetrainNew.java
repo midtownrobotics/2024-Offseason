@@ -27,8 +27,12 @@ public class SwerveDrivetrainNew extends SubsystemBase {
 
     private SwerveDriveState state = SwerveDriveState.MANUAL;
 
-    private ChassisSpeeds driverChassisSpeeds;
-    private ChassisSpeeds autoChassisSpeeds;
+    private double driverChassisSpeedsX;
+    private double driverChassisSpeedsY;
+    private double driverChassisSpeedsRot;
+    private double autoChassisSpeedsX;
+    private double autoChassisSpeedsY;
+    private double autoChassisSpeedsRot;
 
     private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
 
@@ -41,20 +45,33 @@ public class SwerveDrivetrainNew extends SubsystemBase {
     public void periodic() {
         switch (state) {
             case MANUAL:
-                if (driverChassisSpeeds == null) break;
-                drivetrain.drive(driverChassisSpeeds);
+                drivetrain.drive(
+                    driverChassisSpeedsX,
+                    driverChassisSpeedsY,
+                    driverChassisSpeedsRot,
+                    true
+                );
                 break;
             case AUTO:
                 
                 break;
             case SPEAKER_AUTO_ALIGN:
-                if (driverChassisSpeeds == null || !limelight.isValidTarget(new String[]{"7"})) break;
-                drivetrain.drive(
-                    driverChassisSpeeds.vxMetersPerSecond,
-                    driverChassisSpeeds.vyMetersPerSecond,
-                    -autoAimPID.calculate(limelight.getTx()), 
-                   true
-                );
+                if (limelight.isValidTarget(7)) {
+                    drivetrain.drive(
+                        driverChassisSpeedsX,
+                        driverChassisSpeedsY,
+                        -autoAimPID.calculate(limelight.getTx()),
+                        true
+                    );
+
+                } else {
+                    drivetrain.drive(
+                        driverChassisSpeedsX,
+                        driverChassisSpeedsY,
+                        0,
+                        true
+                    );
+                }
                 break;
             case X:
                 drivetrain.setX();
@@ -73,21 +90,16 @@ public class SwerveDrivetrainNew extends SubsystemBase {
 
     public void configureDefaultCommand(CommandXboxController driver) {
         drivetrain.setDefaultCommand(new RunCommand (() -> {
-            driverChassisSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-                RobotContainer.deadzone(driver.getLeftY(), driver.getLeftX(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
-                RobotContainer.deadzone(driver.getLeftX(), driver.getLeftY(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
-                RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER,
-                drivetrain.getRotation2d()
-            );
+            driverChassisSpeedsX = RobotContainer.deadzone(driver.getLeftY(), driver.getLeftX(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+            driverChassisSpeedsY = RobotContainer.deadzone(driver.getLeftX(), driver.getLeftY(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+            driverChassisSpeedsRot = RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
         }, drivetrain));
     }
 
-    public void setDriverDesiredSpeeds(ChassisSpeeds driverChassisSpeeds) {
-        this.driverChassisSpeeds = driverChassisSpeeds;
-    }
-
-    public void setAutoDesiredSpeeds(ChassisSpeeds autoChassisSpeeds) {
-        this.autoChassisSpeeds = autoChassisSpeeds;
+    public void setAutoDesiredSpeeds(double autoChassisSpeedsX, double autoChassisSpeedsY, double autoChassisSpeedsRot) {
+        this.autoChassisSpeedsX = autoChassisSpeedsX;
+        this.autoChassisSpeedsY = autoChassisSpeedsY;
+        this.autoChassisSpeedsRot = autoChassisSpeedsRot;
     }
 
     public void setState(SwerveDriveState state) {

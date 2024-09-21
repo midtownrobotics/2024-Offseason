@@ -28,8 +28,8 @@ public class Limelight extends SubsystemBase{
      return limelightIO.getTx();
    }
 
-   public boolean isValidTarget(String[] targetIds) {
-     return limelightIO.getValidTargetExists() && Arrays.stream(targetIds).anyMatch(Integer.toString(limelightIO.getId())::equals);
+   public boolean isValidTarget(int targetId) {
+     return limelightIO.getValidTargetExists() && limelightIO.getId() == targetId;
    }
 
    @Override

@@ -40,7 +40,8 @@ public class LimelightIOLimelight3 implements LimelightIO{
     } 
 
     public double getTx() {
-        return networkTable.getEntry("tx").getDouble(0);
+        double tx = networkTable.getEntry("tx").getDouble(0);
+        return tx + 10
     }
 
     public int getId() {
