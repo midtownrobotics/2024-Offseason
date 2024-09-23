@@ -58,9 +58,17 @@ public class PivotIONeo implements PivotIO {
         Logger.recordOutput("Shooter/DesiredPivotAngle", angle);
         Logger.recordOutput("Shooter/PivotAngle", encoderReading);
 
-        double pidAmount = pivotPID.calculate(encoderReading, Math.min(Math.max(angle, ShooterConstants.MIN_PIVOT_ANGLE.get()), ShooterConstants.MAX_PIVOT_ANGLE.get()));
+        double pidAmount;
 
-        pidAmount*= 12; // multiply by 12 because the battery is 12 volts
+        if (angle > ShooterConstants.MAX_PIVOT_ANGLE.get()) {
+            pidAmount = pivotPID.calculate(encoderReading, ShooterConstants.MAX_PIVOT_ANGLE.get());
+        } else if (angle < ShooterConstants.MIN_PIVOT_ANGLE.get()) {
+            pidAmount = pivotPID.calculate(encoderReading, ShooterConstants.MIN_PIVOT_ANGLE.get());
+        } else {
+            pidAmount = pivotPID.calculate(encoderReading, angle);
+        }
+
+        pidAmount *= 12; // multiply by 12 because the battery is 12 volts
         
         Logger.recordOutput("Shooter/DesiredVoltage", pidAmount);
 

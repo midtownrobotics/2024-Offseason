@@ -4,6 +4,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOInputsAutoLogged;
@@ -108,6 +109,7 @@ public class Shooter extends SubsystemBase {
             case IDLE:
                 flywheelIO.setSpeed(0, 0);
                 feederIO.setVoltage(0);
+                pivotIO.setAngle(Constants.ShooterConstants.SPEAKER_ANGLE.get());
                 break;
             default:
                 break;
