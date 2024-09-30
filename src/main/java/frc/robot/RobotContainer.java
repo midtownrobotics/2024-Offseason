@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
@@ -50,6 +51,7 @@ import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
 import frc.robot.subsystems.drivetrain.DrivetrainInterface;
 import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
+import frc.robot.utils.AutonUtils;
 
 public class RobotContainer {
 
@@ -58,6 +60,7 @@ public class RobotContainer {
   private Intake intake;
   private BeamBreak beamBreak;
   private Limelight limelight;
+  private AutonUtils autonUtils;
 
   private SwerveDrivetrainNew drivetrain;
 
@@ -205,6 +208,8 @@ public class RobotContainer {
     // }
 
     drivetrain = new SwerveDrivetrainNew(limelight);
+
+    autonUtils = new AutonUtils(drivetrain);
     
   }
 
@@ -213,7 +218,16 @@ public class RobotContainer {
     configureBindings();
   }
 
+  public RobotState getRobotState() {
+    return robotState;
+  }
+
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    // return autonUtils.getPathPlannerAuton();
+    return new SequentialCommandGroup(
+      new InstantCommand(() -> drivetrain.setState(SwerveDriveState.AUTO)),
+      autonUtils.getPathPlannerAuton(),
+      new InstantCommand(() -> drivetrain.setState(SwerveDriveState.MANUAL))
+    );
   }
 }

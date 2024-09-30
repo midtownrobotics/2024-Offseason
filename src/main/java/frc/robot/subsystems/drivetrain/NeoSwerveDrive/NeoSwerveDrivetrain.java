@@ -276,12 +276,12 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 		speedBoost = boost;
 	}
 
-	public void drive(ChassisSpeeds chassisSpeeds) {
+	public void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative) {
 		drive(
 			chassisSpeeds.vxMetersPerSecond,
 			chassisSpeeds.vyMetersPerSecond, 
 			chassisSpeeds.omegaRadiansPerSecond, 
-			true, 
+			fieldRelative, 
 			false
 		);
 	}
@@ -412,6 +412,10 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 		m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
 		m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
 	}
+
+	// public speeds getRobotRelativeSpeeds () {
+
+	// }
 
 	/**
 	 * Sets the swerve ModuleStates.
@@ -578,6 +582,8 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 
 		drive(0, 0, output, false); // TODO double-check sign
 	}
+
+
 }
 
 //                          _______

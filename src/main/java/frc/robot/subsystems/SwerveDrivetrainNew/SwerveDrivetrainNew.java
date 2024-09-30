@@ -2,8 +2,15 @@ package frc.robot.subsystems.SwerveDrivetrainNew;
 
 import org.littletonrobotics.junction.Logger;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -11,6 +18,8 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
+import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveModule;
+import frc.robot.utils.AutonUtils;
 import frc.robot.utils.LoggedTunableNumber;
 
 public class SwerveDrivetrainNew extends SubsystemBase {
@@ -53,7 +62,6 @@ public class SwerveDrivetrainNew extends SubsystemBase {
                 );
                 break;
             case AUTO:
-                
                 break;
             case SPEAKER_AUTO_ALIGN:
                 if (limelight.isValidTarget(7)) {
@@ -86,6 +94,7 @@ public class SwerveDrivetrainNew extends SubsystemBase {
         Logger.recordOutput("AutoAim/PIDOutput", autoAimPID.calculate(limelight.getTx()));
         Logger.recordOutput("AutoAim/PID_P", autoAimPID.getP());
         Logger.recordOutput("AutoAim/PID_D", autoAimPID.getD());
+        Logger.recordOutput("currentSpeeds", getRobotRelativeSpeeds());
     }
 
     public void configureDefaultCommand(CommandXboxController driver) {
@@ -106,8 +115,34 @@ public class SwerveDrivetrainNew extends SubsystemBase {
         this.state = state;
     }
 
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        ChassisSpeeds output = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(
+            drivetrain.getFrontLeftModule().getState(),
+            drivetrain.getFrontRightModule().getState(),
+            drivetrain.getRearLeftModule().getState(),
+            drivetrain.getRearRightModule().getState()
+        );
+        return output;
+    }
+
     public void resetHeading() {
         drivetrain.resetHeading();
+    }
+
+    public Pose2d getPose() {
+        return drivetrain.getPose();
+    }
+
+    public void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative) {
+        drivetrain.drive(chassisSpeeds, fieldRelative);
+    }
+
+    // public ChassisSpeeds getRobotRelativeSpeeds() {
+    //     return 
+    // }
+
+    public void resetOdometry(Pose2d pose) {
+        drivetrain.resetOdometry(pose);
     }
 
     public void setBoost(boolean boost) {
