@@ -9,11 +9,6 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 import com.kauailabs.navx.frc.AHRS;
 
-import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix.sensors.WPI_Pigeon2;
-import com.kauailabs.navx.frc.AHRS;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -27,12 +22,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.WPIUtilJNI;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
@@ -275,8 +268,22 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 			pose);
 	}
 
+	public Rotation2d getRotation2d() {
+		return Rotation2d.fromDegrees(GYRO_ORIENTATION * pigeon.getYaw());
+	}
+
 	public void setBoost(boolean boost) {
 		speedBoost = boost;
+	}
+
+	public void drive(ChassisSpeeds chassisSpeeds) {
+		drive(
+			chassisSpeeds.vxMetersPerSecond,
+			chassisSpeeds.vyMetersPerSecond, 
+			chassisSpeeds.omegaRadiansPerSecond, 
+			true, 
+			false
+		);
 	}
 
 	public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {

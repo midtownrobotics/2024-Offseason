@@ -132,5 +132,6 @@ public class Shooter extends SubsystemBase {
                 break;
         }
         flywheelIO.updatePIDControllers();
+        pivotIO.updatePIDControllers();
     }
 }

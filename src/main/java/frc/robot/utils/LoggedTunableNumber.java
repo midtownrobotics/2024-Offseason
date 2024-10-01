@@ -113,7 +113,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
   }
 
   /** Runs action if any of the tunableNumbers have changed */
-  public static void ifChanged(int id, Runnable action, LoggedTunableNumber... tunableNumbers) {
+  public static void  ifChanged(int id, Runnable action, LoggedTunableNumber... tunableNumbers) {
     ifChanged(id, values -> action.run(), tunableNumbers);
   }
 

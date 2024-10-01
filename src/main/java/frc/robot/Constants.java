@@ -143,4 +143,6 @@ public final class Constants {
 		public static final int TURNING_MOTOR_CURRENT_LIMIT_AMPS = 20; // amps
 	}
 
+	public static final LoggedTunableNumber AUTOAIM_P = new LoggedTunableNumber("AUTOAIM_P", 1);
+
 }

@@ -1,6 +1,5 @@
 package frc.robot.subsystems.Limelight.LimelightIO;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 
 public class LimelightIOLimelight3 implements LimelightIO{
@@ -10,7 +9,7 @@ public class LimelightIOLimelight3 implements LimelightIO{
         this.networkTable = networkTable;
     }
     
-    public boolean isValidTarget() {
+    public boolean getValidTargetExists() {
         switch ((int)networkTable.getEntry("tv").getInteger(0)) {
             case 0:
                 return false;
@@ -37,14 +36,24 @@ public class LimelightIOLimelight3 implements LimelightIO{
     }
 
     public double getAngleOffset() {
-        return Math.atan2(getAprilTagZCameraSpace(), getAprilTagXCameraSpace());
+        return Math.atan2(getAprilTagXCameraSpace(), getAprilTagZCameraSpace());
     } 
+
+    public double getTx() {
+        return networkTable.getEntry("tx").getDouble(0);
+    }
+
+    public int getId() {
+        return (int)networkTable.getEntry("tid").getInteger(0);
+    }
 
     public void updateInputs(LimelightIOInputs inputs) {
        inputs.aprilTagID = (int)networkTable.getEntry("tid").getInteger(0);
-       inputs.validTargetExists = isValidTarget();
+       inputs.validTargetExists = getValidTargetExists();
        inputs.aprilTagXCameraSpace = getAprilTagXCameraSpace();
        inputs.aprilTagZCameraSpace = getAprilTagZCameraSpace();
        inputs.distance = getDistance();
+       inputs.angleOffset = getAngleOffset() * (180/Math.PI);
+       inputs.tx = getTx();
     }
 }
