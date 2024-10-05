@@ -2,6 +2,9 @@ package frc.robot.subsystems.Limelight.LimelightIO;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import frc.robot.LimelightHelpers;
+
 public interface LimelightIO {
     @AutoLog
     public class LimelightIOInputs {

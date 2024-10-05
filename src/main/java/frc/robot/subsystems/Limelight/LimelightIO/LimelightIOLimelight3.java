@@ -1,9 +1,13 @@
 package frc.robot.subsystems.Limelight.LimelightIO;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTable;
+import frc.robot.LimelightHelpers;
 
 public class LimelightIOLimelight3 implements LimelightIO{
-    NetworkTable networkTable;
+    private NetworkTable networkTable;
+    private Pose2d latestVisionPose;
 
     public LimelightIOLimelight3(NetworkTable networkTable) {
         this.networkTable = networkTable;

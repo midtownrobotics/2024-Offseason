@@ -7,12 +7,10 @@ import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import frc.robot.subsystems.Intake.Roller.RollerIO.RollerIOInputs;
 
 public interface SwerveModuleIO {
     
-    @AutoLog
-    public class SwerveIOInputs {
+    public class SwerveModuleIOInputs {
         public double turningCurrentAmps;
         public double turningTempFahrenheit;
         public double turningVelocityRPM;
@@ -28,7 +26,7 @@ public interface SwerveModuleIO {
         public SwerveModuleState desiredState;
     }
 
-    public void updateInputs(SwerveIOInputs inputs);
+    public void updateInputs(SwerveModuleIOInputs inputs);
 
     public void resetEncoders();
 

@@ -41,14 +41,20 @@ public class Limelight extends SubsystemBase{
      Logger.processInputs("Limelight", limelightIOInputs);
    }
 
-   public Pose2d getMegatagPose(Pose2d estimatedPose) {
+   public LimelightHelpers.PoseEstimate getMegatagPose(Pose2d estimatedPose) {
      LimelightHelpers.SetRobotOrientation("limelight", estimatedPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
      LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-     if (mt2 == null || mt2.pose == null || mt2.tagCount == 0) return null;
+     if (mt2 == null || mt2.pose == null || mt2.tagCount == 0) {
+          Pose2d nullPose = null;
+          Logger.recordOutput("Limelight/VisionPose", nullPose);
+          return null;
+     }
      
-     Pose2d invertedMt2Pose = new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
+     // For some reason we need to invert?? MUST BE LOOKED INTO
+     mt2.pose = new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
+     Logger.recordOutput("Limelight/VisionPose", mt2.pose);
 
-     return invertedMt2Pose;
-   }
+     return mt2;
+}
    
 }

@@ -116,7 +116,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 	}
 
     @Override
-    public void updateInputs(SwerveIOInputs inputs) {
+    public void updateInputs(SwerveModuleIOInputs inputs) {
         inputs.turningCurrentAmps = m_turningSparkMax.getOutputCurrent();
         inputs.turningTempFahrenheit = m_turningSparkMax.getMotorTemperature();
         inputs.turningVelocityRPM = m_turningSparkMax.getEncoder().getVelocity();
