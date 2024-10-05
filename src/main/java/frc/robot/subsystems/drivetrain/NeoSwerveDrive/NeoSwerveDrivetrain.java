@@ -217,24 +217,27 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 
 		LimelightHelpers.SetRobotOrientation("limelight", m_poseEstimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
       	LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-		Pose2d invertedMt2Pose = new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
-		boolean doRejectUpdate = false;
-		if(Math.abs(m_gyro.getRate()) > 720) { // if our angular velocity is greater than 720 degrees per second, ignore vision updates
-			doRejectUpdate = true;
-		}
-		if(mt2.tagCount == 0) {
-			doRejectUpdate = true;
-		}
-		if(!doRejectUpdate) {
-			m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-			m_poseEstimator.addVisionMeasurement(
-				invertedMt2Pose,
-				mt2.timestampSeconds
-			);
+		if (mt2 != null) {
+			Pose2d invertedMt2Pose = new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
+			boolean doRejectUpdate = false;
+			if(Math.abs(m_gyro.getRate()) > 720) { // if our angular velocity is greater than 720 degrees per second, ignore vision updates
+				doRejectUpdate = true;
+			}
+			if(mt2.tagCount == 0) {
+				doRejectUpdate = true;
+			}
+			if(!doRejectUpdate) {
+				m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+				m_poseEstimator.addVisionMeasurement(
+					invertedMt2Pose,
+					mt2.timestampSeconds
+				);
+			}
+
+			Logger.recordOutput("Robot/VisionPose", invertedMt2Pose);
 		}
 		Logger.recordOutput("Robot/Pose", getPose());
 		Logger.recordOutput("Robot/MegatagPose", m_poseEstimator.getEstimatedPosition());
-		Logger.recordOutput("Robot/VisionPose", invertedMt2Pose);
 
 		getFrontLeftModule().logMotorInfo();
 		getFrontRightModule().logMotorInfo();

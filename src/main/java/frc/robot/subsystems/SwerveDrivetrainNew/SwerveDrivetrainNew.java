@@ -2,15 +2,9 @@ package frc.robot.subsystems.SwerveDrivetrainNew;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -18,8 +12,6 @@ import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
-import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveModule;
-import frc.robot.utils.AutonUtils;
 import frc.robot.utils.LoggedTunableNumber;
 
 public class SwerveDrivetrainNew extends SubsystemBase {

@@ -4,29 +4,23 @@
 
 package frc.robot;
 
-import java.nio.channels.NetworkChannel;
-
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
-
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
+import frc.robot.Ports.ShooterPorts;
+// import frc.robot.generated.TunerConstants;
+import frc.robot.RobotState.State;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIOSim;
-import frc.robot.Ports.ShooterPorts;
-// import frc.robot.generated.TunerConstants;
-import frc.robot.RobotState.State;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
@@ -47,11 +41,7 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew.SwerveDriveState;
-import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
-import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
-import frc.robot.subsystems.drivetrain.DrivetrainInterface;
-import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
-import frc.robot.utils.AutonUtils;
+import frc.robot.utils.AutonFactory;
 
 public class RobotContainer {
 
@@ -60,7 +50,7 @@ public class RobotContainer {
   private Intake intake;
   private BeamBreak beamBreak;
   private Limelight limelight;
-  private AutonUtils autonUtils;
+  private AutonFactory m_autonFactory;
 
   private SwerveDrivetrainNew drivetrain;
 
@@ -133,7 +123,7 @@ public class RobotContainer {
     
     LimelightIO limelightIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       limelightIO = new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight")); 
     } else {
       limelightIO = new LimelightIOSim();
@@ -147,7 +137,7 @@ public class RobotContainer {
     PivotIO pivotIO;
     FeederIO feederIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       flywheelIO = new FlywheelIONeo(ShooterPorts.leftFlywheel, ShooterPorts.rightFlywheel);
       pivotIO = new PivotIONeo(ShooterPorts.pivot, ShooterPorts.pivotEncoder);
       feederIO = new FeederIONeo(ShooterPorts.rollerTop, ShooterPorts.rollerBottom);
@@ -163,7 +153,7 @@ public class RobotContainer {
 
     RollerIO rollerIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       rollerIO = new RollerIONeo(IntakePorts.runExternal, IntakePorts.runInternal);
     } else {
       rollerIO = new RollerIOSim();
@@ -175,23 +165,19 @@ public class RobotContainer {
 
     ClimberIO climberIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL){
+    if (Constants.getMode() == Constants.Mode.REAL){
       climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
     } else {
       climberIO = new ClimberIOSim();
     }
 
     climber = new Climber(operator, climberIO);
-    
-    // Robot State
-
-    robotState = new RobotState(shooter, climber, intake);
 
     // BeamBreak
 
     BeamBreakIO beamBreakIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
     } else {
       beamBreakIO = new BeamBreakIOSim();
@@ -209,7 +195,8 @@ public class RobotContainer {
 
     drivetrain = new SwerveDrivetrainNew(limelight);
 
-    autonUtils = new AutonUtils(drivetrain);
+    // Robot State
+    robotState = new RobotState(shooter, climber, intake, drivetrain);
     
   }
 
@@ -223,11 +210,14 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    // return autonUtils.getPathPlannerAuton();
-    return new SequentialCommandGroup(
-      new InstantCommand(() -> drivetrain.setState(SwerveDriveState.AUTO)),
-      autonUtils.getPathPlannerAuton(),
-      new InstantCommand(() -> drivetrain.setState(SwerveDriveState.MANUAL))
-    );
+    return m_autonFactory.getAutonCommand();
+  }
+
+  public void onDriverStationConnected() {
+    configureAutonomous();
+  }
+
+  public void configureAutonomous() {
+    m_autonFactory = new AutonFactory(drivetrain);
   }
 }

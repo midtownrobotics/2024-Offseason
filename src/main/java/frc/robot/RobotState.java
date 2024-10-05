@@ -8,10 +8,13 @@ import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew;
+import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew.SwerveDriveState;
 
-public class RobotState extends SubsystemBase {
+public class RobotState {
     private Shooter shooter;
     private Intake intake;
+    private SwerveDrivetrainNew drive;
 
     public enum State {
         AMP,
@@ -29,7 +32,7 @@ public class RobotState extends SubsystemBase {
 
     // private final LoggedDashboardChooser<State> stateChooser = new LoggedDashboardChooser<>("Robot State");
 
-    public RobotState(Shooter shooter, Climber climber, Intake intake) {
+    public RobotState(Shooter shooter, Climber climber, Intake intake, SwerveDrivetrainNew drive) {
         // stateChooser.addOption("AMP", State.AMP);
         // stateChooser.addOption("AMP_REVVING", State.AMP_REVVING);
         // stateChooser.addOption("SUBWOOFER", State.SUBWOOFER);
@@ -42,6 +45,7 @@ public class RobotState extends SubsystemBase {
 
         this.shooter = shooter;
         this.intake = intake;
+        this.drive = drive;
     }
 
     public State currentState = State.IDLE;
@@ -50,9 +54,7 @@ public class RobotState extends SubsystemBase {
         currentState = state;
     }
 
-    @Override
-    public void periodic() {
-
+    public void updateState() {
         // if (stateChooser.get() != null) {
         //     currentState = stateChooser.get();
         // } else {
@@ -109,5 +111,18 @@ public class RobotState extends SubsystemBase {
             default:
                 break;
         }
+    }
+
+    public void setDriveState(SwerveDrivetrainNew.SwerveDriveState newState) {
+        drive.setState(newState);
+    }
+
+    public void onAutonomousInit() {
+        drive.setState(SwerveDriveState.AUTO);
+    }
+
+    public void onTeleopInit() {
+        drive.setState(SwerveDriveState.MANUAL);
+        setState(RobotState.State.IDLE);
     }
 }

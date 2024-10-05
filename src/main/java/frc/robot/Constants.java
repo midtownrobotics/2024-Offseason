@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.utils.LoggedTunableNumber;
 
 public final class Constants {
@@ -20,7 +21,20 @@ public final class Constants {
         REPLAY
     }
 
-    public static final Mode currentMode = Mode.REAL;
+	public static enum RobotType {
+		SIMBOT,
+		COMPBOT
+	}
+
+	public static RobotType robotType = RobotType.COMPBOT;
+
+	public static Mode getMode() {
+		return switch (robotType) {
+			case COMPBOT -> RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+			case SIMBOT -> Mode.SIM;
+		};
+	}
+
     public static final boolean tuningMode = true;
     public static final LoggedDashboardNumber deadzone = new LoggedDashboardNumber("CONTROLLER_DEADZONE", 0.1);
     
