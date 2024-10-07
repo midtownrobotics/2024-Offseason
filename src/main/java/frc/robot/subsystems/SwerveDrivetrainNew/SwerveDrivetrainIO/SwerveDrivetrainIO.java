@@ -9,39 +9,26 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIO;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIO.SwerveModuleIOInputs;
 
-public abstract class SwerveDrivetrainIO {
+public interface SwerveDrivetrainIO {
 
     @AutoLog
     public class SwerveIOInputs {
-        public SwerveModuleIOInputs frontLeft = new SwerveModuleIOInputs();
-        public SwerveModuleIOInputs frontRight = new SwerveModuleIOInputs();
-        public SwerveModuleIOInputs rearLeft = new SwerveModuleIOInputs();
-        public SwerveModuleIOInputs rearRight = new SwerveModuleIOInputs();
         public Pose2d pose;
+        public SwerveModuleState[] currentStates;
+        public SwerveModuleState[] desiredStates;
     }
 
-    private final SwerveModuleIO m_frontLeft;
-    private final SwerveModuleIO m_frontRight;
-    private final SwerveModuleIO m_rearLeft;
-    private final SwerveModuleIO m_rearRight;
-
-    protected SwerveDrivetrainIO(SwerveModuleIO frontLeft, SwerveModuleIO frontRight, SwerveModuleIO rearLeft, SwerveModuleIO rearRight) {
-        this.m_frontLeft = frontLeft;
-        this.m_frontRight = frontRight;
-        this.m_rearLeft = rearLeft;
-        this.m_rearRight = rearRight;
-    
-        resetHeading();
-    }
-
-    public abstract void updateInputs(SwerveIOInputs inputs);
+    void updateInputs(SwerveIOInputs inputs);
 
     public abstract void resetHeading();
 
-    public void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative, boolean speedBoost) {
+    default void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative, boolean speedBoost) {
+        if (chassisSpeeds == null) {
+            chassisSpeeds = new ChassisSpeeds();
+        }
         drive(chassisSpeeds.vxMetersPerSecond, 
             chassisSpeeds.vyMetersPerSecond, 
             chassisSpeeds.omegaRadiansPerSecond, 
@@ -49,70 +36,70 @@ public abstract class SwerveDrivetrainIO {
         );
     }
 
-    public abstract void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit, boolean speedBoost);
+    void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit, boolean speedBoost);
 
-    public void drive(SwerveModuleState[] desiredStates) {
+    default void drive(SwerveModuleState[] desiredStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND);
-        m_frontLeft.setDesiredState(desiredStates[0]);
-        m_frontRight.setDesiredState(desiredStates[1]);
-        m_rearLeft.setDesiredState(desiredStates[2]);
-        m_rearRight.setDesiredState(desiredStates[3]);       
+        getFrontLeftModule().setDesiredState(desiredStates[0]);
+        getFrontRightModule().setDesiredState(desiredStates[1]);
+        getRearLeftModule().setDesiredState(desiredStates[2]);
+        getRearRightModule().setDesiredState(desiredStates[3]);       
     }
 
-    public void resetEncoders() {
-        m_frontLeft.resetEncoders();
-		m_rearLeft.resetEncoders();
-		m_frontRight.resetEncoders();
-		m_rearRight.resetEncoders();
+    default void resetEncoders() {
+        getFrontLeftModule().resetEncoders();
+		getFrontRightModule().resetEncoders();
+		getRearLeftModule().resetEncoders();
+		getRearRightModule().resetEncoders();
     }
 
     public abstract double getPigeonYaw();
 
     // ODOMETRY DONE BY Drive class
     
-    protected SwerveModuleIO getFrontLeftModule() {
-		return m_frontLeft;
-	}
+    SwerveModuleIO getFrontLeftModule();
 
-	protected SwerveModuleIO getFrontRightModule() {
-		return m_frontRight;
-	}
+	SwerveModuleIO getFrontRightModule();
 
-	protected SwerveModuleIO getRearLeftModule() {
-		return m_rearLeft;
-	}
+	SwerveModuleIO getRearLeftModule();
 
-	protected SwerveModuleIO getRearRightModule() {
-		return m_rearRight;
-	}
+	SwerveModuleIO getRearRightModule();
 
-    public SwerveModulePosition[] getSwerveModulePositions() {
+    default SwerveModulePosition[] getSwerveModulePositions() {
         return new SwerveModulePosition[] {
-            m_frontLeft.getPosition(),
-            m_frontRight.getPosition(),
-            m_rearLeft.getPosition(),
-            m_rearRight.getPosition()
+            getFrontLeftModule().getPosition(),
+            getFrontRightModule().getPosition(),
+            getRearLeftModule().getPosition(),
+            getRearRightModule().getPosition()
         };
     }
 
-    public SwerveModuleState[] getSwerveModuleStates() {
+    default SwerveModuleState[] getSwerveModuleStates() {
         return new SwerveModuleState[] {
-            m_frontLeft.getState(),
-            m_frontRight.getState(),
-            m_rearLeft.getState(),
-            m_rearRight.getState()
+            getFrontLeftModule().getState(),
+            getFrontRightModule().getState(),
+            getRearLeftModule().getState(),
+            getRearRightModule().getState()
         };
     }
 
-    public ChassisSpeeds getRobotRelativeSpeeds() {
+    default ChassisSpeeds getRobotRelativeSpeeds() {
         ChassisSpeeds output = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
         return output;
     }
 
-    public void updatePIDControllers() {
-        m_frontLeft.updatePIDControllers();
-        m_frontRight.updatePIDControllers();
-        m_rearLeft.updatePIDControllers();
-        m_rearRight.updatePIDControllers();
+    default void updatePIDControllers() {
+        getFrontLeftModule().updatePIDControllers();
+        getFrontRightModule().updatePIDControllers();
+        getRearLeftModule().updatePIDControllers();
+        getRearRightModule().updatePIDControllers();
     }
+
+    Pose2d getPose();
+
+    void resetOdometry(Pose2d pose);
+
+    void updateOdometry();
+
+    void updateOdometryWithVision(Limelight limelight);
 }

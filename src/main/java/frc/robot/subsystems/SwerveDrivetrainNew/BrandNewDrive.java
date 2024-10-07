@@ -2,20 +2,16 @@ package frc.robot.subsystems.SwerveDrivetrainNew;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.NeoDrivetrainConstants;
-import frc.robot.LimelightHelpers;
+import frc.robot.Constants;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainIO.SwerveDrivetrainIO;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
-import frc.robot.utils.LoggedTunableNumber;
 
 public class BrandNewDrive extends SubsystemBase {
 
@@ -33,10 +29,8 @@ public class BrandNewDrive extends SubsystemBase {
 
     private DriveState state = DriveState.MANUAL;
 
-    private final SwerveDrivePoseEstimator m_poseEstimator;
-
-    private ChassisSpeeds driverChassisSpeeds;
-    private ChassisSpeeds pathplannerChassisSpeeds;
+    private ChassisSpeeds driverChassisSpeeds; // Robot Relative
+    private ChassisSpeeds pathplannerChassisSpeeds; // Robot Relative
 
     private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
 
@@ -46,15 +40,6 @@ public class BrandNewDrive extends SubsystemBase {
         m_swerveDrivetrainIO = swerveDrivetrainIO;
         m_limelight = limelight;
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(
-			NeoDrivetrainConstants.DRIVE_KINEMATICS,
-			Rotation2d.fromDegrees(m_swerveDrivetrainIO.getPigeonYaw()),
-			m_swerveDrivetrainIO.getSwerveModulePositions(),
-			new Pose2d()
-		);
-
-        m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-
         autoAimPID.setSetpoint(0);
     }
 
@@ -62,15 +47,9 @@ public class BrandNewDrive extends SubsystemBase {
     public void periodic() {
         m_swerveDrivetrainIO.updatePIDControllers();
 
-        m_poseEstimator.update(
-            Rotation2d.fromDegrees(m_swerveDrivetrainIO.getPigeonYaw()), 
-            m_swerveDrivetrainIO.getSwerveModulePositions()
-        );
-
-        LimelightHelpers.PoseEstimate mt2 = m_limelight.getMegatagPose(getPose());
-
-        if (mt2 != null) {
-            m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+        m_swerveDrivetrainIO.updateOdometry();
+        if (!state.equals(DriveState.FOLLOW_PATH)) {
+            m_swerveDrivetrainIO.updateOdometryWithVision(m_limelight);
         }
 
         switch (state) {
@@ -80,11 +59,11 @@ public class BrandNewDrive extends SubsystemBase {
                         driverChassisSpeeds.vxMetersPerSecond,
                         driverChassisSpeeds.vyMetersPerSecond,
                         -autoAimPID.calculate(m_limelight.getTx()), 
-                        true, false, speedBoost);
+                        false, false, speedBoost);
                     break;
                 }
 
-                // Intentional Fall-through
+                // Intentional Fall-through - if Limelight does not detect target, we do manual driving
             case TUNING:
             case MANUAL:
                 m_swerveDrivetrainIO.drive(driverChassisSpeeds, true, speedBoost);
@@ -106,23 +85,47 @@ public class BrandNewDrive extends SubsystemBase {
         // Original code has a calculateTurnAngleUsingPidController which seems to not do anything
 
         m_swerveDrivetrainIO.updateInputs(swerveIOInputs);
-        swerveIOInputs.pose = getPose();
+        // swerveIOInputs.pose = getPose();
         Logger.processInputs("Drive", swerveIOInputs);
     }
 
-    public Pose2d getPose() {
-        return m_poseEstimator.getEstimatedPosition();
-    }
-
-    public void resetOdometry(Pose2d pose) {
-        m_poseEstimator.resetPosition(
-            Rotation2d.fromDegrees(m_swerveDrivetrainIO.getPigeonYaw()), 
-            m_swerveDrivetrainIO.getSwerveModulePositions(), pose
-        );
+    public void setState(DriveState state) {
+        this.state = state;
     }
 
     public void setBoost(boolean boost) {
         speedBoost = boost;
+    }
+
+    public void setDriverDesired(ChassisSpeeds speeds) {
+        driverChassisSpeeds = speeds;
+    }
+
+    public void setPathPlannerDesired(ChassisSpeeds speeds) {
+        pathplannerChassisSpeeds = speeds;
+    }
+
+    public double getAngle() {
+        return m_swerveDrivetrainIO.getPigeonYaw();
+    }
+
+    public void resetHeading() {
+        m_swerveDrivetrainIO.resetHeading();
+    }
+
+    public Pose2d getPose() {
+        return m_swerveDrivetrainIO.getPose();
+    }
+
+    public void resetOdometry(Pose2d pose) {
+        m_swerveDrivetrainIO.resetOdometry(pose);
+    }
+
+    public ChassisSpeeds getRobotRelativeSpeeds() {
+        ChassisSpeeds output = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(
+            m_swerveDrivetrainIO.getSwerveModuleStates()
+        );
+        return output;
     }
     
 }

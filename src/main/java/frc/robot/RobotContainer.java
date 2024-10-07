@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
@@ -39,7 +42,10 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.SwerveDrivetrainNew.BrandNewDrive;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew;
+import frc.robot.subsystems.SwerveDrivetrainNew.BrandNewDrive.DriveState;
+import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainIO.SwerveDrivetrainIONeo;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew.SwerveDriveState;
 import frc.robot.utils.AutonFactory;
 
@@ -52,7 +58,7 @@ public class RobotContainer {
   private Limelight limelight;
   private AutonFactory m_autonFactory;
 
-  private SwerveDrivetrainNew drivetrain;
+  private BrandNewDrive drivetrain;
 
   private RobotState robotState;
 
@@ -69,19 +75,47 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    drivetrain.configureDefaultCommand(driver);
+    drivetrain.setDefaultCommand(new RunCommand (() -> {
+      double driverX = RobotContainer.deadzone(driver.getLeftY(), driver.getLeftX(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+      double driverY = RobotContainer.deadzone(driver.getLeftX(), driver.getLeftY(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+      double driverRot = RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+
+      drivetrain.setDriverDesired(
+        ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromRadians(drivetrain.getAngle()))
+      );
+    }, drivetrain));
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-    driver.x().whileTrue(new StartEndCommand(() -> drivetrain.setState(SwerveDriveState.X), () -> drivetrain.setState(SwerveDriveState.MANUAL), drivetrain));
-    driver.y().whileTrue(new StartEndCommand(() -> drivetrain.setState(SwerveDriveState.SPEAKER_AUTO_ALIGN), () -> drivetrain.setState(SwerveDriveState.MANUAL), drivetrain));
+    // Note: These probably do not need to require drivetrain
+    driver.x().whileTrue(
+      new StartEndCommand(
+        () -> drivetrain.setState(DriveState.X), 
+        () -> drivetrain.setState(DriveState.MANUAL), 
+      drivetrain)
+    );
+    driver.y().whileTrue(
+      new StartEndCommand(
+        () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
+        () -> drivetrain.setState(DriveState.MANUAL),
+      drivetrain)
+    );
 
-    driver.leftTrigger().whileTrue(new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
+    driver.leftTrigger().whileTrue(
+      new StartEndCommand(
+        () -> drivetrain.setBoost(true),
+        () -> drivetrain.setBoost(false)
+      )
+    );
 
-		operator.rightBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.INTAKING), () -> {
-      if (robotState.currentState != State.NOTE_HELD) {
-        robotState.setState(State.IDLE);
-      }
-    }, intake));
+		operator.rightBumper().whileTrue(
+      new StartEndCommand(
+        () -> robotState.setState(State.INTAKING), 
+        () -> {
+          if (robotState.currentState != State.NOTE_HELD) {
+            robotState.setState(State.IDLE);
+          }
+        }, intake)
+    );
 
 		operator.leftBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
 		operator.leftTrigger().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
@@ -193,7 +227,7 @@ public class RobotContainer {
       // drivetrain = new NeoSwerveDrivetrain();
     // }
 
-    drivetrain = new SwerveDrivetrainNew(limelight);
+    drivetrain = new BrandNewDrive(new SwerveDrivetrainIONeo(), limelight);
 
     // Robot State
     robotState = new RobotState(shooter, climber, intake, drivetrain);

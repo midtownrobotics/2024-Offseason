@@ -129,7 +129,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
         inputs.drivingIsOn = Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01;
         inputs.drivingVoltage = m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage();
 
-        inputs.currenState = getState();
+        inputs.currentState = getState();
         inputs.desiredState = getDesiredState();
     }
 

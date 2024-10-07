@@ -2,7 +2,6 @@ package frc.robot.utils;
 
 import java.util.List;
 
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -10,29 +9,26 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew;
+import frc.robot.subsystems.SwerveDrivetrainNew.BrandNewDrive;
 
 public class AutonFactory extends VirtualSubsystem{
 
-    private final SwerveDrivetrainNew m_drivetrain;
+    private final BrandNewDrive m_drivetrain;
     private final LoggedDashboardChooser<String> m_autonChooser;
     private String m_currAutonChoice;
     private Command m_currentAutonCommand;
-    // private final 
-    // private final LoggedDashboardChooser<> 
     
-    public AutonFactory(SwerveDrivetrainNew drivetrain) {
+    public AutonFactory(BrandNewDrive drivetrain) {
         this.m_drivetrain = drivetrain;
 
         AutoBuilder.configureHolonomic(
             m_drivetrain::getPose, // Robot pose supplier
             m_drivetrain::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
             m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            m_drivetrain::setPathPlannerDesired, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
                     new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
                     new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
@@ -61,12 +57,6 @@ public class AutonFactory extends VirtualSubsystem{
         m_currentAutonCommand = buildAutonCommand(m_currAutonChoice);
     }
 
-    // TODO: Fix this drive function and drivebase in general
-    private void drive(ChassisSpeeds chassisSpeeds) {
-        Logger.recordOutput("desiredSpeeds", chassisSpeeds);
-        m_drivetrain.drive(chassisSpeeds, false);
-    }
-
     private Command buildAutonCommand(String path) {
         if (path == null || path.equals("Do Nothing")) {
             return Commands.none();
@@ -78,7 +68,8 @@ public class AutonFactory extends VirtualSubsystem{
     @Override
     public void periodic() {
         String newAutonChoice = m_autonChooser.get();
-        if (!newAutonChoice.equals(m_currAutonChoice)) {
+        if (newAutonChoice == null && m_currAutonChoice == null) return;
+        if (newAutonChoice == null || !newAutonChoice.equals(m_currAutonChoice)) {
             m_currAutonChoice = newAutonChoice;
             m_currentAutonCommand = buildAutonCommand(m_currAutonChoice);
         }

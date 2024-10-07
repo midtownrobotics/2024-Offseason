@@ -10,6 +10,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public interface SwerveModuleIO {
     
+    @AutoLog
     public class SwerveModuleIOInputs {
         public double turningCurrentAmps;
         public double turningTempFahrenheit;
@@ -22,7 +23,7 @@ public interface SwerveModuleIO {
         public boolean drivingIsOn;
         public double drivingVoltage;
 
-        public SwerveModuleState currenState;
+        public SwerveModuleState currentState;
         public SwerveModuleState desiredState;
     }
 

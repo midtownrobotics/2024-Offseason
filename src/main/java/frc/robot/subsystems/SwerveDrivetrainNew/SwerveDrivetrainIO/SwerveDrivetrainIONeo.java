@@ -1,22 +1,28 @@
 package frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainIO;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Ports;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIO.SwerveModuleIOInputs;
+import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIONeo;
 import frc.robot.utils.NeoSwerveUtils;
 
-public class SwerveDrivetrainIONeo extends SwerveDrivetrainIO{
+public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
     private static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = -3.03+Math.PI; // adjust as needed so that virtual (turn) position of wheel is zero when straight
 	private static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = 2.69; // adjust as needed so that virtual (turn) position of wheel is zero when straight
@@ -44,15 +50,35 @@ public class SwerveDrivetrainIONeo extends SwerveDrivetrainIO{
 	/** END TURN SETTINGS */
 
     // Create SwerveModules
-	private final SwerveModuleIONeo m_frontLeft /* #2 */;
-	private final SwerveModuleIONeo m_frontRight /* #1 */;
-	private final SwerveModuleIONeo m_rearLeft /* #3 */;
-	private final SwerveModuleIONeo m_rearRight /* #4 */;
+	private final SwerveModuleIONeo m_frontLeft /* #2 */ = new SwerveModuleIONeo(
+		Ports.NeoDrive.FRONT_LEFT_DRIVING,
+		Ports.NeoDrive.FRONT_LEFT_TURNING,
+		Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
+		-0.317, false, "FrontLeft");
 
-    private final SwerveModuleIOInputs frontLeftIOInputs = new SwerveModuleIOInputsAutoLogged();
-    private final SwerveModuleIOInputs frontRightIOInputs = new SwerveModuleIOInputsAutoLogged();
-    private final SwerveModuleIOInputs rearLeftIOInputs = new SwerveModuleIOInputsAutoLogged();
-    private final SwerveModuleIOInputs rearRightIOInputs = new SwerveModuleIOInputsAutoLogged();
+	private final SwerveModuleIONeo m_frontRight /* #1 */ = new SwerveModuleIONeo(
+		Ports.NeoDrive.FRONT_RIGHT_DRIVING,
+		Ports.NeoDrive.FRONT_RIGHT_TURNING,
+		Ports.NeoDrive.FRONT_RIGHT_TURNING_ABSOLUTE_ENCODER,
+		0.86, true, "FrontRight");
+
+	private final SwerveModuleIONeo m_rearLeft /* #3 */ = new SwerveModuleIONeo(
+		Ports.NeoDrive.REAR_LEFT_DRIVING,
+		Ports.NeoDrive.REAR_LEFT_TURNING,
+		Ports.NeoDrive.REAR_LEFT_TURNING_ABSOLUTE_ENCODER,
+		-0.9, true, "RearLeft");
+
+	private final SwerveModuleIONeo m_rearRight /* #4 */ = new SwerveModuleIONeo(
+		Ports.NeoDrive.REAR_RIGHT_DRIVING,
+		Ports.NeoDrive.REAR_RIGHT_TURNING,
+		Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
+		-0.33, false, "RearRight");
+
+	private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs = new SwerveModuleIOInputsAutoLogged();
+	private final SwerveModuleIOInputsAutoLogged m_frontRightInputs = new SwerveModuleIOInputsAutoLogged();
+	private final SwerveModuleIOInputsAutoLogged m_rearLeftInputs = new SwerveModuleIOInputsAutoLogged();
+	private final SwerveModuleIOInputsAutoLogged m_rearRightInputs = new SwerveModuleIOInputsAutoLogged();
+
 
     private final WPI_Pigeon2 m_pigeon = new WPI_Pigeon2(5, "Sensors");
 
@@ -72,50 +98,33 @@ public class SwerveDrivetrainIONeo extends SwerveDrivetrainIO{
 
 	private PIDController m_turnPidController; // the PID controller used to turn
 
+	private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
+		NeoDrivetrainConstants.DRIVE_KINEMATICS,
+		Rotation2d.fromDegrees(getPigeonYaw()),
+		getSwerveModulePositions(),
+		new Pose2d()
+	);
+
     public SwerveDrivetrainIONeo() {
-        super(
-            new SwerveModuleIONeo(
-                Ports.NeoDrive.FRONT_LEFT_DRIVING,
-                Ports.NeoDrive.FRONT_LEFT_TURNING,
-                Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
-                -0.317, false, "FrontLeft"
-            ),
-            new SwerveModuleIONeo(
-                Ports.NeoDrive.FRONT_RIGHT_DRIVING,
-                Ports.NeoDrive.FRONT_RIGHT_TURNING,
-                Ports.NeoDrive.FRONT_RIGHT_TURNING_ABSOLUTE_ENCODER,
-                0.86, true, "FrontRight"
-            ),
-            new SwerveModuleIONeo(
-                Ports.NeoDrive.REAR_LEFT_DRIVING,
-                Ports.NeoDrive.REAR_LEFT_TURNING,
-                Ports.NeoDrive.REAR_LEFT_TURNING_ABSOLUTE_ENCODER,
-                -0.9, true, "RearLeft"
-            ),
-            new SwerveModuleIONeo(
-                Ports.NeoDrive.REAR_RIGHT_DRIVING,
-                Ports.NeoDrive.REAR_RIGHT_TURNING,
-                Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
-                -0.33, false, "RearRight"
-            )
-        );
-
-        m_frontLeft = (SwerveModuleIONeo) super.getFrontLeftModule();
-        m_frontRight = (SwerveModuleIONeo) super.getFrontRightModule();
-        m_rearLeft = (SwerveModuleIONeo) super.getRearLeftModule();
-        m_rearRight = (SwerveModuleIONeo) super.getRearRightModule();
-
         m_turnPidController = new PIDController(TURN_PROPORTIONAL_GAIN, TURN_INTEGRAL_GAIN, TURN_DERIVATIVE_GAIN);
         m_turnPidController.enableContinuousInput(-180, 180);
         m_turnPidController.setTolerance(DEGREE_THRESHOLD);
+
+		m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
     }
 
     @Override
     public void updateInputs(SwerveIOInputs inputs) {
-        m_frontLeft.updateInputs(inputs.frontLeft);
-        m_frontRight.updateInputs(inputs.frontRight);
-        m_rearLeft.updateInputs(inputs.rearLeft);
-        m_rearRight.updateInputs(inputs.rearRight);
+		m_frontLeft.updateInputs(m_frontLeftInputs);
+		m_frontRight.updateInputs(m_frontRightInputs);
+		m_rearLeft.updateInputs(m_rearLeftInputs);
+		m_rearRight.updateInputs(m_rearRightInputs);
+		Logger.processInputs("Drive/FrontLeft", m_frontLeftInputs);
+		Logger.processInputs("Drive/FrontRight", m_frontRightInputs);
+		Logger.processInputs("Drive/RearLeft", m_rearLeftInputs);
+		Logger.processInputs("Drive/RearRight", m_rearRightInputs);
+		inputs.pose = getPose();
+		inputs.currentStates = getSwerveModuleStates();
     }
 
     @Override
@@ -219,24 +228,48 @@ public class SwerveDrivetrainIONeo extends SwerveDrivetrainIO{
     }
 
     @Override
-    protected SwerveModuleIONeo getFrontLeftModule() {
+    public SwerveModuleIONeo getFrontLeftModule() {
 		return m_frontLeft;
 	}
 
     @Override
-	protected SwerveModuleIONeo getFrontRightModule() {
+	public SwerveModuleIONeo getFrontRightModule() {
 		return m_frontRight;
 	}
 
     @Override
-	protected SwerveModuleIONeo getRearLeftModule() {
+	public SwerveModuleIONeo getRearLeftModule() {
 		return m_rearLeft;
 	}
 
     @Override
-	protected SwerveModuleIONeo getRearRightModule() {
+	public SwerveModuleIONeo getRearRightModule() {
 		return m_rearRight;
 	}
 
+	public Pose2d getPose() {
+        return m_poseEstimator.getEstimatedPosition();
+    }
 
+    public void resetOdometry(Pose2d pose) {
+        m_poseEstimator.resetPosition(
+            Rotation2d.fromDegrees(getPigeonYaw()), 
+            getSwerveModulePositions(), pose
+        );
+    }
+
+	public void updateOdometry() {
+        m_poseEstimator.update(
+            Rotation2d.fromDegrees(getPigeonYaw()), 
+            getSwerveModulePositions()
+        );
+	}
+
+	public void updateOdometryWithVision(Limelight limelight) {
+		LimelightHelpers.PoseEstimate mt2 = limelight.getMegatagPose(getPose());
+
+        if (mt2 != null) {
+            m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+        }
+	}
 }
