@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3732635157578024,
-      "y": 5.545221859674489
+      "x": 1.3842846515935527,
+      "y": 5.550936522700434
     },
     "rotation": 0
   },
@@ -14,13 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
+            "pathName": "Mto1"
           }
         }
       ]

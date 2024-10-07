@@ -83,6 +83,15 @@ public interface SwerveDrivetrainIO {
         };
     }
 
+    default SwerveModuleState[] getSwerveModuleDesiredStates() {
+        return new SwerveModuleState[] {
+            getFrontLeftModule().getDesiredState(),
+            getFrontRightModule().getDesiredState(),
+            getRearLeftModule().getDesiredState(),
+            getRearRightModule().getDesiredState()
+        };
+    }
+
     default ChassisSpeeds getRobotRelativeSpeeds() {
         ChassisSpeeds output = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
         return output;

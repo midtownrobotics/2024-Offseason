@@ -1,6 +1,7 @@
 package frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainIO;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import com.ctre.phoenix.sensors.WPI_Pigeon2;
 
@@ -24,11 +25,11 @@ import frc.robot.utils.NeoSwerveUtils;
 
 public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
-    private static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = -3.03+Math.PI; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = 2.69; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final double REAR_LEFT_VIRTUAL_OFFSET_RADIANS = -2.33; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final double REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = Math.PI/2+Math.PI/16-Math.PI; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-    private static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReversed
+    private static final LoggedDashboardNumber FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontLeftOffset", 0.125); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedDashboardNumber FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontRightOffset", 2.657); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedDashboardNumber REAR_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/RearLeftOffset", 0.8); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedDashboardNumber REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/RearRightOffset", 1.78);
+	private static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReversed
 
     private static final double FIELD_LENGTH_INCHES = 54*12+1; // 54ft 1in
 	private static final double FIELD_WIDTH_INCHES = 26*12+7; // 26ft 7in
@@ -111,10 +112,20 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
         m_turnPidController.setTolerance(DEGREE_THRESHOLD);
 
 		m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+
+		m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get());
+		m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
+		m_rearLeft.calibrateVirtualPosition(REAR_LEFT_VIRTUAL_OFFSET_RADIANS.get());
+		m_rearRight.calibrateVirtualPosition(REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
     }
 
     @Override
     public void updateInputs(SwerveIOInputs inputs) {
+		m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get());
+		m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
+		m_rearLeft.calibrateVirtualPosition(REAR_LEFT_VIRTUAL_OFFSET_RADIANS.get());
+		m_rearRight.calibrateVirtualPosition(REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
+    
 		m_frontLeft.updateInputs(m_frontLeftInputs);
 		m_frontRight.updateInputs(m_frontRightInputs);
 		m_rearLeft.updateInputs(m_rearLeftInputs);
@@ -125,6 +136,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 		Logger.processInputs("Drive/RearRight", m_rearRightInputs);
 		inputs.pose = getPose();
 		inputs.currentStates = getSwerveModuleStates();
+		inputs.desiredStates = getSwerveModuleDesiredStates();
     }
 
     @Override

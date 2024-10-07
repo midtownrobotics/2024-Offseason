@@ -131,6 +131,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
         inputs.currentState = getState();
         inputs.desiredState = getDesiredState();
+		inputs.offset = offset;
     }
 
     @Override
@@ -142,6 +143,9 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
     @Override
     public void calibrateVirtualPosition(double angle) {
+		if (this.offset != angle) {
+			m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + angle);
+		}
         this.offset = angle;
     }
 

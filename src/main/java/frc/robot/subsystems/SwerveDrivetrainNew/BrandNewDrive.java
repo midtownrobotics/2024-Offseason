@@ -70,15 +70,20 @@ public class BrandNewDrive extends SubsystemBase {
                 break;
             case FOLLOW_PATH:
                 m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
-
+                break;
             case X:
-                m_swerveDrivetrainIO.drive(new SwerveModuleState[] {
-                        new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-                        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-                        new SwerveModuleState(0, Rotation2d.fromDegrees(45))
-                    }
+                m_swerveDrivetrainIO.drive(4, 
+                    0, 
+                    0, 
+                    true, false, speedBoost
                 );
+                // m_swerveDrivetrainIO.drive(new SwerveModuleState[] {
+                //         new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                //         new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                //         new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                //         new SwerveModuleState(0, Rotation2d.fromDegrees(45))
+                //     }
+                // );
                 break;
         }
 
@@ -103,6 +108,7 @@ public class BrandNewDrive extends SubsystemBase {
 
     public void setPathPlannerDesired(ChassisSpeeds speeds) {
         pathplannerChassisSpeeds = speeds;
+        Logger.recordOutput("Drive/PathPlannerSpeed", pathplannerChassisSpeeds);
     }
 
     public double getAngle() {

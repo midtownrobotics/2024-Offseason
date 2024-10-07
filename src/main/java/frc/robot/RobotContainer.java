@@ -244,7 +244,9 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return m_autonFactory.getAutonCommand();
+    return m_autonFactory.getAutonCommand().andThen(() -> {
+      drivetrain.setState(DriveState.X);
+    }, drivetrain);
   }
 
   public void onDriverStationConnected() {
