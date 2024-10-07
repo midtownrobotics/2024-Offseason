@@ -45,11 +45,11 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 	// public static final double REAR_LEFT_VIRTUAL_OFFSET_RADIANS = -0.934; // adjust as needed so that virtual (turn) position of wheel is zero when straight
 	// public static final double REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = +1.021; // adjust as needed so that virtual (turn) position of wheel is zero when straight
 
-	public static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = -3.03+Math.PI; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	public static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = 2.69; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	public static final double REAR_LEFT_VIRTUAL_OFFSET_RADIANS = -2.33; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	public static final double REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = Math.PI/2+Math.PI/16-Math.PI; // adjust as needed so that virtual (turn) position of wheel is zero when straight
-    static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReversed
+	public static final double FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = -2.951 + Math.PI; // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	public static final double FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = 2.657; // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	public static final double REAR_LEFT_VIRTUAL_OFFSET_RADIANS = 0.775 + Math.PI; // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	public static final double REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = -1.276; // adjust as needed so that virtual (turn) position of wheel is zero when straight
+    static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReve	rsed
 
 	public static final double FIELD_LENGTH_INCHES = 54*12+1; // 54ft 1in
 	public static final double FIELD_WIDTH_INCHES = 26*12+7; // 26ft 7in
@@ -57,7 +57,7 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 	// turn settings
 	// NOTE: it might make sense to decrease the PID controller period below 0.02 sec (which is the period used by the main loop)
 	static final double TURN_PID_CONTROLLER_PERIOD_SECONDS = .02; // 0.01 sec = 10 ms 	
-	
+
 	static final double MIN_TURN_PCT_OUTPUT = 0.1; // 0.1;
 	static final double MAX_TURN_PCT_OUTPUT = 0.4; // 0.4;
 	
@@ -75,7 +75,7 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 		Ports.NeoDrive.FRONT_LEFT_DRIVING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
-		-0.317, false, "FrontLeft");
+		-0.317 - Math.PI, false, "FrontLeft");
 
 	private final NeoSwerveModule m_frontRight /* #1 */ = new NeoSwerveModule(
 		Ports.NeoDrive.FRONT_RIGHT_DRIVING,

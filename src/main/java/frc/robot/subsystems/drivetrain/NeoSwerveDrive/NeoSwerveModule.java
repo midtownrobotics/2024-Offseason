@@ -136,6 +136,9 @@ public class NeoSwerveModule {
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVelocityRPM", m_turningSparkMax.getEncoder().getVelocity());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningIsOn", Math.abs(m_turningSparkMax.getAppliedOutput()) > 0.01);
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVoltage", m_turningSparkMax.getAppliedOutput() * m_turningSparkMax.getBusVoltage());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningPosition", m_turningAbsoluteEncoder.getAbsolutePosition() + getOffset());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningPositionNoOffset", m_turningAbsoluteEncoder.getAbsolutePosition());
+		Logger.recordOutput("NeoSwerve/"+moduleName+"/offset", getOffset());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingCurrentAmps", m_drivingSparkMax.getOutputCurrent());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingTempFahrenheit", m_drivingSparkMax.getMotorTemperature());
 		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVelocityRPM", m_drivingSparkMax.getEncoder().getVelocity());
