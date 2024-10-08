@@ -1,4 +1,4 @@
-package frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainIO;
+package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -9,8 +9,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIO;
 import frc.robot.subsystems.Limelight.Limelight;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIO;
 
 public interface SwerveDrivetrainIO {
 

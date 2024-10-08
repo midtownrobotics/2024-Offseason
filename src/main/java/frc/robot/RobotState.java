@@ -3,13 +3,12 @@ package frc.robot;
 import org.littletonrobotics.junction.Logger;
 
 import frc.robot.subsystems.Climber.Climber;
+import frc.robot.subsystems.Drivetrain.BrandNewDrive;
+import frc.robot.subsystems.Drivetrain.BrandNewDrive.DriveState;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
-import frc.robot.subsystems.SwerveDrivetrainNew.BrandNewDrive;
-import frc.robot.subsystems.SwerveDrivetrainNew.BrandNewDrive.DriveState;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew.SwerveDriveState;
 
 public class RobotState {
     private Shooter shooter;

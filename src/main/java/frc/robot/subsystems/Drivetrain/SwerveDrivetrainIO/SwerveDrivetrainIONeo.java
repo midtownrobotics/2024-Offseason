@@ -1,4 +1,4 @@
-package frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainIO;
+package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
@@ -18,9 +18,9 @@ import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.LimelightHelpers;
 import frc.robot.Ports;
+import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
+import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIONeo;
 import frc.robot.subsystems.Limelight.Limelight;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveModuleIO.SwerveModuleIONeo;
 import frc.robot.utils.NeoSwerveUtils;
 
 public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
