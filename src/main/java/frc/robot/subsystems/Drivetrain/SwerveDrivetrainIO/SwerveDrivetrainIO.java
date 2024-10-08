@@ -19,11 +19,12 @@ public interface SwerveDrivetrainIO {
         public Pose2d pose;
         public SwerveModuleState[] currentStates;
         public SwerveModuleState[] desiredStates;
+        public double pigeonYaw;
     }
 
     void updateInputs(SwerveIOInputs inputs);
 
-    public abstract void resetHeading();
+    public void resetHeading();
 
     default void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative, boolean speedBoost) {
         if (chassisSpeeds == null) {
@@ -44,13 +45,6 @@ public interface SwerveDrivetrainIO {
         getFrontRightModule().setDesiredState(desiredStates[1]);
         getRearLeftModule().setDesiredState(desiredStates[2]);
         getRearRightModule().setDesiredState(desiredStates[3]);       
-    }
-
-    default void resetEncoders() {
-        getFrontLeftModule().resetEncoders();
-		getFrontRightModule().resetEncoders();
-		getRearLeftModule().resetEncoders();
-		getRearRightModule().resetEncoders();
     }
 
     public abstract double getPigeonYaw();
@@ -97,12 +91,7 @@ public interface SwerveDrivetrainIO {
         return output;
     }
 
-    default void updatePIDControllers() {
-        getFrontLeftModule().updatePIDControllers();
-        getFrontRightModule().updatePIDControllers();
-        getRearLeftModule().updatePIDControllers();
-        getRearRightModule().updatePIDControllers();
-    }
+    void updatePIDControllers();
 
     Pose2d getPose();
 

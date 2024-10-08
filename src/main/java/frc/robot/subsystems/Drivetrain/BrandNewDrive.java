@@ -4,7 +4,9 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
@@ -70,18 +72,18 @@ public class BrandNewDrive extends SubsystemBase {
                 m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
                 break;
             case X:
-                m_swerveDrivetrainIO.drive(4, 
-                    0, 
-                    0, 
-                    true, false, speedBoost
-                );
-                // m_swerveDrivetrainIO.drive(new SwerveModuleState[] {
-                //         new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-                //         new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-                //         new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-                //         new SwerveModuleState(0, Rotation2d.fromDegrees(45))
-                //     }
+                // m_swerveDrivetrainIO.drive(4, 
+                //     0, 
+                //     0, 
+                //     true, false, speedBoost
                 // );
+                m_swerveDrivetrainIO.drive(new SwerveModuleState[] {
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                        new SwerveModuleState(0, Rotation2d.fromDegrees(45))
+                    }
+                );
                 break;
         }
 

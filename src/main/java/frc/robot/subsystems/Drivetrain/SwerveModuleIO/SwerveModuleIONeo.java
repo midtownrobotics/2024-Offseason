@@ -134,14 +134,12 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 		inputs.offset = offset;
     }
 
-    @Override
     public void resetEncoders() {
         m_drivingEncoder.setPosition(0);
         m_turningSparkMax.set(0);
         m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + offset);
     }
 
-    @Override
     public void calibrateVirtualPosition(double angle) {
 		if (this.offset != angle) {
 			m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + angle);
@@ -149,22 +147,18 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
         this.offset = angle;
     }
 
-    @Override
     public double getOffset() {
         return offset;
     }
 
-    @Override
     public RelativeEncoder getDrivingEncoder() {
         return m_drivingEncoder;
     }
 
-    @Override
     public RelativeEncoder getTurningEncoder() {
         return m_turningEncoder;
     }
 
-    @Override
     public CANCoder getTurningAbsoluteEncoder() {
         return m_turningAbsoluteEncoder;
     }
@@ -201,7 +195,6 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
         return new SwerveModulePosition(m_drivingEncoder.getPosition(), new Rotation2d(m_turningEncoder.getPosition()));
     }
 
-    @Override
     public void updatePIDControllers() {
 		LoggedTunableNumber.ifChanged(hashCode(), () -> {
 			m_drivingPIDController.setP(Constants.NeoSwerveModuleConstants.DRIVING_P.get());

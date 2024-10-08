@@ -137,6 +137,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 		inputs.pose = getPose();
 		inputs.currentStates = getSwerveModuleStates();
 		inputs.desiredStates = getSwerveModuleDesiredStates();
+		inputs.pigeonYaw = getPigeonYaw();
     }
 
     @Override
@@ -212,12 +213,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 		double xSpeedDelivered = xSpeedCommanded * maxSpeed;
 		double ySpeedDelivered = ySpeedCommanded * maxSpeed;
 
-		// Logger.recordOutput("NeoSwerve/xSpeedDesired", xSpeedDelivered);
-		// Logger.recordOutput("NeoSwerve/ySpeedDesired", ySpeedDelivered);
-
 		double rotDelivered = m_currentRotation * NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
-
-		// Logger.recordOutput("NeoSwerve/rotationDesired", rotDelivered);
 
 		SwerveModuleState[] swerveModuleStates = NeoDrivetrainConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
 			fieldRelative
@@ -265,14 +261,14 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
     public void resetOdometry(Pose2d pose) {
         m_poseEstimator.resetPosition(
-            Rotation2d.fromDegrees(getPigeonYaw()), 
+            Rotation2d.fromDegrees(0), 
             getSwerveModulePositions(), pose
         );
     }
 
 	public void updateOdometry() {
         m_poseEstimator.update(
-            Rotation2d.fromDegrees(getPigeonYaw()), 
+            Rotation2d.fromDegrees(0), 
             getSwerveModulePositions()
         );
 	}
@@ -284,4 +280,11 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
             m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
         }
 	}
+
+	public void updatePIDControllers() {
+        m_frontLeft.updatePIDControllers();
+        m_frontRight.updatePIDControllers();
+        m_rearLeft.updatePIDControllers();
+        m_rearRight.updatePIDControllers();
+    }
 }

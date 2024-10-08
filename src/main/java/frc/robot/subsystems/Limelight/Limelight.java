@@ -1,7 +1,5 @@
 package frc.robot.subsystems.Limelight;
 
-import java.util.Arrays;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose2d;
