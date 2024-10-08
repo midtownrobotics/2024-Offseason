@@ -13,7 +13,7 @@ import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
 import frc.robot.subsystems.Limelight.Limelight;
 
-public class BrandNewDrive extends SubsystemBase {
+public class Drivetrain extends SubsystemBase {
 
     public enum DriveState {
         MANUAL,
@@ -36,7 +36,7 @@ public class BrandNewDrive extends SubsystemBase {
 
     private boolean speedBoost;
 
-    public BrandNewDrive(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight) {
+    public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight) {
         m_swerveDrivetrainIO = swerveDrivetrainIO;
         m_limelight = limelight;
 

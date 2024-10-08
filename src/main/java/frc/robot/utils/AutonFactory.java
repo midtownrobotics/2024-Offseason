@@ -12,16 +12,16 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.Drivetrain.BrandNewDrive;
+import frc.robot.subsystems.Drivetrain.Drivetrain;
 
 public class AutonFactory extends VirtualSubsystem{
 
-    private final BrandNewDrive m_drivetrain;
+    private final Drivetrain m_drivetrain;
     private final LoggedDashboardChooser<String> m_autonChooser;
     private String m_currAutonChoice;
     private Command m_currentAutonCommand;
     
-    public AutonFactory(BrandNewDrive drivetrain) {
+    public AutonFactory(Drivetrain drivetrain) {
         this.m_drivetrain = drivetrain;
 
         AutoBuilder.configureHolonomic(

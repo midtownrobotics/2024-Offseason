@@ -24,8 +24,8 @@ import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
-import frc.robot.subsystems.Drivetrain.BrandNewDrive;
-import frc.robot.subsystems.Drivetrain.BrandNewDrive.DriveState;
+import frc.robot.subsystems.Drivetrain.Drivetrain;
+import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIONeo;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIOSim;
 import frc.robot.subsystems.Intake.Intake;
@@ -57,7 +57,7 @@ public class RobotContainer {
   private Limelight limelight;
   private AutonFactory m_autonFactory;
 
-  private BrandNewDrive drivetrain;
+  private Drivetrain drivetrain;
 
   private RobotState robotState;
 
@@ -226,9 +226,9 @@ public class RobotContainer {
       // drivetrain = new NeoSwerveDrivetrain();
     // }
     if (Robot.isSimulation()) {
-      drivetrain = new BrandNewDrive(new SwerveDrivetrainIOSim(), limelight);
+      drivetrain = new Drivetrain(new SwerveDrivetrainIOSim(), limelight);
     } else {
-      drivetrain = new BrandNewDrive(new SwerveDrivetrainIONeo(), limelight);
+      drivetrain = new Drivetrain(new SwerveDrivetrainIONeo(), limelight);
     }
 
     // Robot State
