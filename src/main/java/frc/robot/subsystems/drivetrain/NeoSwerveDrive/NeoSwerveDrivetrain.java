@@ -147,7 +147,7 @@ public class NeoSwerveDrivetrain implements DrivetrainInterface {
 
 		// sets initial pose arbitrarily
 		// Note: the field coordinate system (or global coordinate system) is an absolute coordinate system where a point on the field is designated as the origin.
-		// Positive theta is in the counter-clockwise direction, and the positive x-axis points away from your alliance’s driver station wall,
+		// Positive theta is in the counter-clockwise direction, and the positive x-axis points away from your alliance's driver station wall,
 		// and the positive y-axis is perpendicular and to the left of the positive x-axis.
 		// Translation2d initialTranslation = new Translation2d(Units.inchesToMeters(FIELD_LENGTH_INCHES/2),Units.inchesToMeters(FIELD_WIDTH_INCHES/2)); // mid field
 		Translation2d initialTranslation = new Translation2d(1.3, 5.7);
