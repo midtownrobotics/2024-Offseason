@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3842846515935527,
-      "y": 5.550936522700434
+      "x": 1.5,
+      "y": 5.5
     },
     "rotation": 0
   },
@@ -14,7 +14,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "CenterTo1"
+            "pathName": "Straight with a Twist"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
           }
         }
       ]

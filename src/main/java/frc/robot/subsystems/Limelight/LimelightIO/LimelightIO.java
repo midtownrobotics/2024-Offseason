@@ -15,6 +15,7 @@ public interface LimelightIO {
         public double distance = 0.0;
         public double angleOffset = 0.0;
         public double tx = 0;
+        public Pose2d latestPose;
     }
 
    double getAngleOffset();
