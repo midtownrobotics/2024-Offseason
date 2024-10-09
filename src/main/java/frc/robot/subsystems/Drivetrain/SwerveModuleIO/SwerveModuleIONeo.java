@@ -1,18 +1,12 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
-package frc.robot.subsystems.drivetrain.NeoSwerveDrive;
-
-import org.littletonrobotics.junction.Logger;
+package frc.robot.subsystems.Drivetrain.SwerveModuleIO;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorTimeBase;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
@@ -23,11 +17,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.NeoSwerveModuleConstants;
 import frc.robot.utils.LoggedTunableNumber;
 
-/**
- * The {@code SwerveModule} class contains fields and methods pertaining to the function of a swerve module.
- */
-public class NeoSwerveModule {
-	private final CANSparkMax m_drivingSparkMax;
+public class SwerveModuleIONeo implements SwerveModuleIO {
+    private final CANSparkMax m_drivingSparkMax;
 	private final CANSparkMax m_turningSparkMax;
 
 	private final RelativeEncoder m_drivingEncoder;
@@ -38,17 +29,11 @@ public class NeoSwerveModule {
 	private final SparkMaxPIDController m_turningPIDController;
 	private double offset = 0;
 
-	private String moduleName;
+    private final String moduleName;
 
+    private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
-
-	private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
-
-	/**
-	 * Constructs a SwerveModule and configures the driving and turning motor,
-	 * encoder, and PID controller.
-	 */
-	public NeoSwerveModule(int drivingCANId, int turningCANId, int turningAnalogPort, double offset, boolean inverted, String moduleName) {
+    public SwerveModuleIONeo(int drivingCANId, int turningCANId, int turningAnalogPort, double offset, boolean inverted, String moduleName) {
 		this.moduleName = moduleName;
 
 		m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
@@ -130,131 +115,87 @@ public class NeoSwerveModule {
 		m_drivingEncoder.setPosition(0);
 	}
 
-	public void logMotorInfo() {
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningCurrentAmps", m_turningSparkMax.getOutputCurrent());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningTempFahrenheit", m_turningSparkMax.getMotorTemperature());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVelocityRPM", m_turningSparkMax.getEncoder().getVelocity());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningIsOn", Math.abs(m_turningSparkMax.getAppliedOutput()) > 0.01);
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningVoltage", m_turningSparkMax.getAppliedOutput() * m_turningSparkMax.getBusVoltage());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningPosition", m_turningAbsoluteEncoder.getAbsolutePosition() + getOffset());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/turningPositionNoOffset", m_turningAbsoluteEncoder.getAbsolutePosition());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/offset", getOffset());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingCurrentAmps", m_drivingSparkMax.getOutputCurrent());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingTempFahrenheit", m_drivingSparkMax.getMotorTemperature());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVelocityRPM", m_drivingSparkMax.getEncoder().getVelocity());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingIsOn", Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01);
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/drivingVoltage", m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage());
+    @Override
+    public void updateInputs(SwerveModuleIOInputs inputs) {
+        inputs.turningCurrentAmps = m_turningSparkMax.getOutputCurrent();
+        inputs.turningTempFahrenheit = m_turningSparkMax.getMotorTemperature();
+        inputs.turningVelocityRPM = m_turningSparkMax.getEncoder().getVelocity();
+        inputs.turningIsOn = Math.abs(m_turningSparkMax.getAppliedOutput()) > 0.01;
+        inputs.turningVoltage = m_turningSparkMax.getAppliedOutput() * m_turningSparkMax.getBusVoltage();
 
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/state", getState());
-		Logger.recordOutput("NeoSwerve/"+moduleName+"/desiredState", getDesiredState());
-	}
+        inputs.drivingCurrentAmps = m_drivingSparkMax.getOutputCurrent();
+        inputs.drivingTempFahrenheit = m_drivingSparkMax.getMotorTemperature();
+        inputs.drivingVelocityRPM = m_drivingSparkMax.getEncoder().getVelocity();
+        inputs.drivingIsOn = Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01;
+        inputs.drivingVoltage = m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage();
 
-	/**
-	 * Returns the current state of the module.
-	 *
-	 * @return The current state of the module.
-	 */
-	public SwerveModuleState getState() {
-		return new SwerveModuleState(m_drivingEncoder.getVelocity(),
-			new Rotation2d(m_turningEncoder.getPosition()));
-	}
+        inputs.currentState = getState();
+        inputs.desiredState = getDesiredState();
+		inputs.offset = offset;
+    }
 
-	/**
-	 * Returns the current position of the module.
-	 *
-	 * @return The current position of the module.
-	 */
-	public SwerveModulePosition getPosition() {
-		return new SwerveModulePosition(
-			m_drivingEncoder.getPosition(),
-			new Rotation2d(m_turningEncoder.getPosition()));
-	}
+    public void resetEncoders() {
+        m_drivingEncoder.setPosition(0);
+        m_turningSparkMax.set(0);
+        m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + offset);
+    }
 
-	/**
-	 * Sets the desired state for the module.
-	 *
-	 * @param desiredState Desired state with speed and angle.
-	 */
-	public void setDesiredState(SwerveModuleState desiredState) {
-		// Apply chassis angular offset to the desired state.
-		SwerveModuleState correctedDesiredState = new SwerveModuleState();
-		correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
-		correctedDesiredState.angle = desiredState.angle;
-
-		// Optimize the reference state to avoid spinning further than 90 degrees.
-		SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
-			new Rotation2d(m_turningEncoder.getPosition()));
-
-		// the purpose of the condition heruender is to avoid the noise that the swerve modules make when they are idle
-		if (Math.abs(optimizedDesiredState.speedMetersPerSecond) < 0.001 // less than 1 mm per sec
-			&& Math.abs(optimizedDesiredState.angle.getRadians() - m_turningEncoder.getPosition()) < Rotation2d.fromDegrees(1).getRadians()) // less than 1 degree
-		{
-			m_drivingSparkMax.set(0); // no point in doing anything
-			m_turningSparkMax.set(0);
+    public void calibrateVirtualPosition(double angle) {
+		if (this.offset != angle) {
+			m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + angle);
 		}
-		else
-		{
-			// Command driving and turning SPARKS MAX towards their respective setpoints.
-			m_drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
-			m_turningPIDController.setReference(optimizedDesiredState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
-		}
+        this.offset = angle;
+    }
 
-		m_desiredState = desiredState;
-	}
+    public double getOffset() {
+        return offset;
+    }
 
-	/** Zeroes all the SwerveModule relative encoders. */
-	public void resetEncoders() {
+    public RelativeEncoder getDrivingEncoder() {
+        return m_drivingEncoder;
+    }
 
-		m_drivingEncoder.setPosition(0); // arbitrarily set driving encoder to zero
+    public RelativeEncoder getTurningEncoder() {
+        return m_turningEncoder;
+    }
 
-		// temp
-		//m_turningAbsoluteEncoder.resetVirtualPosition();
-		// the reading and setting of the calibrated absolute turning encoder values is done in the Drivetrain's constructor
+    public CANCoder getTurningAbsoluteEncoder() {
+        return m_turningAbsoluteEncoder;
+    }
 
-		m_turningSparkMax.set(0); // no moving during reset of relative turning encoder
+    @Override
+    public SwerveModuleState getDesiredState() {
+        return m_desiredState;
+    }
 
-		m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition()+offset); // set relative position based on virtual absolute position
-	}
+    @Override
+    public void setDesiredState(SwerveModuleState desiredState) {
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getPosition()));
 
-	/** Calibrates the virtual position (i.e. sets position offset) of the absolute encoder. */
-	public void calibrateVirtualPosition(double angle)
-	{
-		this.offset = angle;
-	}
+        // NOTE: Changed from working swerve code. Original just set this to desired state
+        m_desiredState = optimizedState;
 
-	public double getOffset(){
-		return offset;
-	}
+        if (Math.abs(optimizedState.speedMetersPerSecond) < 0.001 && Math.abs(optimizedState.angle.getRadians() - m_turningEncoder.getPosition()) < Rotation2d.fromDegrees(1).getRadians()) {
+            m_drivingSparkMax.set(0);
+            m_turningSparkMax.set(0);
+            return;
+        }
 
-	public RelativeEncoder getDrivingEncoder()
-	{
-		return m_drivingEncoder;
-	}
+        m_drivingPIDController.setReference(optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+        m_turningPIDController.setReference(optimizedState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+    }
 
-	public RelativeEncoder getTurningEncoder()
-	{
-		return m_turningEncoder;
-	}
+    @Override
+    public SwerveModuleState getState() {
+        return new SwerveModuleState(m_drivingEncoder.getVelocity(), new Rotation2d(m_turningEncoder.getPosition()));
+    }
 
-	public CANCoder getTurningAbsoluteEncoder()
-	{
-		return m_turningAbsoluteEncoder;
-	}
+    @Override
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(m_drivingEncoder.getPosition(), new Rotation2d(m_turningEncoder.getPosition()));
+    }
 
-	public SwerveModuleState getDesiredState()
-	{
-		return m_desiredState;
-	}
-
-	public double getDrivingTemp() {
-		return m_drivingSparkMax.getMotorTemperature();
-	}
-
-	public double getTurningTemp() {
-		return m_turningSparkMax.getMotorTemperature();
-	}
-
-	public void updatePIDControllers() {
+    public void updatePIDControllers() {
 		LoggedTunableNumber.ifChanged(hashCode(), () -> {
 			m_drivingPIDController.setP(Constants.NeoSwerveModuleConstants.DRIVING_P.get());
 			m_drivingPIDController.setI(Constants.NeoSwerveModuleConstants.DRIVING_I.get());
@@ -268,6 +209,6 @@ public class NeoSwerveModule {
 			m_turningPIDController.setD(Constants.NeoSwerveModuleConstants.TURNING_D.get());
 			m_turningPIDController.setFF(Constants.NeoSwerveModuleConstants.TURNING_FF.get());
 		});
-	}
-
+    }
+    
 }

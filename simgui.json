@@ -1,7 +1,25 @@
 {
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auton Chooser": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/Auton Chooser": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "retained": {
+      "SmartDashboard": {
+        "Auton Chooser": {
+          "open": true
+        },
+        "open": true
+      }
     }
   },
   "NetworkTables Info": {

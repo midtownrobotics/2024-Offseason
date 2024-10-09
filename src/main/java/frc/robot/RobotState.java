@@ -1,17 +1,19 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.subsystems.Climber.Climber;
+import frc.robot.subsystems.Drivetrain.Drivetrain;
+import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 
-public class RobotState extends SubsystemBase {
+public class RobotState {
     private Shooter shooter;
     private Intake intake;
+    private Drivetrain drive;
 
     public enum State {
         AMP,
@@ -29,7 +31,7 @@ public class RobotState extends SubsystemBase {
 
     // private final LoggedDashboardChooser<State> stateChooser = new LoggedDashboardChooser<>("Robot State");
 
-    public RobotState(Shooter shooter, Climber climber, Intake intake) {
+    public RobotState(Shooter shooter, Climber climber, Intake intake, Drivetrain drive) {
         // stateChooser.addOption("AMP", State.AMP);
         // stateChooser.addOption("AMP_REVVING", State.AMP_REVVING);
         // stateChooser.addOption("SUBWOOFER", State.SUBWOOFER);
@@ -42,6 +44,7 @@ public class RobotState extends SubsystemBase {
 
         this.shooter = shooter;
         this.intake = intake;
+        this.drive = drive;
     }
 
     public State currentState = State.IDLE;
@@ -50,9 +53,7 @@ public class RobotState extends SubsystemBase {
         currentState = state;
     }
 
-    @Override
-    public void periodic() {
-
+    public void updateState() {
         // if (stateChooser.get() != null) {
         //     currentState = stateChooser.get();
         // } else {
@@ -109,5 +110,18 @@ public class RobotState extends SubsystemBase {
             default:
                 break;
         }
+    }
+
+    public void setDriveState(DriveState newState) {
+        drive.setState(newState);
+    }
+
+    public void onAutonomousInit() {
+        drive.setState(DriveState.FOLLOW_PATH);
+    }
+
+    public void onTeleopInit() {
+        drive.setState(DriveState.MANUAL);
+        setState(State.IDLE);
     }
 }

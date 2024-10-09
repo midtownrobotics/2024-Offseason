@@ -4,29 +4,30 @@
 
 package frc.robot;
 
-import java.nio.channels.NetworkChannel;
-
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
-
-import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
+import frc.robot.Ports.ShooterPorts;
+// import frc.robot.generated.TunerConstants;
+import frc.robot.RobotState.State;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIOSim;
-import frc.robot.Ports.ShooterPorts;
-// import frc.robot.generated.TunerConstants;
-import frc.robot.RobotState.State;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Climber.ClimberIO.ClimberIO;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
+import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
+import frc.robot.subsystems.Drivetrain.Drivetrain;
+import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
+import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIONeo;
+import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIOSim;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
@@ -45,13 +46,7 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew;
-import frc.robot.subsystems.SwerveDrivetrainNew.SwerveDrivetrainNew.SwerveDriveState;
-import frc.robot.subsystems.Climber.ClimberIO.ClimberIONeo;
-import frc.robot.subsystems.Climber.ClimberIO.ClimberIOSim;
-import frc.robot.subsystems.drivetrain.DrivetrainInterface;
-import frc.robot.subsystems.drivetrain.NeoSwerveDrive.NeoSwerveDrivetrain;
-import frc.robot.utils.AutonUtils;
+import frc.robot.utils.AutonFactory;
 
 public class RobotContainer {
 
@@ -60,9 +55,9 @@ public class RobotContainer {
   private Intake intake;
   private BeamBreak beamBreak;
   private Limelight limelight;
-  private AutonUtils autonUtils;
+  private AutonFactory m_autonFactory;
 
-  private SwerveDrivetrainNew drivetrain;
+  private Drivetrain drivetrain;
 
   private RobotState robotState;
 
@@ -79,19 +74,47 @@ public class RobotContainer {
 
   private void configureBindings() {
 
-    drivetrain.configureDefaultCommand(driver);
+    drivetrain.setDefaultCommand(new RunCommand (() -> {
+      double driverX = RobotContainer.deadzone(driver.getLeftY(), driver.getLeftX(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+      double driverY = RobotContainer.deadzone(driver.getLeftX(), driver.getLeftY(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+      double driverRot = RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+
+      drivetrain.setDriverDesired(
+        ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromRadians(drivetrain.getAngle()))
+      );
+    }, drivetrain));
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-    driver.x().whileTrue(new StartEndCommand(() -> drivetrain.setState(SwerveDriveState.X), () -> drivetrain.setState(SwerveDriveState.MANUAL), drivetrain));
-    driver.y().whileTrue(new StartEndCommand(() -> drivetrain.setState(SwerveDriveState.SPEAKER_AUTO_ALIGN), () -> drivetrain.setState(SwerveDriveState.MANUAL), drivetrain));
+    // Note: These probably do not need to require drivetrain
+    driver.x().whileTrue(
+      new StartEndCommand(
+        () -> drivetrain.setState(DriveState.X), 
+        () -> drivetrain.setState(DriveState.MANUAL), 
+      drivetrain)
+    );
+    driver.y().whileTrue(
+      new StartEndCommand(
+        () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
+        () -> drivetrain.setState(DriveState.MANUAL),
+      drivetrain)
+    );
 
-    driver.leftTrigger().whileTrue(new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
+    driver.leftTrigger().whileTrue(
+      new StartEndCommand(
+        () -> drivetrain.setBoost(true),
+        () -> drivetrain.setBoost(false)
+      )
+    );
 
-		operator.rightBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.INTAKING), () -> {
-      if (robotState.currentState != State.NOTE_HELD) {
-        robotState.setState(State.IDLE);
-      }
-    }, intake));
+		operator.rightBumper().whileTrue(
+      new StartEndCommand(
+        () -> robotState.setState(State.INTAKING), 
+        () -> {
+          if (robotState.currentState != State.NOTE_HELD) {
+            robotState.setState(State.IDLE);
+          }
+        }, intake)
+    );
 
 		operator.leftBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
 		operator.leftTrigger().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
@@ -133,7 +156,7 @@ public class RobotContainer {
     
     LimelightIO limelightIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       limelightIO = new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight")); 
     } else {
       limelightIO = new LimelightIOSim();
@@ -147,7 +170,7 @@ public class RobotContainer {
     PivotIO pivotIO;
     FeederIO feederIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       flywheelIO = new FlywheelIONeo(ShooterPorts.leftFlywheel, ShooterPorts.rightFlywheel);
       pivotIO = new PivotIONeo(ShooterPorts.pivot, ShooterPorts.pivotEncoder);
       feederIO = new FeederIONeo(ShooterPorts.rollerTop, ShooterPorts.rollerBottom);
@@ -163,7 +186,7 @@ public class RobotContainer {
 
     RollerIO rollerIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       rollerIO = new RollerIONeo(IntakePorts.runExternal, IntakePorts.runInternal);
     } else {
       rollerIO = new RollerIOSim();
@@ -175,23 +198,19 @@ public class RobotContainer {
 
     ClimberIO climberIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL){
+    if (Constants.getMode() == Constants.Mode.REAL){
       climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
     } else {
       climberIO = new ClimberIOSim();
     }
 
     climber = new Climber(operator, climberIO);
-    
-    // Robot State
-
-    robotState = new RobotState(shooter, climber, intake);
 
     // BeamBreak
 
     BeamBreakIO beamBreakIO;
 
-    if (Constants.currentMode == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL) {
       beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
     } else {
       beamBreakIO = new BeamBreakIOSim();
@@ -206,10 +225,14 @@ public class RobotContainer {
     // } else {
       // drivetrain = new NeoSwerveDrivetrain();
     // }
+    if (Robot.isSimulation()) {
+      drivetrain = new Drivetrain(new SwerveDrivetrainIOSim(), limelight);
+    } else {
+      drivetrain = new Drivetrain(new SwerveDrivetrainIONeo(), limelight);
+    }
 
-    drivetrain = new SwerveDrivetrainNew(limelight);
-
-    autonUtils = new AutonUtils(drivetrain);
+    // Robot State
+    robotState = new RobotState(shooter, climber, intake, drivetrain);
     
   }
 
@@ -223,11 +246,16 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    // return autonUtils.getPathPlannerAuton();
-    return new SequentialCommandGroup(
-      new InstantCommand(() -> drivetrain.setState(SwerveDriveState.AUTO)),
-      autonUtils.getPathPlannerAuton(),
-      new InstantCommand(() -> drivetrain.setState(SwerveDriveState.MANUAL))
-    );
+    return m_autonFactory.getAutonCommand().andThen(() -> {
+      drivetrain.setState(DriveState.X);
+    }, drivetrain);
+  }
+
+  public void onDriverStationConnected() {
+    configureAutonomous();
+  }
+
+  public void configureAutonomous() {
+    m_autonFactory = new AutonFactory(drivetrain);
   }
 }
