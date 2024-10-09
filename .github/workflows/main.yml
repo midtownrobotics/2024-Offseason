@@ -35,7 +35,7 @@ jobs:
 
     # Fixes issue where non ascii characters break everything
     - name: Spotless Apply
-      run: ./gradlew :spotlessApply
+      run: ./gradlew spotlessApply
 
     # Runs a single command using the runners shell
     - name: Compile and run tests on robot code
