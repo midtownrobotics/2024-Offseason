@@ -40,7 +40,6 @@ public class Shooter extends SubsystemBase {
         AUTO_AIM,
         AUTO_AIM_REVVING,
         PASSING,
-        SUBWOOFER_REVSHOOT,
         VOMITING,
         TUNING,
         INTAKING,
@@ -62,6 +61,10 @@ public class Shooter extends SubsystemBase {
 
     public double getAngleFromDistance() {
         return ShooterUtils.instance.getAngleFromDistance(limelight.getDistance());
+    }
+
+    public double getFlywheelSpeed() {
+        return flywheelIO.getSpeed();
     }
 
     @Override
@@ -115,13 +118,6 @@ public class Shooter extends SubsystemBase {
             case PASSING:
                 // TODO
                 break;
-            case SUBWOOFER_REVSHOOT:
-                flywheelIO.setSpeed(ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
-                feederIO.setVoltage(0);
-                pivotIO.setAngle(getAngleFromDistance());
-                if (flywheelIO.getSpeed() >= ShooterConstants.SPEAKER_SPEED.get()) {
-                    currentState = ShooterState.SUBWOOFER;
-                }
             case VOMITING:
                 // TODO
                 break;

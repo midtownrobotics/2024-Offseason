@@ -1,8 +1,9 @@
 package frc.robot;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Intake.IntakeState;
@@ -92,8 +93,11 @@ public class RobotState extends SubsystemBase {
                 intake.setState(IntakeState.IDLE);
                 break;
             case SUBWOOFER_REVSHOOT:
-                shooter.setState(ShooterState.SUBWOOFER_REVSHOOT);
+                shooter.setState(ShooterState.SUBWOOFER_REVVING);
                 intake.setState(IntakeState.IDLE);
+                if (shooter.getFlywheelSpeed() >= ShooterConstants.SPEAKER_SPEED.get()) {
+                    shooter.setState(ShooterState.SUBWOOFER);
+                }
                 break;
             case VOMITING:
                 shooter.setState(ShooterState.VOMITING);
