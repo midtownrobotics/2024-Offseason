@@ -3,7 +3,6 @@ package frc.robot.subsystems.Shooter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -41,6 +40,7 @@ public class Shooter extends SubsystemBase {
         AUTO_AIM,
         AUTO_AIM_REVVING,
         PASSING,
+        SUBWOOFER_REVSHOOT,
         VOMITING,
         TUNING,
         INTAKING,
@@ -115,6 +115,13 @@ public class Shooter extends SubsystemBase {
             case PASSING:
                 // TODO
                 break;
+            case SUBWOOFER_REVSHOOT:
+                flywheelIO.setSpeed(ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
+                feederIO.setVoltage(0);
+                pivotIO.setAngle(getAngleFromDistance());
+                if (flywheelIO.getSpeed() >= ShooterConstants.SPEAKER_SPEED.get()) {
+                    currentState = ShooterState.SUBWOOFER;
+                }
             case VOMITING:
                 // TODO
                 break;

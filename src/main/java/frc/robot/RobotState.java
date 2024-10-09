@@ -21,6 +21,7 @@ public class RobotState extends SubsystemBase {
         AUTO_AIM,
         AUTO_AIM_REVVING,
         PASSING,
+        SUBWOOFER_REVSHOOT,
         VOMITING,
         INTAKING,
         NOTE_HELD,
@@ -88,6 +89,10 @@ public class RobotState extends SubsystemBase {
                 break;
             case PASSING:
                 shooter.setState(ShooterState.PASSING);
+                intake.setState(IntakeState.IDLE);
+                break;
+            case SUBWOOFER_REVSHOOT:
+                shooter.setState(ShooterState.SUBWOOFER_REVSHOOT);
                 intake.setState(IntakeState.IDLE);
                 break;
             case VOMITING:

@@ -94,4 +94,12 @@ public class FlywheelIONeo implements FlywheelIO {
             rightWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
         });
     }
+
+    /** Get the speed of the fastest spinning flywheel.
+     * @return The speed of the fastest spinning flywheel  
+    **/
+
+    public double getSpeed() {
+        return Math.max(leftWheelNeo.getEncoder().getVelocity(), rightWheelNeo.getEncoder().getVelocity());
+    }
 }
