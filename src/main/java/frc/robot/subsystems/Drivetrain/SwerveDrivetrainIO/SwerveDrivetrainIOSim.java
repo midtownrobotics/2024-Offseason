@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
+import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOSim;
@@ -90,7 +91,6 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
 
     @Override
     public double getPigeonYaw() {
-        // return getPose().getRotation().getDegrees();
         return m_gyro.getAngle();
     }
 
@@ -134,6 +134,22 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
 
     @Override
     public void updateOdometry() {
+        ChassisSpeeds robotSpeeds = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+        // double angularVelocity = robotSpeeds.omegaRadiansPerSecond;
+        // System.out.println(angularVelocity);
+    
+        // double deltaAngle = angularVelocity * 0.02;
+
+        // double newAngle = m_gyro.getAngle() + deltaAngle;
+
+        Logger.recordOutput("Gyro/robotSpeeds", robotSpeeds);
+        // Logger.recordOutput("Gyro/angularVel", angularVelocity);
+        // Logger.recordOutput("Gyro/deltaAngle", deltaAngle);
+        // Logger.recordOutput("Gyro/oldAngle", newAngle - deltaAngle);
+        // Logger.recordOutput("Gyro/newAngle", newAngle);
+
+        // m_gyro.setAngle(newAngle);
+
         m_poseEstimator.update(
             Rotation2d.fromRotations(getPigeonYaw()), 
             getSwerveModulePositions()

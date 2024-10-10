@@ -2,11 +2,15 @@ package frc.robot.utils;
 
 import java.util.List;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -30,8 +34,8 @@ public class AutonFactory extends VirtualSubsystem{
             m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             m_drivetrain::setPathPlannerDesired, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(3.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(3.0, 0.0, 0.0), // Rotation PID constants
+                    new PIDConstants(2.5, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(4.0, 1.6, 0.0), // Rotation PID constants
                     4.5, // Max module speed, in m/s
                     0.377, // Drive base radius in meters. Distance from robot center to furthest module.
                     new ReplanningConfig() // Default path replanning config. See the API for the options here
@@ -45,6 +49,9 @@ public class AutonFactory extends VirtualSubsystem{
             },
             m_drivetrain // Reference to this subsystem to set requirements
         );
+
+        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> Logger.recordOutput("PathPlanner/currentPose", pose));
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> Logger.recordOutput("PathPlanner/nextPose", pose));
 
         m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
         m_autonChooser.addOption("Do Nothing", "Do Nothing");
