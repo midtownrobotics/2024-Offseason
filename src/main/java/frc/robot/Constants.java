@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.utils.AdvancedSwerveKinematics;
 import frc.robot.utils.LoggedTunableNumber;
 
 public final class Constants {
@@ -103,6 +104,12 @@ public final class Constants {
 				new Translation2d(WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2),
 				new Translation2d(-WHEEL_BASE_METERS / 2, TRACK_WIDTH_METERS / 2),
 				new Translation2d(-WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2));
+
+		// public static final AdvancedSwerveKinematics DRIVE_KINEMATICS_2 = new AdvancedSwerveKinematics(
+		// 		new Translation2d(WHEEL_BASE_METERS / 2, TRACK_WIDTH_METERS / 2),
+		// 		new Translation2d(WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2),
+		// 		new Translation2d(-WHEEL_BASE_METERS / 2, TRACK_WIDTH_METERS / 2),
+		// 		new Translation2d(-WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2));
 
 		public static final boolean kGyroReversed = false;
 	}
