@@ -75,7 +75,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
     @Override
     public SwerveModuleState getState() {
-        double velocity = m_driveMotor.getAngularVelocityRPM() * Constants.NeoSwerveModuleConstants.WHEEL_DIAMETER_METERS * Math.PI * 60;
+        double velocity = m_driveMotor.getAngularVelocityRPM() * Constants.NeoSwerveModuleConstants.WHEEL_DIAMETER_METERS * Math.PI / 60;
         Rotation2d angle = new Rotation2d(m_turnMotor.getAngularPositionRad());
         
         return new SwerveModuleState(velocity, angle);

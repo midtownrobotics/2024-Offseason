@@ -135,20 +135,19 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
     @Override
     public void updateOdometry() {
         ChassisSpeeds robotSpeeds = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
-        // double angularVelocity = robotSpeeds.omegaRadiansPerSecond;
-        // System.out.println(angularVelocity);
+        double angularVelocity = robotSpeeds.omegaRadiansPerSecond;
     
-        // double deltaAngle = angularVelocity * 0.02;
+        double deltaAngle = angularVelocity * 0.02;
 
-        // double newAngle = m_gyro.getAngle() + deltaAngle;
+        double newAngle = m_gyro.getAngle() + deltaAngle;
 
         Logger.recordOutput("Gyro/robotSpeeds", robotSpeeds);
-        // Logger.recordOutput("Gyro/angularVel", angularVelocity);
-        // Logger.recordOutput("Gyro/deltaAngle", deltaAngle);
-        // Logger.recordOutput("Gyro/oldAngle", newAngle - deltaAngle);
-        // Logger.recordOutput("Gyro/newAngle", newAngle);
+        Logger.recordOutput("Gyro/angularVel", angularVelocity);
+        Logger.recordOutput("Gyro/deltaAngle", deltaAngle);
+        Logger.recordOutput("Gyro/oldAngle", newAngle - deltaAngle);
+        Logger.recordOutput("Gyro/newAngle", newAngle);
 
-        // m_gyro.setAngle(newAngle);
+        m_gyro.setAngle(newAngle);
 
         m_poseEstimator.update(
             Rotation2d.fromRotations(getPigeonYaw()), 

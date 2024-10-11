@@ -2,9 +2,6 @@ package frc.robot.subsystems.Drivetrain.SwerveModuleIO;
 
 import org.littletonrobotics.junction.AutoLog;
 
-import com.ctre.phoenix.sensors.CANCoder;
-import com.revrobotics.RelativeEncoder;
-
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
