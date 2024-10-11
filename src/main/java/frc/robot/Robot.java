@@ -89,7 +89,13 @@ public class Robot extends LoggedRobot{
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+    if (autonCommand != null) {
+      System.out.println("Cancelling auton command");
+      autonCommand.cancel();
+      System.out.println(autonCommand.isFinished());
+    }
+  }
 
   @Override
   public void teleopInit() {

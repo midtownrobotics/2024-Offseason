@@ -71,7 +71,8 @@ public class Drivetrain extends SubsystemBase {
                 // Intentional Fall-through - if Limelight does not detect target, we do manual driving
             case TUNING:
             case MANUAL:
-                m_swerveDrivetrainIO.drive(driverChassisSpeeds, true, speedBoost);
+                m_swerveDrivetrainIO.drive(driverChassisSpeeds, false, speedBoost);
+                // m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
                 break;
             case FOLLOW_PATH:
                 m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
