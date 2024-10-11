@@ -29,7 +29,10 @@ public class Drivetrain extends SubsystemBase {
 
     private DriveState state = DriveState.MANUAL;
 
-    private ChassisSpeeds driverChassisSpeeds; // Robot Relative
+    // private ChassisSpeeds driverChassisSpeeds; // Robot Relative
+    private double driveX;
+    private double driveY;
+    private double driveOmega;
     private ChassisSpeeds pathplannerChassisSpeeds; // Robot Relative
 
     private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
@@ -56,8 +59,8 @@ public class Drivetrain extends SubsystemBase {
             case SPEAKER_AUTO_ALIGN:
                 if (m_limelight.isValidTarget(7)) {
                     m_swerveDrivetrainIO.drive(
-                        driverChassisSpeeds.vxMetersPerSecond,
-                        driverChassisSpeeds.vyMetersPerSecond,
+                        driveX,
+                        driveY,
                         -autoAimPID.calculate(m_limelight.getTx()), 
                         false, false, speedBoost);
                     break;
@@ -66,7 +69,7 @@ public class Drivetrain extends SubsystemBase {
                 // Intentional Fall-through - if Limelight does not detect target, we do manual driving
             case TUNING:
             case MANUAL:
-                m_swerveDrivetrainIO.drive(driverChassisSpeeds, true, speedBoost);
+                m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
                 break;
             case FOLLOW_PATH:
                 m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
@@ -87,9 +90,12 @@ public class Drivetrain extends SubsystemBase {
                 break;
         }
 
+        // Logger.recordOutput("Drive/DrivetrainState", state.toString());
+
         // Original code has a calculateTurnAngleUsingPidController which seems to not do anything
 
         m_swerveDrivetrainIO.updateInputs(swerveIOInputs);
+        swerveIOInputs.state = state;
         // swerveIOInputs.pose = getPose();
         Logger.processInputs("Drive", swerveIOInputs);
     }
@@ -102,8 +108,11 @@ public class Drivetrain extends SubsystemBase {
         speedBoost = boost;
     }
 
-    public void setDriverDesired(ChassisSpeeds speeds) {
-        driverChassisSpeeds = speeds;
+    public void setDriverDesired(double driveX, double driveY, double driveOmega) {
+        this.driveX = driveX;
+        this.driveY = driveY;
+        this.driveOmega = driveOmega;
+        // driverChassisSpeeds = speeds;
     }
 
     public void setPathPlannerDesired(ChassisSpeeds speeds) {

@@ -9,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIO;
 import frc.robot.subsystems.Limelight.Limelight;
 
@@ -20,6 +21,7 @@ public interface SwerveDrivetrainIO {
         public SwerveModuleState[] currentStates;
         public SwerveModuleState[] desiredStates;
         public double pigeonYaw;
+        public DriveState state;
     }
 
     void updateInputs(SwerveIOInputs inputs);

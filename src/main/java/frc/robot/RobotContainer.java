@@ -80,7 +80,7 @@ public class RobotContainer {
       double driverRot = RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
 
       drivetrain.setDriverDesired(
-        ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromRadians(drivetrain.getAngle()))
+        driverX, driverY, driverRot
       );
     }, drivetrain));
 

@@ -25,9 +25,9 @@ import frc.robot.utils.NeoSwerveUtils;
 
 public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
-    private static final LoggedDashboardNumber FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontLeftOffset", 0.125); // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final LoggedDashboardNumber FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontRightOffset", 2.657); // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final LoggedDashboardNumber REAR_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/RearLeftOffset", 0.8); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+    private static final LoggedDashboardNumber FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontLeftOffset", 0.125 + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedDashboardNumber FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontRightOffset", 2.657 + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedDashboardNumber REAR_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/RearLeftOffset",0.8); // adjust as needed so that virtual (turn) position of wheel is zero when straight
 	private static final LoggedDashboardNumber REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/RearRightOffset", 1.78);
 	private static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReversed
 
@@ -55,25 +55,25 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 		Ports.NeoDrive.FRONT_LEFT_DRIVING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
-		-0.317, false, "FrontLeft");
+		FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get(), false, "FrontLeft");
 
 	private final SwerveModuleIONeo m_frontRight /* #1 */ = new SwerveModuleIONeo(
 		Ports.NeoDrive.FRONT_RIGHT_DRIVING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING,
 		Ports.NeoDrive.FRONT_RIGHT_TURNING_ABSOLUTE_ENCODER,
-		0.86, true, "FrontRight");
+		FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get(), true, "FrontRight");
 
 	private final SwerveModuleIONeo m_rearLeft /* #3 */ = new SwerveModuleIONeo(
 		Ports.NeoDrive.REAR_LEFT_DRIVING,
 		Ports.NeoDrive.REAR_LEFT_TURNING,
 		Ports.NeoDrive.REAR_LEFT_TURNING_ABSOLUTE_ENCODER,
-		-0.9, true, "RearLeft");
+		REAR_LEFT_VIRTUAL_OFFSET_RADIANS.get(), true, "RearLeft");
 
 	private final SwerveModuleIONeo m_rearRight /* #4 */ = new SwerveModuleIONeo(
 		Ports.NeoDrive.REAR_RIGHT_DRIVING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
-		-0.33, false, "RearRight");
+		REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get(), false, "RearRight");
 
 	private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs = new SwerveModuleIOInputsAutoLogged();
 	private final SwerveModuleIOInputsAutoLogged m_frontRightInputs = new SwerveModuleIOInputsAutoLogged();
