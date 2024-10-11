@@ -9,6 +9,7 @@ public class StartIntake extends Command {
 
     public StartIntake(Intake intake) {
         this.intake = intake;
+        addRequirements(intake);
     }
 
     @Override

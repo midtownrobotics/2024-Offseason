@@ -4,11 +4,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Intake.IntakeState;
 
-public class EndIntake extends Command {
+public class StopIntake extends Command {
     private final Intake intake;
 
-    public EndIntake(Intake intake) {
+    public StopIntake(Intake intake) {
         this.intake = intake;
+        addRequirements(intake);
     }
 
     @Override
