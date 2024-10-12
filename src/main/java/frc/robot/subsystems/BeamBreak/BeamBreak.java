@@ -42,8 +42,10 @@ public class BeamBreak extends SubsystemBase{
 
         if (beamBreakIO.getIsBroken()) {
             if (beamBreakBrokenTime == 0) {
-                driver.setRumble(RumbleType.kBothRumble, 1);
-                operator.setRumble(RumbleType.kBothRumble, 1);
+                if (edu.wpi.first.wpilibj.RobotState.isTeleop()) {
+                    driver.setRumble(RumbleType.kBothRumble, 1);
+                    operator.setRumble(RumbleType.kBothRumble, 1);
+                }
             }
             if (beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get()) {
                 if (robotState != null) {
@@ -64,5 +66,9 @@ public class BeamBreak extends SubsystemBase{
 
         beamBreakIO.updateInputs(beamBreakIOInputs);
         Logger.processInputs("BeamBreak/Inputs", beamBreakIOInputs);
+    }
+
+    public void setRobotState(RobotState robotState) {
+        this.robotState = robotState;
     }
 }

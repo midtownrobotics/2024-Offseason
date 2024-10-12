@@ -44,7 +44,7 @@ public class AutonFactory extends VirtualSubsystem{
     
     public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
         this.m_drivetrain = drivetrain;
-        this.m_robotState = robotState; 
+        this.m_robotState = robotState;
 
         NamedCommands.registerCommand("Idle", new InstantCommand(()->{
             robotState.setState(State.IDLE);
@@ -54,7 +54,7 @@ public class AutonFactory extends VirtualSubsystem{
             robotState.setState(State.SUBWOOFER_REVVING);
         }));
 
-        NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new WaitCommand(1).deadlineWith(new InstantCommand(()->{
+        NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new WaitCommand(3).deadlineWith(new InstantCommand(()->{
             robotState.setState(State.SUBWOOFER_REVVING);
         })), new InstantCommand(()->{
             robotState.setState(State.SUBWOOFER);

@@ -242,6 +242,7 @@ public class RobotContainer {
 
     // Robot State
     robotState = new RobotState(shooter, climber, intake, drivetrain);
+    beamBreak.setRobotState(robotState);
     
   }
 
