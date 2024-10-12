@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotState;
+import frc.robot.RobotState.State;
 import frc.robot.commands.auton.IdleRobot;
 import frc.robot.commands.auton.RevAutoAim;
 import frc.robot.commands.auton.ShootAutoAim;
@@ -43,19 +44,25 @@ public class AutonFactory extends VirtualSubsystem{
     
     public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
         this.m_drivetrain = drivetrain;
-        this.m_robotState = robotState;
+        this.m_robotState = robotState; 
 
-        NamedCommands.registerCommand("Idle", new IdleRobot(null));
+        NamedCommands.registerCommand("Idle", new InstantCommand(()->{
+            robotState.setState(State.IDLE);
+        }));
 
-        NamedCommands.registerCommand("Rev", new RevAutoAim(robotState));
+        NamedCommands.registerCommand("Rev", new InstantCommand(()->{
+            robotState.setState(State.SUBWOOFER_REVVING);
+        }));
 
         NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new WaitCommand(1).deadlineWith(new InstantCommand(()->{
-            robotState.
+            robotState.setState(State.SUBWOOFER_REVVING);
         })), new InstantCommand(()->{
-            
+            robotState.setState(State.SUBWOOFER);
         })));
 
-        NamedCommands.registerCommand("Intake", new StartIntake(robotState));
+        NamedCommands.registerCommand("Intake", new InstantCommand(()->{
+            robotState.setState(State.INTAKING);
+        }));
 
         m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
         m_autonChooser.addOption("Do Nothing", "Do Nothing");
