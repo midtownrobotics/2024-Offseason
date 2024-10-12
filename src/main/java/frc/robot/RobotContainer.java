@@ -117,7 +117,11 @@ public class RobotContainer {
 
 		operator.rightBumper().whileTrue(
       new StartEndCommand(
-        () -> robotState.setState(State.INTAKING), 
+        () -> {
+          if (robotState.currentState != State.NOTE_HELD) { 
+            robotState.setState(State.INTAKING);
+          }
+        }, 
         () -> {
           if (robotState.currentState != State.NOTE_HELD) {
             robotState.setState(State.IDLE);
