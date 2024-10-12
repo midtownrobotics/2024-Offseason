@@ -12,6 +12,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.ApriltagHelper.Tags;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -57,7 +58,7 @@ public class Drivetrain extends SubsystemBase {
 
         switch (state) {
             case SPEAKER_AUTO_ALIGN:
-                if (m_limelight.isValidTarget(7)) {
+                if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
                     m_swerveDrivetrainIO.drive(
                         driverChassisSpeeds.vxMetersPerSecond,
                         driverChassisSpeeds.vyMetersPerSecond,
