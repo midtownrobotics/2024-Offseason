@@ -19,18 +19,12 @@ public final class Constants {
     REPLAY
   }
 
-  public static enum RobotType {
-    SIMBOT,
-    COMPBOT
-  }
-
-  public static RobotType robotType = RobotType.COMPBOT;
-
   public static Mode getMode() {
-    return switch (robotType) {
-      case COMPBOT -> RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
-      case SIMBOT -> Mode.SIM;
-    };
+    if (RobotBase.isReal()) {
+        return Mode.REAL;
+    } else {
+        return Mode.SIM;
+    }
   }
 
   public static final boolean tuningMode = true;
