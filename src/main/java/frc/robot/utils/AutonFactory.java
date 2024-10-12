@@ -30,6 +30,13 @@ public class AutonFactory extends VirtualSubsystem{
     private final LoggedDashboardChooser<String> m_autonChooser;
     private String m_currAutonChoice;
     private Command m_currentAutonCommand;
+
+    private LoggedTunableNumber PATHPLANNER_TRANSLATION_P = new LoggedTunableNumber("PathPlanner/Translation_P", 1.8);
+    private LoggedTunableNumber PATHPLANNER_TRANSLATION_I = new LoggedTunableNumber("PathPlanner/Translation_I", 0);
+    private LoggedTunableNumber PATHPLANNER_TRANSLATION_D = new LoggedTunableNumber("PathPlanner/Translation_D", 0.2);
+    private LoggedTunableNumber PATHPLANNER_ROTATION_P = new LoggedTunableNumber("PathPlanner/ROTATION_P", 2);
+    private LoggedTunableNumber PATHPLANNER_ROTATION_I = new LoggedTunableNumber("PathPlanner/ROTATION_I", 0);
+    private LoggedTunableNumber PATHPLANNER_ROTATION_D = new LoggedTunableNumber("PathPlanner/ROTATION_D", 0);
     
     public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
         this.m_drivetrain = drivetrain;
@@ -41,31 +48,6 @@ public class AutonFactory extends VirtualSubsystem{
         NamedCommands.registerCommand("SubwooferShoot", new ShootSubwoofer(robotState));
         NamedCommands.registerCommand("Intake", new StartIntake(robotState));
 
-        AutoBuilder.configureHolonomic(
-            m_drivetrain::getPose, // Robot pose supplier
-            m_drivetrain::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
-            m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            m_drivetrain::setPathPlannerDesired, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-            new HolonomicPathFollowerConfig( // HsolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(1.8, 0.0, 0.2), // Translation PID constants
-                    new PIDConstants(2.0, 0.0, 0.0), // Rotation PID constants
-                    4.5, // Max module speed, in m/s
-                    0.377, // Drive base radius in meters. Distance from robot center to furthest module.
-                    new ReplanningConfig() // Default path replanning config. See the API for the options here
-            ),
-            () -> {
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            m_drivetrain // Reference to this subsystem to set requirements
-        );
-
-        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> Logger.recordOutput("PathPlanner/currentPose", pose));
-        PathPlannerLogging.setLogTargetPoseCallback((pose) -> Logger.recordOutput("PathPlanner/nextPose", pose));
-
         m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
         m_autonChooser.addOption("Do Nothing", "Do Nothing");
         m_autonChooser.addOption("Shoot Preload", "Shoot Preload");
@@ -75,7 +57,47 @@ public class AutonFactory extends VirtualSubsystem{
         }
 
         m_currAutonChoice = m_autonChooser.get();
-        m_currentAutonCommand = buildAutonCommand(m_currAutonChoice);
+
+        updateHolonomicConfig();
+
+        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> Logger.recordOutput("PathPlanner/currentPose", pose));
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> Logger.recordOutput("PathPlanner/nextPose", pose));
+    }
+
+    private void updateHolonomicConfig() {
+        HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+            new PIDConstants(
+                PATHPLANNER_TRANSLATION_P.get(), 
+                PATHPLANNER_TRANSLATION_I.get(), 
+                PATHPLANNER_TRANSLATION_D.get()
+            ), // Translation PID constants
+            new PIDConstants(
+                PATHPLANNER_ROTATION_P.get(), 
+                PATHPLANNER_ROTATION_I.get(), 
+                PATHPLANNER_ROTATION_D.get()
+            ), // Rotation PID constants
+            4.5, // Max module speed, in m/s
+            0.377, // Drive base radius in meters. Distance from robot center to furthest module.
+            new ReplanningConfig() // Default path replanning config. See the API for the options here
+        );
+
+        AutoBuilder.configureHolonomic(
+            m_drivetrain::getPose, // Robot pose supplier
+            m_drivetrain::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+            m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            m_drivetrain::setPathPlannerDesired, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            pathFollowerConfig,
+            () -> {
+                var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            },
+            m_drivetrain // Reference to this subsystem to set requirements
+        );
+
+        m_currentAutonCommand = buildAutonCommand();
     }
 
     private Command buildAutonCommand(String path) {
@@ -87,17 +109,27 @@ public class AutonFactory extends VirtualSubsystem{
             return new ShootSubwoofer(m_robotState);
         }
         
+        System.out.println("Building Auto");
         Command autoCommand = AutoBuilder.buildAuto(path);
         return autoCommand;
     }
 
+    private Command buildAutonCommand() {
+        return buildAutonCommand(m_currAutonChoice);
+    }
+
     @Override
     public void periodic() {
+        LoggedTunableNumber.ifChanged(hashCode(), () -> {
+            updateHolonomicConfig();
+        }, PATHPLANNER_TRANSLATION_P, PATHPLANNER_TRANSLATION_I, PATHPLANNER_TRANSLATION_D,
+        PATHPLANNER_ROTATION_P, PATHPLANNER_ROTATION_I, PATHPLANNER_ROTATION_D);
+
         String newAutonChoice = m_autonChooser.get();
         if (newAutonChoice == null && m_currAutonChoice == null) return;
         if (newAutonChoice == null || !newAutonChoice.equals(m_currAutonChoice)) {
             m_currAutonChoice = newAutonChoice;
-            m_currentAutonCommand = buildAutonCommand(m_currAutonChoice);
+            m_currentAutonCommand = buildAutonCommand();
         }
     }
 
@@ -106,7 +138,7 @@ public class AutonFactory extends VirtualSubsystem{
         // System.out.println(m_currentAutonCommand.isFinished());
         // System.out.println(m_currentAutonCommand.isScheduled());
         if (m_currentAutonCommand == null || m_currentAutonCommand.isFinished()) {
-            m_currentAutonCommand = buildAutonCommand(m_currAutonChoice);
+            m_currentAutonCommand = buildAutonCommand();
         }
 
         return m_currentAutonCommand;
