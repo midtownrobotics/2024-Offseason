@@ -123,7 +123,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void setPathPlannerDesired(ChassisSpeeds speeds) {
-        pathplannerChassisSpeeds = speeds;
+        pathplannerChassisSpeeds = ChassisSpeeds.discretize(speeds, 0.05);
         Logger.recordOutput("Drive/PathPlannerSpeed", pathplannerChassisSpeeds);
     }
 
