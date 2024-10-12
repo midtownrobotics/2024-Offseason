@@ -2,12 +2,11 @@ package frc.robot.utils;
 
 import java.util.List;
 
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -16,6 +15,12 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.RobotState;
+import frc.robot.commands.auton.IdleRobot;
+import frc.robot.commands.auton.RevAutoAim;
+import frc.robot.commands.auton.ShootAutoAim;
+import frc.robot.commands.auton.ShootSubwoofer;
+import frc.robot.commands.auton.StartIntake;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 
 public class AutonFactory extends VirtualSubsystem{
@@ -25,8 +30,14 @@ public class AutonFactory extends VirtualSubsystem{
     private String m_currAutonChoice;
     private Command m_currentAutonCommand;
     
-    public AutonFactory(Drivetrain drivetrain) {
+    public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
         this.m_drivetrain = drivetrain;
+
+        NamedCommands.registerCommand("Idle", new IdleRobot(null));
+        NamedCommands.registerCommand("Rev", new RevAutoAim(robotState));
+        NamedCommands.registerCommand("AutoAimShoot", new ShootAutoAim(robotState));
+        NamedCommands.registerCommand("SubwooferShoot", new ShootSubwoofer(robotState));
+        NamedCommands.registerCommand("Intake", new StartIntake(robotState));
 
         AutoBuilder.configureHolonomic(
             m_drivetrain::getPose, // Robot pose supplier
