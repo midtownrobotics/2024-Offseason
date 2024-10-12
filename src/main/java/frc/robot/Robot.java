@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.PathfindingCommand;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.VirtualSubsystem;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -11,20 +16,18 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-public class Robot extends LoggedRobot{
-  private Command m_autonomousCommand;
-
+public class Robot extends LoggedRobot {
+  private Command autonCommand;
   private RobotContainer m_robotContainer;
 
   @Override
   public void robotInit() {
 
-    Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
+    if (Robot.isSimulation()) {
+      DriverStation.silenceJoystickConnectionWarning(true);
+    }
 
-    switch (Constants.currentMode) {
+    switch (Constants.getMode()) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new WPILOGWriter());
@@ -42,14 +45,25 @@ public class Robot extends LoggedRobot{
         break;
     }
 
-    // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
-    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+    // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the
+    // "Understanding Data Flow" page
+    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
+    // be added.
+    PathfindingCommand.warmupCommand();
     m_robotContainer = new RobotContainer();
   }
 
   @Override
+  public void driverStationConnected() {
+    m_robotContainer.onDriverStationConnected();
+  }
+
+  @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
+    CommandScheduler.getInstance().run();
+
+    VirtualSubsystem.periodicAll();
+    m_robotContainer.getRobotState().updateState();
   }
 
   @Override
@@ -63,10 +77,12 @@ public class Robot extends LoggedRobot{
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_robotContainer.getRobotState().onAutonomousInit();
 
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    autonCommand = m_robotContainer.getAutonomousCommand();
+
+    if (autonCommand != null) {
+      autonCommand.schedule();
     }
   }
 
@@ -74,13 +90,20 @@ public class Robot extends LoggedRobot{
   public void autonomousPeriodic() {}
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+    if (autonCommand != null) {
+      autonCommand.cancel();
+      System.out.println(autonCommand.isFinished());
+    }
+  }
 
   @Override
   public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    if (autonCommand != null) {
+      autonCommand.cancel();
     }
+
+    m_robotContainer.getRobotState().onTeleopInit();
   }
 
   @Override

@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "HALProvider": {
     "DIO": {
       "window": {
@@ -9,13 +10,35 @@
       "SPARK MAX [50]": {
         "header": {
           "open": true
+=======
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auton Chooser": "String Chooser"
+    },
+    "windows": {
+      "/SmartDashboard/Auton Chooser": {
+        "window": {
+          "visible": true
+>>>>>>> main
         }
       }
     }
   },
+<<<<<<< HEAD
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo"
+=======
+  "NetworkTables": {
+    "retained": {
+      "SmartDashboard": {
+        "Auton Chooser": {
+          "open": true
+        },
+        "open": true
+      }
+>>>>>>> main
     }
   },
   "NetworkTables Info": {
