@@ -26,12 +26,14 @@ import frc.robot.subsystems.Drivetrain.Drivetrain;
 public class AutonFactory extends VirtualSubsystem{
 
     private final Drivetrain m_drivetrain;
+    private final RobotState m_robotState;
     private final LoggedDashboardChooser<String> m_autonChooser;
     private String m_currAutonChoice;
     private Command m_currentAutonCommand;
     
     public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
         this.m_drivetrain = drivetrain;
+        this.m_robotState = robotState;
 
         NamedCommands.registerCommand("Idle", new IdleRobot(null));
         NamedCommands.registerCommand("Rev", new RevAutoAim(robotState));
@@ -66,6 +68,7 @@ public class AutonFactory extends VirtualSubsystem{
 
         m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
         m_autonChooser.addOption("Do Nothing", "Do Nothing");
+        m_autonChooser.addOption("Shoot Preload", "Shoot Preload");
         List<String> paths = PathPlannerUtil.getExistingPaths();
         for (String path : paths) {
             m_autonChooser.addOption(path, path);
@@ -76,9 +79,14 @@ public class AutonFactory extends VirtualSubsystem{
     }
 
     private Command buildAutonCommand(String path) {
+        /** Hard Coded Paths which will always work */
         if (path == null || path.equals("Do Nothing")) {
             return Commands.none();
         }
+        if (path.equals("Shoot Preload")) {
+            return new ShootSubwoofer(m_robotState);
+        }
+        
         Command autoCommand = AutoBuilder.buildAuto(path);
         return autoCommand;
     }
