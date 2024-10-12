@@ -119,7 +119,7 @@ public class Drivetrain extends SubsystemBase {
     // }
 
     public void setDriverDesired(ChassisSpeeds speeds) {
-        this.driverChassisSpeeds = speeds;
+        this.driverChassisSpeeds = ChassisSpeeds.discretize(speeds, 0.05);;
     }
 
     public void setPathPlannerDesired(ChassisSpeeds speeds) {
