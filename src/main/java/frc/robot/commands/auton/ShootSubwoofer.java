@@ -21,11 +21,17 @@ public class ShootSubwoofer extends Command {
 
     @Override
     public boolean isFinished() {
-        double length = Constants.AutonConstants.AUTON_SHOOT_SUBWOOFER_LENGTH_SEC.get();
+        double revLength = Constants.AutonConstants.AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC.get();
+        double length = Constants.AutonConstants.AUTON_SHOOT_SUBWOOFER_LENGTH_SEC.get() + revLength;
 
         if (Timer.getFPGATimestamp() - this.startTime >= length) {
             robotState.setState(State.IDLE);
             return true;
+        }
+
+        if (Timer.getFPGATimestamp() - this.startTime < revLength) {
+            robotState.setState(State.SUBWOOFER_REVVING);
+            return false;
         }
 
         if (Timer.getFPGATimestamp() - this.startTime < length) {
