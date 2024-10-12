@@ -114,6 +114,8 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
 		m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
 		m_drivingEncoder.setPosition(0);
+
+		resetEncoders();
 	}
 
     @Override
@@ -133,6 +135,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
         inputs.currentState = getState();
         inputs.desiredState = getDesiredState();
 		inputs.offset = offset;
+		inputs.turningEncoderPosition = getTurningEncoder().getPosition();
     }
 
     public void resetEncoders() {
@@ -142,9 +145,9 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     }
 
     public void calibrateVirtualPosition(double angle) {
-		if (this.offset != angle) {
-			m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + angle);
-		}
+		// if (this.offset != angle) {
+		m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + angle);
+		// }
         this.offset = angle;
     }
 

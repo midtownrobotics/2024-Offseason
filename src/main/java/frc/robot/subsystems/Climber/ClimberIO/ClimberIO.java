@@ -15,6 +15,8 @@ public interface ClimberIO {
         public double leftTempFahrenheit = 0.0;
         public double rightCurrentAmps = 0.0;
         public double leftCurrentAmps = 0.0;
+        public double leftDesiredPower;
+        public double rightDesiredPower;
     }
 
     public void setPower(double rightPower, double leftPower);

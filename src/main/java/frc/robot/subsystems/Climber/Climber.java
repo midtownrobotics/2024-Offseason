@@ -20,9 +20,13 @@ public class Climber extends SubsystemBase{
 
     @Override
     public void periodic() {        
-        climberIO.setPower(Constants.deadzone(-operator.getRightY()), Constants.deadzone(-operator.getLeftY()));
         climberIO.updateInputs(inputs);
         Logger.recordOutput("leftOpY", operator.getLeftY());
         Logger.recordOutput("rightOpY", operator.getRightY());
-    } 
+        Logger.processInputs("Climber", inputs);
+    }
+
+    public void setPower(double rightPower, double leftPower) {
+        climberIO.setPower(rightPower, leftPower);
+    }
 }

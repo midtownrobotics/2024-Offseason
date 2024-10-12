@@ -24,6 +24,7 @@ public interface SwerveModuleIO {
         public SwerveModuleState desiredState;
 
         public double offset;
+        public double turningEncoderPosition;
     }
 
     public void updateInputs(SwerveModuleIOInputs inputs);

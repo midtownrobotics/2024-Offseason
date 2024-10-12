@@ -27,7 +27,7 @@ public final class Constants {
 		COMPBOT
 	}
 
-	public static RobotType robotType = RobotType.SIMBOT;
+	public static RobotType robotType = RobotType.COMPBOT;
 
 	public static Mode getMode() {
 		return switch (robotType) {

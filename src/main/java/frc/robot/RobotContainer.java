@@ -75,9 +75,9 @@ public class RobotContainer {
   private void configureBindings() {
 
     drivetrain.setDefaultCommand(new RunCommand (() -> {
-      double driverX = RobotContainer.deadzone(driver.getLeftY(), driver.getLeftX(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
-      double driverY = RobotContainer.deadzone(driver.getLeftX(), driver.getLeftY(), driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
-      double driverRot = RobotContainer.deadzone(driver.getRightX(), driver.getLeftY(), driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+      double driverX = RobotContainer.deadzone(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+      double driverY = RobotContainer.deadzone(-driver.getLeftX(), -driver.getLeftY(), -driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+      double driverRot = RobotContainer.deadzone(-driver.getRightX(), -driver.getLeftY(), -driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
 
       // drivetrain.setDriverDesired(
       //   driverX, driverY, driverRot
@@ -86,6 +86,12 @@ public class RobotContainer {
         ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromDegrees(drivetrain.getAngle()))
       );
     }, drivetrain));
+
+    climber.setDefaultCommand(new RunCommand(() -> {
+      double operatorLeft = Constants.deadzone(-operator.getLeftY());
+      double operatorRight = Constants.deadzone(-operator.getRightY());
+      climber.setPower(operatorLeft, operatorRight);
+    }, climber));
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
     // Note: These probably do not need to require drivetrain

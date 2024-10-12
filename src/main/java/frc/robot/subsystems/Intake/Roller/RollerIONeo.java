@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Intake.Roller;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.CANSparkMax;
 
 import frc.robot.Constants.MotorConstants;
@@ -31,6 +33,7 @@ public class RollerIONeo implements RollerIO {
     public void setSpeed(double speed) {
         runExternal.set(speed);
         runInternal.set(speed);
+        Logger.recordOutput("Intake/DesiredSpeed", speed);
     }
 
 

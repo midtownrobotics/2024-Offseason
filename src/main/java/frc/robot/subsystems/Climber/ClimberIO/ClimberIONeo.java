@@ -9,6 +9,9 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 public class ClimberIONeo implements ClimberIO{
     private CANSparkMax rightClimber;
     private CANSparkMax leftClimber;
+
+    private double leftDesiredPower;
+    private double rightDesiredPower;
     
     public ClimberIONeo(int rightClimberID, int leftClimberID) {
         rightClimber = new CANSparkMax(rightClimberID, MotorType.kBrushless);
@@ -21,6 +24,8 @@ public class ClimberIONeo implements ClimberIO{
     }
 
     public void setPower(double rightPower, double leftPower) {
+        leftDesiredPower = leftPower;
+        rightDesiredPower = rightPower;
         rightClimber.set(rightPower);
         leftClimber.set(leftPower);
     }
@@ -36,5 +41,8 @@ public class ClimberIONeo implements ClimberIO{
         inputs.rightTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(rightClimber.getMotorTemperature());
         inputs.leftVelocityRPM = leftClimber.getEncoder().getVelocity();
         inputs.rightVelocityRPM = leftClimber.getEncoder().getVelocity();
+
+        inputs.leftDesiredPower = leftDesiredPower;
+        inputs.rightDesiredPower = rightDesiredPower; 
     }
 }

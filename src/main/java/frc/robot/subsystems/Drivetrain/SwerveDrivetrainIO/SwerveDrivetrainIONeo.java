@@ -21,14 +21,15 @@ import frc.robot.Ports;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIONeo;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.NeoSwerveUtils;
 
 public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
-    private static final LoggedDashboardNumber FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontLeftOffset", 0.125); // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final LoggedDashboardNumber FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/FrontRightOffset", 2.657 + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final LoggedDashboardNumber REAR_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/RearLeftOffset",0.8); // adjust as needed so that virtual (turn) position of wheel is zero when straight
-	private static final LoggedDashboardNumber REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedDashboardNumber("Drive/Tuning/RearRightOffset", 1.78);
+    private static final LoggedTunableNumber FRONT_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedTunableNumber("Drive/Tuning/FrontLeftOffset", 0.125 + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedTunableNumber FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedTunableNumber("Drive/Tuning/FrontRightOffset", 2.657 + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedTunableNumber REAR_LEFT_VIRTUAL_OFFSET_RADIANS = new LoggedTunableNumber("Drive/Tuning/RearLeftOffset",0.8); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+	private static final LoggedTunableNumber REAR_RIGHT_VIRTUAL_OFFSET_RADIANS = new LoggedTunableNumber("Drive/Tuning/RearRightOffset", 1.78);
 	private static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReversed
 
     private static final double FIELD_LENGTH_INCHES = 54*12+1; // 54ft 1in
@@ -55,7 +56,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 		Ports.NeoDrive.FRONT_LEFT_DRIVING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING,
 		Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
-		FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get(), true, "FrontLeft");
+		FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get(), false, "FrontLeft");
 
 	private final SwerveModuleIONeo m_frontRight /* #1 */ = new SwerveModuleIONeo(
 		Ports.NeoDrive.FRONT_RIGHT_DRIVING,
@@ -73,7 +74,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 		Ports.NeoDrive.REAR_RIGHT_DRIVING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING,
 		Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
-		REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get(), true, "RearRight");
+		REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get(), false, "RearRight");
 
 	private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs = new SwerveModuleIOInputsAutoLogged();
 	private final SwerveModuleIOInputsAutoLogged m_frontRightInputs = new SwerveModuleIOInputsAutoLogged();
@@ -121,10 +122,22 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
     @Override
     public void updateInputs(SwerveIOInputs inputs) {
-		m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get());
-		m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
-		m_rearLeft.calibrateVirtualPosition(REAR_LEFT_VIRTUAL_OFFSET_RADIANS.get());
-		m_rearRight.calibrateVirtualPosition(REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
+
+		LoggedTunableNumber.ifChanged(hashCode(), () -> {
+			m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get());
+		}, FRONT_LEFT_VIRTUAL_OFFSET_RADIANS);
+
+		LoggedTunableNumber.ifChanged(hashCode(), () -> {
+			m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
+		}, FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS);
+
+		LoggedTunableNumber.ifChanged(hashCode(), () -> {
+			m_rearLeft.calibrateVirtualPosition(REAR_LEFT_VIRTUAL_OFFSET_RADIANS.get());
+		}, REAR_LEFT_VIRTUAL_OFFSET_RADIANS);
+		
+		LoggedTunableNumber.ifChanged(hashCode(), () -> {
+			m_rearRight.calibrateVirtualPosition(REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
+		}, REAR_RIGHT_VIRTUAL_OFFSET_RADIANS);
     
 		m_frontLeft.updateInputs(m_frontLeftInputs);
 		m_frontRight.updateInputs(m_frontRightInputs);

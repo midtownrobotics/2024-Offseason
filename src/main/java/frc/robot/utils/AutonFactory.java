@@ -31,9 +31,9 @@ public class AutonFactory extends VirtualSubsystem{
     private String m_currAutonChoice;
     private Command m_currentAutonCommand;
 
-    private LoggedTunableNumber PATHPLANNER_TRANSLATION_P = new LoggedTunableNumber("PathPlanner/Translation_P", 1.8);
+    private LoggedTunableNumber PATHPLANNER_TRANSLATION_P = new LoggedTunableNumber("PathPlanner/Translation_P", 2.5);
     private LoggedTunableNumber PATHPLANNER_TRANSLATION_I = new LoggedTunableNumber("PathPlanner/Translation_I", 0);
-    private LoggedTunableNumber PATHPLANNER_TRANSLATION_D = new LoggedTunableNumber("PathPlanner/Translation_D", 0.2);
+    private LoggedTunableNumber PATHPLANNER_TRANSLATION_D = new LoggedTunableNumber("PathPlanner/Translation_D", 0);
     private LoggedTunableNumber PATHPLANNER_ROTATION_P = new LoggedTunableNumber("PathPlanner/ROTATION_P", 2);
     private LoggedTunableNumber PATHPLANNER_ROTATION_I = new LoggedTunableNumber("PathPlanner/ROTATION_I", 0);
     private LoggedTunableNumber PATHPLANNER_ROTATION_D = new LoggedTunableNumber("PathPlanner/ROTATION_D", 0);
@@ -98,6 +98,8 @@ public class AutonFactory extends VirtualSubsystem{
         );
 
         m_currentAutonCommand = buildAutonCommand();
+        PathPlannerLogging.setLogCurrentPoseCallback((pose) -> Logger.recordOutput("PathPlanner/currentPose", pose));
+        PathPlannerLogging.setLogTargetPoseCallback((pose) -> Logger.recordOutput("PathPlanner/nextPose", pose));
     }
 
     private Command buildAutonCommand(String path) {
