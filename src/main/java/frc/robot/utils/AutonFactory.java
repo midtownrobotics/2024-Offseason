@@ -15,6 +15,9 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotState;
 import frc.robot.commands.auton.IdleRobot;
 import frc.robot.commands.auton.RevAutoAim;
@@ -43,9 +46,15 @@ public class AutonFactory extends VirtualSubsystem{
         this.m_robotState = robotState;
 
         NamedCommands.registerCommand("Idle", new IdleRobot(null));
+
         NamedCommands.registerCommand("Rev", new RevAutoAim(robotState));
-        NamedCommands.registerCommand("AutoAimShoot", new ShootAutoAim(robotState));
-        NamedCommands.registerCommand("SubwooferShoot", new ShootSubwoofer(robotState));
+
+        NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new WaitCommand(1).deadlineWith(new InstantCommand(()->{
+            robotState.
+        })), new InstantCommand(()->{
+            
+        })));
+
         NamedCommands.registerCommand("Intake", new StartIntake(robotState));
 
         m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
