@@ -5,14 +5,14 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 
 public class StartIntake extends Command {
-    private final RobotState robotState;
+  private final RobotState robotState;
 
-    public StartIntake(RobotState robotState) {
-        this.robotState = robotState;
-    }
+  public StartIntake(RobotState robotState) {
+    this.robotState = robotState;
+  }
 
-    @Override
-    public void initialize() {
-        robotState.setState(State.INTAKING);
-    }
+  @Override
+  public void initialize() {
+    robotState.setState(State.INTAKING);
+  }
 }

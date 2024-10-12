@@ -1,39 +1,38 @@
 package frc.robot.subsystems.Drivetrain.SwerveModuleIO;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveModuleIO {
-    
-    @AutoLog
-    public class SwerveModuleIOInputs {
-        public double turningCurrentAmps;
-        public double turningTempFahrenheit;
-        public double turningVelocityRPM;
-        public boolean turningIsOn;
-        public double turningVoltage;
-        public double drivingCurrentAmps;
-        public double drivingTempFahrenheit;
-        public double drivingVelocityRPM;
-        public boolean drivingIsOn;
-        public double drivingVoltage;
 
-        public SwerveModuleState currentState;
-        public SwerveModuleState desiredState;
+  @AutoLog
+  public class SwerveModuleIOInputs {
+    public double turningCurrentAmps;
+    public double turningTempFahrenheit;
+    public double turningVelocityRPM;
+    public boolean turningIsOn;
+    public double turningVoltage;
+    public double drivingCurrentAmps;
+    public double drivingTempFahrenheit;
+    public double drivingVelocityRPM;
+    public boolean drivingIsOn;
+    public double drivingVoltage;
 
-        public double offset;
-        public double turningEncoderPosition;
-    }
+    public SwerveModuleState currentState;
+    public SwerveModuleState desiredState;
 
-    public void updateInputs(SwerveModuleIOInputs inputs);
+    public double offset;
+    public double turningEncoderPosition;
+  }
 
-    public SwerveModuleState getDesiredState();
+  public void updateInputs(SwerveModuleIOInputs inputs);
 
-    public void setDesiredState(SwerveModuleState desiredState);
+  public SwerveModuleState getDesiredState();
 
-    public SwerveModuleState getState();
+  public void setDesiredState(SwerveModuleState desiredState);
 
-    public SwerveModulePosition getPosition();
+  public SwerveModuleState getState();
+
+  public SwerveModulePosition getPosition();
 }

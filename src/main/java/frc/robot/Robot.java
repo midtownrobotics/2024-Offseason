@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.PathfindingCommand;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.VirtualSubsystem;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -11,14 +16,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.pathplanner.lib.commands.PathfindingCommand;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.utils.VirtualSubsystem;
-
-public class Robot extends LoggedRobot{
+public class Robot extends LoggedRobot {
   private Command autonCommand;
   private RobotContainer m_robotContainer;
 
@@ -47,8 +45,10 @@ public class Robot extends LoggedRobot{
         break;
     }
 
-    // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the "Understanding Data Flow" page
-    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
+    // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the
+    // "Understanding Data Flow" page
+    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
+    // be added.
     PathfindingCommand.warmupCommand();
     m_robotContainer = new RobotContainer();
   }
@@ -60,7 +60,7 @@ public class Robot extends LoggedRobot{
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
+    CommandScheduler.getInstance().run();
 
     VirtualSubsystem.periodicAll();
     m_robotContainer.getRobotState().updateState();
@@ -85,6 +85,7 @@ public class Robot extends LoggedRobot{
       autonCommand.schedule();
     }
   }
+
   @Override
   public void autonomousPeriodic() {}
 

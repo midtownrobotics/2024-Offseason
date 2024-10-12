@@ -36,7 +36,6 @@ import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
-import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOSim;
@@ -46,6 +45,7 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.utils.AutonFactory;
 
 public class RobotContainer {
@@ -61,100 +61,158 @@ public class RobotContainer {
 
   private RobotState robotState;
 
-  private final CommandXboxController driver = new CommandXboxController(Ports.driverControllerPort);
-  private final CommandXboxController operator = new CommandXboxController(Ports.operatorControllerPort);
+  private final CommandXboxController driver =
+      new CommandXboxController(Ports.driverControllerPort);
+  private final CommandXboxController operator =
+      new CommandXboxController(Ports.operatorControllerPort);
 
   public static double deadzone(double a, double b, double c, double zone) {
-		if (Math.sqrt(Math.pow(a, 2)+Math.pow(b, 2)+Math.pow(c, 2)) > zone) {
-			return a * Math.abs(a);
-		} else {
-			return 0;
-		}
-	}
+    if (Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2) + Math.pow(c, 2)) > zone) {
+      return a * Math.abs(a);
+    } else {
+      return 0;
+    }
+  }
 
   private void configureBindings() {
 
-    drivetrain.setDefaultCommand(new RunCommand (() -> {
-      double driverX = RobotContainer.deadzone(-driver.getLeftY(), -driver.getLeftX(), -driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
-      double driverY = RobotContainer.deadzone(-driver.getLeftX(), -driver.getLeftY(), -driver.getRightX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
-      double driverRot = RobotContainer.deadzone(-driver.getRightX(), -driver.getLeftY(), -driver.getLeftX(), Constants.JOYSTICK_THRESHOLD)*Constants.CONTROL_LIMITER;
+    drivetrain.setDefaultCommand(
+        new RunCommand(
+            () -> {
+              double driverX =
+                  RobotContainer.deadzone(
+                          -driver.getLeftY(),
+                          -driver.getLeftX(),
+                          -driver.getRightX(),
+                          Constants.JOYSTICK_THRESHOLD)
+                      * Constants.CONTROL_LIMITER;
+              double driverY =
+                  RobotContainer.deadzone(
+                          -driver.getLeftX(),
+                          -driver.getLeftY(),
+                          -driver.getRightX(),
+                          Constants.JOYSTICK_THRESHOLD)
+                      * Constants.CONTROL_LIMITER;
+              double driverRot =
+                  RobotContainer.deadzone(
+                          -driver.getRightX(),
+                          -driver.getLeftY(),
+                          -driver.getLeftX(),
+                          Constants.JOYSTICK_THRESHOLD)
+                      * Constants.CONTROL_LIMITER;
 
-      // drivetrain.setDriverDesired(
-      //   driverX, driverY, driverRot
-      // );
-      drivetrain.setDriverDesired(
-        ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromDegrees(drivetrain.getAngle()))
-      );
-    }, drivetrain));
+              // drivetrain.setDriverDesired(
+              //   driverX, driverY, driverRot
+              // );
+              drivetrain.setDriverDesired(
+                  ChassisSpeeds.fromFieldRelativeSpeeds(
+                      driverX, driverY, driverRot, Rotation2d.fromDegrees(drivetrain.getAngle())));
+            },
+            drivetrain));
 
-    climber.setDefaultCommand(new RunCommand(() -> {
-      double operatorLeft = Constants.deadzone(-operator.getLeftY());
-      double operatorRight = Constants.deadzone(-operator.getRightY());
-      climber.setPower(operatorLeft, operatorRight);
-    }, climber));
+    climber.setDefaultCommand(
+        new RunCommand(
+            () -> {
+              double operatorLeft = Constants.deadzone(-operator.getLeftY());
+              double operatorRight = Constants.deadzone(-operator.getRightY());
+              climber.setPower(operatorLeft, operatorRight);
+            },
+            climber));
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
     // Note: These probably do not need to require drivetrain
-    driver.x().whileTrue(
-      new StartEndCommand(
-        () -> drivetrain.setState(DriveState.X), 
-        () -> drivetrain.setState(DriveState.MANUAL), 
-      drivetrain)
-    );
-    driver.y().whileTrue(
-      new StartEndCommand(
-        () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
-        () -> drivetrain.setState(DriveState.MANUAL),
-      drivetrain)
-    );
+    driver
+        .x()
+        .whileTrue(
+            new StartEndCommand(
+                () -> drivetrain.setState(DriveState.X),
+                () -> drivetrain.setState(DriveState.MANUAL),
+                drivetrain));
+    driver
+        .y()
+        .whileTrue(
+            new StartEndCommand(
+                () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
+                () -> drivetrain.setState(DriveState.MANUAL),
+                drivetrain));
 
-    driver.leftTrigger().whileTrue(
-      new StartEndCommand(
-        () -> drivetrain.setBoost(true),
-        () -> drivetrain.setBoost(false)
-      )
-    );
+    driver
+        .leftTrigger()
+        .whileTrue(
+            new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
 
-		operator.rightBumper().whileTrue(
-      new StartEndCommand(
-        () -> {
-          if (robotState.currentState != State.NOTE_HELD) { 
-            robotState.setState(State.INTAKING);
-          }
-        }, 
-        () -> {
-          if (robotState.currentState != State.NOTE_HELD) {
-            robotState.setState(State.IDLE);
-          }
-        }, intake)
-    );
+    operator
+        .rightBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> {
+                  if (robotState.currentState != State.NOTE_HELD) {
+                    robotState.setState(State.INTAKING);
+                  }
+                },
+                () -> {
+                  if (robotState.currentState != State.NOTE_HELD) {
+                    robotState.setState(State.IDLE);
+                  }
+                },
+                intake));
 
-		operator.leftBumper().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
-		operator.leftTrigger().whileTrue(new StartEndCommand(() -> robotState.setState(State.VOMITING), () -> robotState.setState(State.IDLE), intake, shooter));
+    operator
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> robotState.setState(State.VOMITING),
+                () -> robotState.setState(State.IDLE),
+                intake,
+                shooter));
+    operator
+        .leftTrigger()
+        .whileTrue(
+            new StartEndCommand(
+                () -> robotState.setState(State.VOMITING),
+                () -> robotState.setState(State.IDLE),
+                intake,
+                shooter));
 
-		operator.rightTrigger().whileTrue(new StartEndCommand(() -> {
-      switch (robotState.currentState) {
-        case SUBWOOFER_REVVING:
-          robotState.setState(State.SUBWOOFER);
-          break;
-        case AMP_REVVING:
-          robotState.setState(State.AMP);
-          break;
-        case AUTO_AIM_REVVING:
-          robotState.setState(State.AUTO_AIM);
-          break;
-        default:
-          break;
-      }
-    }, () -> robotState.setState(State.IDLE), shooter, intake));
+    operator
+        .rightTrigger()
+        .whileTrue(
+            new StartEndCommand(
+                () -> {
+                  switch (robotState.currentState) {
+                    case SUBWOOFER_REVVING:
+                      robotState.setState(State.SUBWOOFER);
+                      break;
+                    case AMP_REVVING:
+                      robotState.setState(State.AMP);
+                      break;
+                    case AUTO_AIM_REVVING:
+                      robotState.setState(State.AUTO_AIM);
+                      break;
+                    default:
+                      break;
+                  }
+                },
+                () -> robotState.setState(State.IDLE),
+                shooter,
+                intake));
 
-		operator.a().whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
-		operator.x().whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
-    operator.y().whileTrue(new InstantCommand(() -> robotState.setState(State.AUTO_AIM_REVVING), shooter));
-		operator.b().whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
+    operator
+        .a()
+        .whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
+    operator
+        .x()
+        .whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+    operator
+        .y()
+        .whileTrue(new InstantCommand(() -> robotState.setState(State.AUTO_AIM_REVVING), shooter));
+    operator
+        .b()
+        .whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
     // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     // joystick.b().whileTrue(drivetrain
-    //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
+    //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),
+    // -joystick.getLeftX()))));
 
     // if (Utils.isSimulation()) {
     //   drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
@@ -166,11 +224,12 @@ public class RobotContainer {
   public void initializeSubsystems() {
 
     // Limelight
-    
+
     LimelightIO limelightIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
-      limelightIO = new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight")); 
+      limelightIO =
+          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight"));
     } else {
       limelightIO = new LimelightIOSim();
     }
@@ -211,8 +270,9 @@ public class RobotContainer {
 
     ClimberIO climberIO;
 
-    if (Constants.getMode() == Constants.Mode.REAL){
-      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+    if (Constants.getMode() == Constants.Mode.REAL) {
+      climberIO =
+          new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
     } else {
       climberIO = new ClimberIOSim();
     }
@@ -229,14 +289,17 @@ public class RobotContainer {
       beamBreakIO = new BeamBreakIOSim();
     }
 
-    beamBreak = new BeamBreak(beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
+    beamBreak =
+        new BeamBreak(
+            beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
 
     // Drivetrain
 
-    // if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is used
+    // if (Constants.USE_KRAKEN_DRIVETRAIN.get()) { // default value is false which means neo is
+    // used
     //   drivetrain = TunerConstants.DriveTrain;
     // } else {
-      // drivetrain = new NeoSwerveDrivetrain();
+    // drivetrain = new NeoSwerveDrivetrain();
     // }
     if (Robot.isSimulation()) {
       drivetrain = new Drivetrain(new SwerveDrivetrainIOSim(), limelight);
@@ -247,10 +310,9 @@ public class RobotContainer {
     // Robot State
     robotState = new RobotState(shooter, climber, intake, drivetrain);
     beamBreak.setRobotState(robotState);
-    
   }
 
-  public RobotContainer() { 
+  public RobotContainer() {
     initializeSubsystems();
     configureBindings();
   }
@@ -260,10 +322,14 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return m_autonFactory.getAutonCommand().andThen(() -> {
-      drivetrain.setState(DriveState.X);
-      robotState.setState(State.IDLE);
-    }, drivetrain);
+    return m_autonFactory
+        .getAutonCommand()
+        .andThen(
+            () -> {
+              drivetrain.setState(DriveState.X);
+              robotState.setState(State.IDLE);
+            },
+            drivetrain);
   }
 
   public void onDriverStationConnected() {

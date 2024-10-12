@@ -5,14 +5,14 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 
 public class IdleRobot extends Command {
-    private final RobotState robotState;
+  private final RobotState robotState;
 
-    public IdleRobot(RobotState robotState) {
-        this.robotState = robotState;
-    }
+  public IdleRobot(RobotState robotState) {
+    this.robotState = robotState;
+  }
 
-    @Override
-    public void initialize() {
-        robotState.setState(State.IDLE);
-    }
+  @Override
+  public void initialize() {
+    robotState.setState(State.IDLE);
+  }
 }

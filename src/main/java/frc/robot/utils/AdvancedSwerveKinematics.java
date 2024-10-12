@@ -21,23 +21,18 @@ import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N4;
 
-
 /**
  * Advanced Swerve Kinematics
- * <p>
- * Provides functionality that can correct for second order kinematics
+ *
+ * <p>Provides functionality that can correct for second order kinematics
  */
 public class AdvancedSwerveKinematics {
 
   /** Control centricity */
   public enum ControlCentricity {
-    /**
-     * Robot centric control
-     */
+    /** Robot centric control */
     ROBOT_CENTRIC,
-    /**
-     * Field centric control
-     */
+    /** Field centric control */
     FIELD_CENTRIC;
   }
 
@@ -45,19 +40,22 @@ public class AdvancedSwerveKinematics {
   private Translation2d[] m_moduleLocations;
 
   /**
-    * Create a SecondOrderSwerveKinematics object
-    * <p>
-    * Corrects for path drift when the robot is rotating
-    * @param moduleLocations Location of all 4 swerve modules, LF/RF/LR/RR
-    */
+   * Create a SecondOrderSwerveKinematics object
+   *
+   * <p>Corrects for path drift when the robot is rotating
+   *
+   * @param moduleLocations Location of all 4 swerve modules, LF/RF/LR/RR
+   */
   public AdvancedSwerveKinematics(Translation2d... moduleLocations) {
-    if (moduleLocations.length < 2) throw new IllegalArgumentException("A swerve drive requires at least two modules");
+    if (moduleLocations.length < 2)
+      throw new IllegalArgumentException("A swerve drive requires at least two modules");
 
     m_moduleLocations = moduleLocations;
   }
 
   /**
    * Obtain a new pose from a constant curvature velocity
+   *
    * @param delta Velocity
    * @return Pose
    */
@@ -73,13 +71,13 @@ public class AdvancedSwerveKinematics {
       c = (1.0 - cos_theta) / delta.dtheta;
     }
     return new Pose2d(
-      new Translation2d(delta.dx * s - delta.dy * c, delta.dx * c + delta.dy * s),
-      new Rotation2d(cos_theta, sin_theta)
-    );
+        new Translation2d(delta.dx * s - delta.dy * c, delta.dx * c + delta.dy * s),
+        new Rotation2d(cos_theta, sin_theta));
   }
 
   /**
    * Obtain constant curvature velocity given pose
+   *
    * @param transform Pose
    * @return Velocity
    */
@@ -88,51 +86,56 @@ public class AdvancedSwerveKinematics {
     final double half_dtheta = 0.5 * dtheta;
     final double cos_minus_one = Math.cos(transform.getRotation().getRadians()) - 1.0;
     double halftheta_by_tan_of_halfdtheta;
-    if (Math.abs(cos_minus_one) < EPS) halftheta_by_tan_of_halfdtheta = 1.0 - 1.0 / 12.0 * dtheta * dtheta;
-    else halftheta_by_tan_of_halfdtheta = -(half_dtheta * Math.sin(transform.getRotation().getRadians())) / cos_minus_one;
+    if (Math.abs(cos_minus_one) < EPS)
+      halftheta_by_tan_of_halfdtheta = 1.0 - 1.0 / 12.0 * dtheta * dtheta;
+    else
+      halftheta_by_tan_of_halfdtheta =
+          -(half_dtheta * Math.sin(transform.getRotation().getRadians())) / cos_minus_one;
 
     final Translation2d translation_part =
-      transform.getTranslation().rotateBy(new Rotation2d(halftheta_by_tan_of_halfdtheta, -half_dtheta));
+        transform
+            .getTranslation()
+            .rotateBy(new Rotation2d(halftheta_by_tan_of_halfdtheta, -half_dtheta));
     return new Twist2d(translation_part.getX(), translation_part.getY(), dtheta);
   }
 
   /**
    * Correct chassis speeds for second order kinematics
+   *
    * @param requestedSpeeds Requested chassis speeds
    * @return Corrected chassis speeds
    */
   public static ChassisSpeeds correctForDynamics(ChassisSpeeds requestedSpeeds) {
-    Pose2d futureRobotPose = new Pose2d(
-      requestedSpeeds.vxMetersPerSecond * 0.02,
-      requestedSpeeds.vyMetersPerSecond * 0.02,
-      Rotation2d.fromRadians(requestedSpeeds.omegaRadiansPerSecond * 0.02)
-    );
+    Pose2d futureRobotPose =
+        new Pose2d(
+            requestedSpeeds.vxMetersPerSecond * 0.02,
+            requestedSpeeds.vyMetersPerSecond * 0.02,
+            Rotation2d.fromRadians(requestedSpeeds.omegaRadiansPerSecond * 0.02));
 
     Twist2d twistForPose = log(futureRobotPose);
 
-    ChassisSpeeds correctedSpeeds = new ChassisSpeeds(
-      twistForPose.dx / 0.02,
-      twistForPose.dy / 0.02,
-      twistForPose.dtheta / 0.02
-    );
+    ChassisSpeeds correctedSpeeds =
+        new ChassisSpeeds(
+            twistForPose.dx / 0.02, twistForPose.dy / 0.02, twistForPose.dtheta / 0.02);
 
     return correctedSpeeds;
   }
 
   /**
-    * Convert chassis speed to states of individual modules using second order kinematics
-    *
-    * @param desiredSpeed Desired translation and rotation speed of the robot
-    * @param robotHeading Heading of the robot relative to the field
-    * @param controlCentricity Control centricity to use (field or robot centric)
-    * @return Array of the speed direction of the swerve modules
-    */
-  public SwerveModuleState[] toSwerveModuleStates(ChassisSpeeds desiredSpeed, Rotation2d robotHeading, ControlCentricity controlCentricity) {
-    Matrix<N3, N1> firstOrderInputMatrix = new Matrix<>(N3(),N1());
-    Matrix<N2, N3> firstOrderMatrix = new Matrix<>(N2(),N3());
-    Matrix<N4, N1> secondOrderInputMatrix = new Matrix<>(N4(),N1());
-    Matrix<N2, N4> secondOrderMatrix = new Matrix<>(N2(),N4());
-    Matrix<N2, N2> rotationMatrix = new Matrix<>(N2(),N2());
+   * Convert chassis speed to states of individual modules using second order kinematics
+   *
+   * @param desiredSpeed Desired translation and rotation speed of the robot
+   * @param robotHeading Heading of the robot relative to the field
+   * @param controlCentricity Control centricity to use (field or robot centric)
+   * @return Array of the speed direction of the swerve modules
+   */
+  public SwerveModuleState[] toSwerveModuleStates(
+      ChassisSpeeds desiredSpeed, Rotation2d robotHeading, ControlCentricity controlCentricity) {
+    Matrix<N3, N1> firstOrderInputMatrix = new Matrix<>(N3(), N1());
+    Matrix<N2, N3> firstOrderMatrix = new Matrix<>(N2(), N3());
+    Matrix<N4, N1> secondOrderInputMatrix = new Matrix<>(N4(), N1());
+    Matrix<N2, N4> secondOrderMatrix = new Matrix<>(N2(), N4());
+    Matrix<N2, N2> rotationMatrix = new Matrix<>(N2(), N2());
 
     firstOrderInputMatrix.set(0, 0, desiredSpeed.vxMetersPerSecond);
     firstOrderInputMatrix.set(1, 0, desiredSpeed.vyMetersPerSecond);
@@ -151,9 +154,13 @@ public class AdvancedSwerveKinematics {
 
     for (int i = 0; i < m_moduleLocations.length; i++) {
       // Angle that the module location vector makes with respect to the robot
-      Rotation2d moduleAngle = new Rotation2d(Math.atan2(m_moduleLocations[i].getY(), m_moduleLocations[i].getX()));
-      // Angle that the module location vector makes with respect to the field for field centric if applicable
-      moduleAngle = Rotation2d.fromRadians(moduleAngle.getRadians() + robotHeading.getRadians() * controlCentricity.ordinal());
+      Rotation2d moduleAngle =
+          new Rotation2d(Math.atan2(m_moduleLocations[i].getY(), m_moduleLocations[i].getX()));
+      // Angle that the module location vector makes with respect to the field for field centric if
+      // applicable
+      moduleAngle =
+          Rotation2d.fromRadians(
+              moduleAngle.getRadians() + robotHeading.getRadians() * controlCentricity.ordinal());
       double moduleX = m_moduleLocations[i].getNorm() * Math.cos(moduleAngle.getRadians());
       double moduleY = m_moduleLocations[i].getNorm() * Math.sin(moduleAngle.getRadians());
       // -r_y
@@ -176,12 +183,15 @@ public class AdvancedSwerveKinematics {
       rotationMatrix.set(1, 0, -Math.sin(moduleHeading));
       rotationMatrix.set(1, 1, +Math.cos(moduleHeading));
 
-      Matrix<N2,N1> secondOrderOutput = rotationMatrix.times(secondOrderMatrix.times(secondOrderInputMatrix));
+      Matrix<N2, N1> secondOrderOutput =
+          rotationMatrix.times(secondOrderMatrix.times(secondOrderInputMatrix));
 
       // Correct module heading for control centricity
       moduleHeading -= robotHeading.getRadians() * controlCentricity.ordinal();
-      swerveModuleStates[i] = new SwerveModuleState(moduleSpeed, Rotation2d.fromRadians(moduleHeading));
-      moduleTurnSpeeds[i] = secondOrderOutput.get(1, 0) / moduleSpeed - desiredSpeed.omegaRadiansPerSecond;
+      swerveModuleStates[i] =
+          new SwerveModuleState(moduleSpeed, Rotation2d.fromRadians(moduleHeading));
+      moduleTurnSpeeds[i] =
+          secondOrderOutput.get(1, 0) / moduleSpeed - desiredSpeed.omegaRadiansPerSecond;
     }
 
     return swerveModuleStates;

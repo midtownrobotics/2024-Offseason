@@ -1,7 +1,5 @@
 package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -14,150 +12,154 @@ import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
 
-    private static final SwerveModuleIOSim m_frontLeft = new SwerveModuleIOSim();
-    private static final SwerveModuleIOSim m_frontRight = new SwerveModuleIOSim();
-    private static final SwerveModuleIOSim m_rearLeft = new SwerveModuleIOSim();
-    private static final SwerveModuleIOSim m_rearRight = new SwerveModuleIOSim();
+  private static final SwerveModuleIOSim m_frontLeft = new SwerveModuleIOSim();
+  private static final SwerveModuleIOSim m_frontRight = new SwerveModuleIOSim();
+  private static final SwerveModuleIOSim m_rearLeft = new SwerveModuleIOSim();
+  private static final SwerveModuleIOSim m_rearRight = new SwerveModuleIOSim();
 
-    private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs = new SwerveModuleIOInputsAutoLogged();
-	private final SwerveModuleIOInputsAutoLogged m_frontRightInputs = new SwerveModuleIOInputsAutoLogged();
-	private final SwerveModuleIOInputsAutoLogged m_rearLeftInputs = new SwerveModuleIOInputsAutoLogged();
-	private final SwerveModuleIOInputsAutoLogged m_rearRightInputs = new SwerveModuleIOInputsAutoLogged();
+  private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs =
+      new SwerveModuleIOInputsAutoLogged();
+  private final SwerveModuleIOInputsAutoLogged m_frontRightInputs =
+      new SwerveModuleIOInputsAutoLogged();
+  private final SwerveModuleIOInputsAutoLogged m_rearLeftInputs =
+      new SwerveModuleIOInputsAutoLogged();
+  private final SwerveModuleIOInputsAutoLogged m_rearRightInputs =
+      new SwerveModuleIOInputsAutoLogged();
 
-    private final AnalogGyroSim m_gyro = new AnalogGyroSim(1);
+  private final AnalogGyroSim m_gyro = new AnalogGyroSim(1);
 
-    private final SwerveDrivePoseEstimator m_poseEstimator = new SwerveDrivePoseEstimator(
-		NeoDrivetrainConstants.DRIVE_KINEMATICS,
-		Rotation2d.fromRotations(getPigeonYaw()),
-		getSwerveModulePositions(),
-		new Pose2d()
-	);
+  private final SwerveDrivePoseEstimator m_poseEstimator =
+      new SwerveDrivePoseEstimator(
+          NeoDrivetrainConstants.DRIVE_KINEMATICS,
+          Rotation2d.fromRotations(getPigeonYaw()),
+          getSwerveModulePositions(),
+          new Pose2d());
 
-    @Override
-    public void updateInputs(SwerveIOInputs inputs) {
-		m_frontLeft.updateInputs(m_frontLeftInputs);
-		m_frontRight.updateInputs(m_frontRightInputs);
-		m_rearLeft.updateInputs(m_rearLeftInputs);
-		m_rearRight.updateInputs(m_rearRightInputs);
-		Logger.processInputs("Drive/FrontLeft", m_frontLeftInputs);
-		Logger.processInputs("Drive/FrontRight", m_frontRightInputs);
-		Logger.processInputs("Drive/RearLeft", m_rearLeftInputs);
-		Logger.processInputs("Drive/RearRight", m_rearRightInputs);
+  @Override
+  public void updateInputs(SwerveIOInputs inputs) {
+    m_frontLeft.updateInputs(m_frontLeftInputs);
+    m_frontRight.updateInputs(m_frontRightInputs);
+    m_rearLeft.updateInputs(m_rearLeftInputs);
+    m_rearRight.updateInputs(m_rearRightInputs);
+    Logger.processInputs("Drive/FrontLeft", m_frontLeftInputs);
+    Logger.processInputs("Drive/FrontRight", m_frontRightInputs);
+    Logger.processInputs("Drive/RearLeft", m_rearLeftInputs);
+    Logger.processInputs("Drive/RearRight", m_rearRightInputs);
 
-		inputs.pose = getPose();
-		inputs.currentStates = getSwerveModuleStates();
-		inputs.desiredStates = getSwerveModuleDesiredStates();
-        inputs.pigeonYaw = getPigeonYaw();
+    inputs.pose = getPose();
+    inputs.currentStates = getSwerveModuleStates();
+    inputs.desiredStates = getSwerveModuleDesiredStates();
+    inputs.pigeonYaw = getPigeonYaw();
+  }
+
+  @Override
+  public void resetHeading() {
+    // throw new UnsupportedOperationException("Unimplemented method 'resetHeading'");
+  }
+
+  @Override
+  public void drive(
+      double xSpeed,
+      double ySpeed,
+      double rot,
+      boolean fieldRelative,
+      boolean rateLimit,
+      boolean speedBoost) {
+
+    double maxSpeed;
+
+    if (speedBoost) {
+      maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
+    } else {
+      maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
     }
 
-    @Override
-    public void resetHeading() {
-        // throw new UnsupportedOperationException("Unimplemented method 'resetHeading'");
-    }
+    double xSpeedDelivered = xSpeed * maxSpeed;
+    double ySpeedDelivered = ySpeed * maxSpeed;
+    double rotDelivered = rot * NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
 
-    @Override
-    public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative, boolean rateLimit,
-            boolean speedBoost) {
+    SwerveModuleState[] swerveModuleStates =
+        NeoDrivetrainConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
+            fieldRelative
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(
+                    xSpeedDelivered,
+                    ySpeedDelivered,
+                    rotDelivered,
+                    Rotation2d.fromRotations(getPigeonYaw()))
+                : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
 
-        double maxSpeed;
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, maxSpeed);
 
-		if (speedBoost) {
-			maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
-		} else {
-			maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
-		}
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_rearLeft.setDesiredState(swerveModuleStates[2]);
+    m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
 
-        double xSpeedDelivered = xSpeed * maxSpeed;
-		double ySpeedDelivered = ySpeed * maxSpeed;
-        double rotDelivered = rot * NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
+  @Override
+  public double getPigeonYaw() {
+    return m_gyro.getAngle();
+  }
 
-        SwerveModuleState[] swerveModuleStates = NeoDrivetrainConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
-			fieldRelative
-				? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromRotations(getPigeonYaw()))
-				: new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+  @Override
+  public SwerveModuleIOSim getFrontLeftModule() {
+    return m_frontLeft;
+  }
 
+  @Override
+  public SwerveModuleIOSim getFrontRightModule() {
+    return m_frontRight;
+  }
 
-        SwerveDriveKinematics.desaturateWheelSpeeds(
-			swerveModuleStates, maxSpeed);
+  @Override
+  public SwerveModuleIOSim getRearLeftModule() {
+    return m_rearLeft;
+  }
 
-        m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        m_frontRight.setDesiredState(swerveModuleStates[1]);
-        m_rearLeft.setDesiredState(swerveModuleStates[2]);
-        m_rearRight.setDesiredState(swerveModuleStates[3]);
-    }
+  @Override
+  public SwerveModuleIOSim getRearRightModule() {
+    return m_rearRight;
+  }
 
-    @Override
-    public double getPigeonYaw() {
-        return m_gyro.getAngle();
-    }
+  @Override
+  public void updatePIDControllers() {}
 
-    @Override
-    public SwerveModuleIOSim getFrontLeftModule() {
-		return m_frontLeft;
-	}
+  @Override
+  public Pose2d getPose() {
+    return m_poseEstimator.getEstimatedPosition();
+  }
 
-    @Override
-	public SwerveModuleIOSim getFrontRightModule() {
-		return m_frontRight;
-	}
+  @Override
+  public void resetOdometry(Pose2d pose) {
+    m_poseEstimator.resetPosition(
+        Rotation2d.fromRotations(getPigeonYaw()), getSwerveModulePositions(), pose);
+  }
 
-    @Override
-	public SwerveModuleIOSim getRearLeftModule() {
-		return m_rearLeft;
-	}
+  @Override
+  public void updateOdometry() {
+    ChassisSpeeds robotSpeeds =
+        Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+    double angularVelocity = robotSpeeds.omegaRadiansPerSecond;
 
-    @Override
-	public SwerveModuleIOSim getRearRightModule() {
-		return m_rearRight;
-	}
+    double deltaAngle = angularVelocity * 0.02;
 
-    @Override
-    public void updatePIDControllers() {
+    double newAngle = m_gyro.getAngle() + deltaAngle;
 
-    }
+    Logger.recordOutput("Gyro/robotSpeeds", robotSpeeds);
+    Logger.recordOutput("Gyro/angularVel", angularVelocity);
+    Logger.recordOutput("Gyro/deltaAngle", deltaAngle);
+    Logger.recordOutput("Gyro/oldAngle", newAngle - deltaAngle);
+    Logger.recordOutput("Gyro/newAngle", newAngle);
 
-    @Override
-    public Pose2d getPose() {
-        return m_poseEstimator.getEstimatedPosition();
-    }
+    m_gyro.setAngle(newAngle);
 
-    @Override
-    public void resetOdometry(Pose2d pose) {
-        m_poseEstimator.resetPosition(
-            Rotation2d.fromRotations(getPigeonYaw()), 
-            getSwerveModulePositions(), pose
-        );
-    }
+    m_poseEstimator.update(Rotation2d.fromRotations(getPigeonYaw()), getSwerveModulePositions());
+  }
 
-    @Override
-    public void updateOdometry() {
-        ChassisSpeeds robotSpeeds = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
-        double angularVelocity = robotSpeeds.omegaRadiansPerSecond;
-    
-        double deltaAngle = angularVelocity * 0.02;
-
-        double newAngle = m_gyro.getAngle() + deltaAngle;
-
-        Logger.recordOutput("Gyro/robotSpeeds", robotSpeeds);
-        Logger.recordOutput("Gyro/angularVel", angularVelocity);
-        Logger.recordOutput("Gyro/deltaAngle", deltaAngle);
-        Logger.recordOutput("Gyro/oldAngle", newAngle - deltaAngle);
-        Logger.recordOutput("Gyro/newAngle", newAngle);
-
-        m_gyro.setAngle(newAngle);
-
-        m_poseEstimator.update(
-            Rotation2d.fromRotations(getPigeonYaw()), 
-            getSwerveModulePositions()
-        );
-    }
-
-    @Override
-    public void updateOdometryWithVision(Limelight limelight) {
-
-    }
-    
+  @Override
+  public void updateOdometryWithVision(Limelight limelight) {}
 }

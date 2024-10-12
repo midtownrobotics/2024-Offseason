@@ -5,15 +5,14 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 
 public class RevAutoAim extends Command {
-    private final RobotState robotState;
+  private final RobotState robotState;
 
-    public RevAutoAim(RobotState robotState) {
-        this.robotState = robotState;
-    }
+  public RevAutoAim(RobotState robotState) {
+    this.robotState = robotState;
+  }
 
-    @Override
-    public void initialize(){
-        robotState.setState(State.AUTO_AIM_REVVING);
-    }
-
+  @Override
+  public void initialize() {
+    robotState.setState(State.AUTO_AIM_REVVING);
+  }
 }

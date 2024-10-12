@@ -1,5 +1,6 @@
 package frc.robot.utils;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,22 +9,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import edu.wpi.first.wpilibj.Filesystem;
-
 public class PathPlannerUtil {
   public static List<String> getExistingPaths() {
     var path = Path.of(Filesystem.getDeployDirectory().getAbsolutePath(), "pathplanner");
     try (Stream<Path> stream = Files.walk(path)) {
       // return Collections.emptyList();
-      return stream.filter(x -> getFileExtension(x.toFile())
-          .equals(".auto"))
+      return stream
+          .filter(x -> getFileExtension(x.toFile()).equals(".auto"))
           .map(x -> getFileStem(x.toFile()))
           .toList();
     } catch (IOException e) {
       return Collections.emptyList();
     }
   }
-
 
   private static String getFileStem(File file) {
     try {
