@@ -1,19 +1,18 @@
 package frc.robot.commands.auton;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Intake.Intake;
-import frc.robot.subsystems.Intake.Intake.IntakeState;
+import frc.robot.RobotState;
+import frc.robot.RobotState.State;
 
 public class StartIntake extends Command {
-    private final Intake intake;
+    private final RobotState robotState;
 
-    public StartIntake(Intake intake) {
-        this.intake = intake;
-        addRequirements(intake);
+    public StartIntake(RobotState robotState) {
+        this.robotState = robotState;
     }
 
     @Override
     public void initialize() {
-        intake.setState(IntakeState.INTAKING);
+        robotState.setState(State.INTAKING);
     }
 }

@@ -3,21 +3,15 @@ package frc.robot.commands.auton;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.Intake.Intake;
-import frc.robot.subsystems.Intake.Intake.IntakeState;
-import frc.robot.subsystems.Shooter.Shooter;
-import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+import frc.robot.RobotState;
+import frc.robot.RobotState.State;
 
 public class ShootAutoAim extends Command {
-    private final Shooter shooter;
-    private final Intake intake;
+    private final RobotState robotState;
     private double startTime;
 
-    public ShootAutoAim(Shooter shooter, Intake intake) {
-        this.shooter = shooter;
-        this.intake = intake;
-        addRequirements(shooter);
-        addRequirements(intake);
+    public ShootAutoAim(RobotState robotState) {
+        this.robotState = robotState;
     }
 
     @Override
@@ -30,14 +24,12 @@ public class ShootAutoAim extends Command {
         double length = Constants.AutonConstants.AUTON_SHOOT_AUTO_AIM_LENGTH_SEC.get();
 
         if (Timer.getFPGATimestamp() - this.startTime >= length) {
-            shooter.setState(ShooterState.IDLE);
-            intake.setState(IntakeState.IDLE);
+            robotState.setState(State.IDLE);
             return true;
         }
 
         if (Timer.getFPGATimestamp() - this.startTime < length) {
-            shooter.setState(ShooterState.AUTO_AIM);
-            intake.setState(IntakeState.SHOOTING);
+            robotState.setState(State.AUTO_AIM);
         }
 
         return false;
