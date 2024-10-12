@@ -10,11 +10,11 @@ public class ApriltagHelper {
         SPEAKER_CENTER(7, 4),
         SPEAKER_OFFSET(8, 3),
         AMP(6, 5),
-        HUMAN_PLAYER_SPEAKER_SIDE(2, 9), // Based on OWNER not side of field
-        HUMAN_PLAYER_FAR_SIDE(1, 10), // Based on OWNER not side of field
+        SOURCE_SPEAKER_SIDE(2, 9), // Based on OWNER not side of field
+        SOURCE_FAR_SIDE(1, 10), // Based on OWNER not side of field
         STAGE_CENTER(14, 13),
         STAGE_AMP_SIDE(15, 12),
-        STAGE_HUMAN_PLAYER_SIDE(16, 11);
+        STAGE_SOURCE_SIDE(16, 11);
 
         private final int red;
         private final int blue;
