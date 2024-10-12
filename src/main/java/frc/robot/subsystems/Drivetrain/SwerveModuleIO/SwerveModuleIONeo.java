@@ -202,14 +202,24 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 			m_drivingPIDController.setI(Constants.NeoSwerveModuleConstants.DRIVING_I.get());
 			m_drivingPIDController.setD(Constants.NeoSwerveModuleConstants.DRIVING_D.get());
 			m_drivingPIDController.setFF(Constants.NeoSwerveModuleConstants.DRIVING_FF.get());
-		});
+		},
+			Constants.NeoSwerveModuleConstants.DRIVING_P,
+			Constants.NeoSwerveModuleConstants.DRIVING_I,
+			Constants.NeoSwerveModuleConstants.DRIVING_D,
+			Constants.NeoSwerveModuleConstants.DRIVING_FF
+		);
 
 		LoggedTunableNumber.ifChanged(hashCode(), () -> {
 			m_turningPIDController.setP(Constants.NeoSwerveModuleConstants.TURNING_P.get());
 			m_turningPIDController.setI(Constants.NeoSwerveModuleConstants.TURNING_I.get());
 			m_turningPIDController.setD(Constants.NeoSwerveModuleConstants.TURNING_D.get());
 			m_turningPIDController.setFF(Constants.NeoSwerveModuleConstants.TURNING_FF.get());
-		});
+		},
+			Constants.NeoSwerveModuleConstants.TURNING_P,
+			Constants.NeoSwerveModuleConstants.TURNING_I,
+			Constants.NeoSwerveModuleConstants.TURNING_D,
+			Constants.NeoSwerveModuleConstants.TURNING_FF
+		);
     }
     
 }
