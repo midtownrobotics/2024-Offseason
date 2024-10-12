@@ -54,11 +54,22 @@ public class AutonFactory extends VirtualSubsystem{
             robotState.setState(State.SUBWOOFER_REVVING);
         }));
 
-        NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new WaitCommand(3).deadlineWith(new InstantCommand(()->{
-            robotState.setState(State.SUBWOOFER_REVVING);
-        }), new WaitCommand(1).deadlineWith(new InstantCommand(()->{
-            robotState.setState(State.SUBWOOFER_REVVING);
-        })))));
+        // NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new WaitCommand(2).deadlineWith(new InstantCommand(()->{
+        //     robotState.setState(State.SUBWOOFER_REVVING);
+        // }), new WaitCommand(1).deadlineWith(new InstantCommand(()->{
+        //     robotState.setState(State.SUBWOOFER);
+        // })))));
+
+        NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(
+            new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING)),
+            new WaitCommand(2),
+            new InstantCommand(() -> robotState.setState(State.SUBWOOFER)),
+            new WaitCommand(1)
+        ));
+
+        NamedCommands.registerCommand("SubwooferJustShoot", new InstantCommand(()->{
+            robotState.setState(State.SUBWOOFER);
+        }));
 
         NamedCommands.registerCommand("Intake", new InstantCommand(()->{
             robotState.setState(State.INTAKING);
