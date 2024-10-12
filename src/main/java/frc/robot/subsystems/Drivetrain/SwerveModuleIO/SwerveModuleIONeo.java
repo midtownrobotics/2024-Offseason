@@ -11,7 +11,6 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants;
@@ -38,7 +37,6 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 		this.moduleName = moduleName;
 
 		m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
-		m_drivingSparkMax.setInverted(inverted);
 		m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
 		this.offset = offset;
 
@@ -46,6 +44,8 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 		// them. This is useful in case a SPARK MAX is swapped out.
 		m_drivingSparkMax.restoreFactoryDefaults();
 		m_turningSparkMax.restoreFactoryDefaults();
+
+		m_drivingSparkMax.setInverted(inverted);
 
 		// Setup encoders and PID controllers for the driving and turning SPARKS MAX.
 		m_drivingEncoder = m_drivingSparkMax.getEncoder();
