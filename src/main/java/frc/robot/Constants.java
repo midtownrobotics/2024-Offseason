@@ -10,8 +10,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public final class Constants {
 
-  public static final double JOYSTICK_THRESHOLD = 0.1;
-  public static final double CONTROL_LIMITER = 1;
+    public static final double JOYSTICK_THRESHOLD = 0.1;
+    public static final double CONTROL_LIMITER = 1;
+	public static final double THEORETICAL_RESTING_VOLTAGE = 12;
 
   public static enum Mode {
     REAL,
@@ -50,6 +51,9 @@ public final class Constants {
         new LoggedDashboardNumber("Intake/Constants/BEAMBREAK_DELAY", 1);
     public static LoggedDashboardNumber CONTROLLER_RUMBLE_TIME =
         new LoggedDashboardNumber("Intake/Constants/CONTROLLER_RUMBLE_TIME", 12);
+
+		public static double MOI = 0.00005; // TODO: Actually figure out what the MOI (an hour of erik explaing something to you that somehow ends with a vector)
+		public static double GEARING = 5.26; // TODO: Figure this out too (should be on the side of the gearbox)
   }
 
   public static final class MotorConstants {
@@ -100,6 +104,14 @@ public final class Constants {
         new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE", 0.81);
     public static LoggedDashboardNumber MAX_PIVOT_ANGLE =
         new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 0.99);
+
+		public static final class Simulation {
+			public static LoggedDashboardNumber FLYWHEEL_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_GEARING", 5.26);
+			public static LoggedDashboardNumber FLYWHEEL_MOI = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_MOI", .00005);
+
+			public static LoggedDashboardNumber FEEDER_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FEEDER_GEARING", 5.26);
+			public static LoggedDashboardNumber FEEDER_MOI = new LoggedDashboardNumber("Shooter/Constants/Simulation/FEEDER_MOI", .00005);
+		}
   }
 
   public static final class NeoDrivetrainConstants {
