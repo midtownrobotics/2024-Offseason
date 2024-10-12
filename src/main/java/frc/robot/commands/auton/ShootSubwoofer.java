@@ -17,6 +17,7 @@ public class ShootSubwoofer extends Command {
     @Override
     public void initialize(){
         this.startTime = Timer.getFPGATimestamp();
+        robotState.setState(State.SUBWOOFER_REVVING);
     }
 
     @Override
@@ -29,12 +30,7 @@ public class ShootSubwoofer extends Command {
             return true;
         }
 
-        if (Timer.getFPGATimestamp() - this.startTime < revLength) {
-            robotState.setState(State.SUBWOOFER_REVVING);
-            return false;
-        }
-
-        if (Timer.getFPGATimestamp() - this.startTime < length) {
+        if (Timer.getFPGATimestamp() - this.startTime >= revLength) {
             robotState.setState(State.SUBWOOFER);
         }
 

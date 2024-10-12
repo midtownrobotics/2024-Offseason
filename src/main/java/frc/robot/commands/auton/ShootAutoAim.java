@@ -17,6 +17,7 @@ public class ShootAutoAim extends Command {
     @Override
     public void initialize(){
         this.startTime = Timer.getFPGATimestamp();
+        robotState.setState(State.AUTO_AIM);
     }
 
     @Override
@@ -26,10 +27,6 @@ public class ShootAutoAim extends Command {
         if (Timer.getFPGATimestamp() - this.startTime >= length) {
             robotState.setState(State.IDLE);
             return true;
-        }
-
-        if (Timer.getFPGATimestamp() - this.startTime < length) {
-            robotState.setState(State.AUTO_AIM);
         }
 
         return false;
