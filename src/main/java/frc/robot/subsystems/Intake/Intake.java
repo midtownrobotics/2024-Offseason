@@ -31,9 +31,6 @@ public class Intake extends SubsystemBase{
     @Override
     public void periodic() {
 
-        rollerIO.updateInputs(rollerIOInputs);
-        Logger.processInputs("Intake/Roller", rollerIOInputs);
-
         Logger.recordOutput("Intake/State", currentSetState.toString());
 
         switch (currentSetState) {
@@ -55,5 +52,8 @@ public class Intake extends SubsystemBase{
             default:
                 break;
         }
+        
+        rollerIO.updateInputs(rollerIOInputs);
+        Logger.processInputs("Intake/Roller", rollerIOInputs);
     }
 }

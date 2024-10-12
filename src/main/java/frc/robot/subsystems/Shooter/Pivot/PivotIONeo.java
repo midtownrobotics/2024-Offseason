@@ -81,6 +81,10 @@ public class PivotIONeo implements PivotIO {
     public void updatePIDControllers() {
         LoggedTunableNumber.ifChanged(hashCode(), () -> {
             pivotPID.setPID(ShooterConstants.PIVOT_P.get(), ShooterConstants.PIVOT_I.get(), ShooterConstants.PIVOT_D.get());
-        });
+        },
+            ShooterConstants.PIVOT_P,
+            ShooterConstants.PIVOT_I,
+            ShooterConstants.PIVOT_D
+        );
     }
 }

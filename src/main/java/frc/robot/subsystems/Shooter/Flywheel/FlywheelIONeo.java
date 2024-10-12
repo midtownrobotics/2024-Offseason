@@ -85,13 +85,23 @@ public class FlywheelIONeo implements FlywheelIO {
             leftWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
             leftWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
             leftWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
-        });
+        },
+            ShooterConstants.FLYWHEEL_SPEED_P,
+            ShooterConstants.FLYWHEEL_SPEED_I,
+            ShooterConstants.FLYWHEEL_SPEED_D,
+            ShooterConstants.FLYWHEEL_SPEED_FF
+        );
 
         LoggedTunableNumber.ifChanged(hashCode(), () -> {
             rightWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());
             rightWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
             rightWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
             rightWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
-        });
+        },
+            ShooterConstants.FLYWHEEL_SPEED_P,
+            ShooterConstants.FLYWHEEL_SPEED_I,
+            ShooterConstants.FLYWHEEL_SPEED_D,
+            ShooterConstants.FLYWHEEL_SPEED_FF
+        );
     }
 }

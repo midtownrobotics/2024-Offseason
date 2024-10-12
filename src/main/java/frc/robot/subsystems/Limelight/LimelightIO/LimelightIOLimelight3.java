@@ -2,8 +2,8 @@ package frc.robot.subsystems.Limelight.LimelightIO;
 
 import edu.wpi.first.networktables.NetworkTable;
 
-public class LimelightIOLimelight3 implements LimelightIO{
-    NetworkTable networkTable;
+public class LimelightIOLimelight3 implements LimelightIO {
+    private NetworkTable networkTable;
 
     public LimelightIOLimelight3(NetworkTable networkTable) {
         this.networkTable = networkTable;

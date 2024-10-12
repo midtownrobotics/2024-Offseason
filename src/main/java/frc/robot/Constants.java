@@ -7,6 +7,8 @@ import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.RobotBase;
+import frc.robot.utils.AdvancedSwerveKinematics;
 import frc.robot.utils.LoggedTunableNumber;
 
 public final class Constants {
@@ -20,8 +22,28 @@ public final class Constants {
         REPLAY
     }
 
-    public static final Mode currentMode = Mode.REAL;
+	public static enum RobotType {
+		SIMBOT,
+		COMPBOT
+	}
+
+	public static RobotType robotType = RobotType.COMPBOT;
+
+	public static Mode getMode() {
+		return switch (robotType) {
+			case COMPBOT -> RobotBase.isReal() ? Mode.REAL : Mode.REPLAY;
+			case SIMBOT -> Mode.SIM;
+		};
+	}
+
     public static final boolean tuningMode = true;
+
+	public static final class AutonConstants {
+		public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_LENGTH_SEC", 1.0);
+		public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC", 1.0);
+		public static LoggedDashboardNumber AUTON_SHOOT_AUTO_AIM_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_AUTO_AIM_LENGTH_SEC", 1.0);
+	}
+
     public static final LoggedDashboardNumber deadzone = new LoggedDashboardNumber("CONTROLLER_DEADZONE", 0.1);
     
     public static final double deadzone(double input) {
@@ -89,6 +111,12 @@ public final class Constants {
 				new Translation2d(WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2),
 				new Translation2d(-WHEEL_BASE_METERS / 2, TRACK_WIDTH_METERS / 2),
 				new Translation2d(-WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2));
+
+		// public static final AdvancedSwerveKinematics DRIVE_KINEMATICS_2 = new AdvancedSwerveKinematics(
+		// 		new Translation2d(WHEEL_BASE_METERS / 2, TRACK_WIDTH_METERS / 2),
+		// 		new Translation2d(WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2),
+		// 		new Translation2d(-WHEEL_BASE_METERS / 2, TRACK_WIDTH_METERS / 2),
+		// 		new Translation2d(-WHEEL_BASE_METERS / 2, -TRACK_WIDTH_METERS / 2));
 
 		public static final boolean kGyroReversed = false;
 	}
