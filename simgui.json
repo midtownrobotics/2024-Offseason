@@ -1,16 +1,4 @@
 {
-<<<<<<< HEAD
-  "HALProvider": {
-    "DIO": {
-      "window": {
-        "visible": true
-      }
-    },
-    "Other Devices": {
-      "SPARK MAX [50]": {
-        "header": {
-          "open": true
-=======
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
@@ -20,16 +8,10 @@
       "/SmartDashboard/Auton Chooser": {
         "window": {
           "visible": true
->>>>>>> main
         }
       }
     }
   },
-<<<<<<< HEAD
-  "NTProvider": {
-    "types": {
-      "/FMSInfo": "FMSInfo"
-=======
   "NetworkTables": {
     "retained": {
       "SmartDashboard": {
@@ -38,7 +20,6 @@
         },
         "open": true
       }
->>>>>>> main
     }
   },
   "NetworkTables Info": {
