@@ -91,7 +91,6 @@ public class Robot extends LoggedRobot{
   @Override
   public void autonomousExit() {
     if (autonCommand != null) {
-      System.out.println("Cancelling auton command");
       autonCommand.cancel();
       System.out.println(autonCommand.isFinished());
     }

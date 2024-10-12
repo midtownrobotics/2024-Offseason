@@ -118,7 +118,6 @@ public class Drivetrain extends SubsystemBase {
     // }
 
     public void setDriverDesired(ChassisSpeeds speeds) {
-        ChassisSpeeds.discretize(speeds, 0.05);
         this.driverChassisSpeeds = speeds;
     }
 

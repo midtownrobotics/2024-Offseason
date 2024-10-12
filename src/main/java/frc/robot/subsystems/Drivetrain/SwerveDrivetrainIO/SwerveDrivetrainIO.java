@@ -32,6 +32,10 @@ public interface SwerveDrivetrainIO {
         if (chassisSpeeds == null) {
             chassisSpeeds = new ChassisSpeeds();
         }
+
+        /** This is a slight weakness, since it will only be applied to this method */
+        chassisSpeeds = ChassisSpeeds.discretize(chassisSpeeds, 0.05);
+
         drive(chassisSpeeds.vxMetersPerSecond, 
             chassisSpeeds.vyMetersPerSecond, 
             chassisSpeeds.omegaRadiansPerSecond, 

@@ -83,9 +83,9 @@ public class AutonFactory extends VirtualSubsystem{
     }
 
     public Command getAutonCommand() {
-        System.out.println(m_currentAutonCommand == null);
-        System.out.println(m_currentAutonCommand.isFinished());
-        System.out.println(m_currentAutonCommand.isScheduled());
+        // System.out.println(m_currentAutonCommand == null);
+        // System.out.println(m_currentAutonCommand.isFinished());
+        // System.out.println(m_currentAutonCommand.isScheduled());
         if (m_currentAutonCommand == null || m_currentAutonCommand.isFinished()) {
             m_currentAutonCommand = buildAutonCommand(m_currAutonChoice);
         }
