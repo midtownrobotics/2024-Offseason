@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotState;
@@ -21,7 +22,7 @@ public class BeamBreak extends SubsystemBase{
     private XboxController driver;
     private XboxController operator;
 
-    private int beamBreakBrokenTime;
+    private double brokenTime;
     private BeamBreakState currentState = BeamBreakState.IDLE;
 
     public enum BeamBreakState {
@@ -40,28 +41,28 @@ public class BeamBreak extends SubsystemBase{
     @Override
     public void periodic() {
 
+        double time = Timer.getFPGATimestamp();
+
         if (beamBreakIO.getIsBroken()) {
-            if (beamBreakBrokenTime == 0) {
+            if (time - brokenTime == 0) {
                 driver.setRumble(RumbleType.kBothRumble, 1);
                 operator.setRumble(RumbleType.kBothRumble, 1);
             }
-            if (beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get()) {
+            if (time - brokenTime >= IntakeConstants.BEAMBREAK_DELAY.get()) {
                 if (robotState.currentState == State.INTAKING) {
                     robotState.currentState = State.NOTE_HELD;
                 }
-                
             }
-            if (beamBreakBrokenTime == IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {
+            if (time - brokenTime >= IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {
                 driver.setRumble(RumbleType.kBothRumble, 0);
                 operator.setRumble(RumbleType.kBothRumble, 0);
             }
-            beamBreakBrokenTime++;
         } else {
-            beamBreakBrokenTime = 0;
+            brokenTime = time;
         }
 
         Logger.recordOutput("BeamBreak/State", currentState.toString());
-        Logger.recordOutput("BeamBreak/Counter", beamBreakBrokenTime);
+        Logger.recordOutput("BeamBreak/Counter", time - brokenTime);
 
         beamBreakIO.updateInputs(beamBreakIOInputs);
         Logger.processInputs("BeamBreak/Inputs", beamBreakIOInputs);
