@@ -259,6 +259,7 @@ public class RobotContainer {
   }
 
   public void configureAutonomous() {
-    m_autonFactory = new AutonFactory(drivetrain);
+    m_autonFactory = new AutonFactory(robotState, drivetrain);
+    // m_autonFactory = new AutonFactory(robotState, drivetrain);
   }
 }

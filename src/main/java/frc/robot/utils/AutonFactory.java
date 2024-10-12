@@ -2,12 +2,11 @@ package frc.robot.utils;
 
 import java.util.List;
 
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
@@ -16,17 +15,31 @@ import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.RobotState;
+import frc.robot.commands.auton.IdleRobot;
+import frc.robot.commands.auton.RevAutoAim;
+import frc.robot.commands.auton.ShootAutoAim;
+import frc.robot.commands.auton.ShootSubwoofer;
+import frc.robot.commands.auton.StartIntake;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 
 public class AutonFactory extends VirtualSubsystem{
 
     private final Drivetrain m_drivetrain;
+    private final RobotState m_robotState;
     private final LoggedDashboardChooser<String> m_autonChooser;
     private String m_currAutonChoice;
     private Command m_currentAutonCommand;
     
-    public AutonFactory(Drivetrain drivetrain) {
+    public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
         this.m_drivetrain = drivetrain;
+        this.m_robotState = robotState;
+
+        NamedCommands.registerCommand("Idle", new IdleRobot(null));
+        NamedCommands.registerCommand("Rev", new RevAutoAim(robotState));
+        NamedCommands.registerCommand("AutoAimShoot", new ShootAutoAim(robotState));
+        NamedCommands.registerCommand("SubwooferShoot", new ShootSubwoofer(robotState));
+        NamedCommands.registerCommand("Intake", new StartIntake(robotState));
 
         AutoBuilder.configureHolonomic(
             m_drivetrain::getPose, // Robot pose supplier
@@ -55,6 +68,7 @@ public class AutonFactory extends VirtualSubsystem{
 
         m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
         m_autonChooser.addOption("Do Nothing", "Do Nothing");
+        m_autonChooser.addOption("Shoot Preload", "Shoot Preload");
         List<String> paths = PathPlannerUtil.getExistingPaths();
         for (String path : paths) {
             m_autonChooser.addOption(path, path);
@@ -65,9 +79,14 @@ public class AutonFactory extends VirtualSubsystem{
     }
 
     private Command buildAutonCommand(String path) {
+        /** Hard Coded Paths which will always work */
         if (path == null || path.equals("Do Nothing")) {
             return Commands.none();
         }
+        if (path.equals("Shoot Preload")) {
+            return new ShootSubwoofer(m_robotState);
+        }
+        
         Command autoCommand = AutoBuilder.buildAuto(path);
         return autoCommand;
     }
