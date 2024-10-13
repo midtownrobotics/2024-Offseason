@@ -16,9 +16,6 @@ public class BeamBreak extends SubsystemBase {
   private BeamBreakIO beamBreakIO;
   private BeamBreakIOInputsAutoLogged beamBreakIOInputs = new BeamBreakIOInputsAutoLogged();
 
-  private XboxController driver;
-  private XboxController operator;
-
   private int beamBreakBrokenTime;
   private BeamBreakState currentState = BeamBreakState.IDLE;
 
@@ -29,34 +26,30 @@ public class BeamBreak extends SubsystemBase {
   }
 
   public BeamBreak(
-      BeamBreakIO beamBreakIO, RobotState robotState, int driverPort, int operatorPort) {
+      BeamBreakIO beamBreakIO, RobotState robotState) {
     this.beamBreakIO = beamBreakIO;
     this.robotState = robotState;
-    this.driver = new XboxController(driverPort);
-    this.operator = new XboxController(operatorPort);
   }
 
   @Override
   public void periodic() {
 
     if (beamBreakIO.getIsBroken()) {
-      if (beamBreakBrokenTime == 0) {
-        if (edu.wpi.first.wpilibj.RobotState.isTeleop()) {
-          driver.setRumble(RumbleType.kBothRumble, 1);
-          operator.setRumble(RumbleType.kBothRumble, 1);
-        }
+
+      if (
+        beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get() &&
+        robotState != null &&
+        robotState.currentState == State.INTAKING
+      ){
+        robotState.setState(State.NOTE_HELD);
+        currentState = BeamBreakState.NOTE_HELD;
+      } else {
+        currentState = BeamBreakState.COUNTING;
       }
-      if (beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get()) {
-        if (robotState != null && robotState.currentState == State.INTAKING) {
-          robotState.currentState = State.NOTE_HELD;
-        }
-      }
-      if (beamBreakBrokenTime == IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {
-        driver.setRumble(RumbleType.kBothRumble, 0);
-        operator.setRumble(RumbleType.kBothRumble, 0);
-      }
+
       beamBreakBrokenTime++;
     } else {
+      currentState = BeamBreakState.IDLE;
       beamBreakBrokenTime = 0;
     }
 
