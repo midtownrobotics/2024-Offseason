@@ -48,4 +48,8 @@ public class FlywheelIOSim implements FlywheelIO  {
     public void updatePIDControllers() {
 
     }
+
+    public double getSpeed() {
+        return 0.0;
+    }
 }

@@ -1,5 +1,8 @@
 package frc.robot;
 
+import org.littletonrobotics.junction.Logger;
+
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
@@ -7,7 +10,6 @@ import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
-import org.littletonrobotics.junction.Logger;
 
 public class RobotState {
   private Shooter shooter;
@@ -17,10 +19,13 @@ public class RobotState {
   public enum State {
     AMP,
     AMP_REVVING,
+    AMP_REVSHOOT,
     SUBWOOFER,
     SUBWOOFER_REVVING,
+    SUBWOOFER_REVSHOOT,
     AUTO_AIM,
     AUTO_AIM_REVVING,
+    AUTO_AIM_REVSHOOT,
     PASSING,
     VOMITING,
     INTAKING,
@@ -71,6 +76,14 @@ public class RobotState {
         shooter.setState(ShooterState.AMP_REVVING);
         intake.setState(IntakeState.IDLE);
         break;
+      case AMP_REVSHOOT:
+        shooter.setState(ShooterState.AMP_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (shooter.getFlywheelSpeed() >= (ShooterConstants.AMP_SPEED.get())) {
+            shooter.setState(ShooterState.AMP);
+            intake.setState(IntakeState.SHOOTING);
+        }
+        break;
       case SUBWOOFER:
         shooter.setState(ShooterState.SUBWOOFER);
         intake.setState(IntakeState.SHOOTING);
@@ -79,6 +92,14 @@ public class RobotState {
         shooter.setState(ShooterState.SUBWOOFER_REVVING);
         intake.setState(IntakeState.IDLE);
         break;
+    case SUBWOOFER_REVSHOOT:
+        shooter.setState(ShooterState.SUBWOOFER_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (shooter.getFlywheelSpeed() >= (ShooterConstants.SPEAKER_SPEED.get())) {
+            shooter.setState(ShooterState.SUBWOOFER);
+            intake.setState(IntakeState.SHOOTING);
+        }
+        break;
       case AUTO_AIM:
         shooter.setState(ShooterState.AUTO_AIM);
         intake.setState(IntakeState.SHOOTING);
@@ -86,6 +107,20 @@ public class RobotState {
       case AUTO_AIM_REVVING:
         shooter.setState(ShooterState.AUTO_AIM_REVVING);
         intake.setState(IntakeState.IDLE);
+        break;
+      case AUTO_AIM_REVSHOOT:
+        shooter.setState(ShooterState.AUTO_AIM_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (
+          shooter.getFlywheelSpeed() >= (ShooterConstants.SPEAKER_SPEED.get() - ShooterConstants.SPEAKER_SPEED_TOLERANCE.get()) &&
+          (
+            shooter.getPivotAngle() >= (shooter.getAngleFromDistance() - ShooterConstants.PIVOT_ANGLE_TOLERANCE.get()) &&
+            shooter.getPivotAngle() <= (shooter.getAngleFromDistance() + ShooterConstants.PIVOT_ANGLE_TOLERANCE.get())
+          )
+        ) {
+            shooter.setState(ShooterState.AUTO_AIM);
+            intake.setState(IntakeState.SHOOTING);
+        }
         break;
       case PASSING:
         shooter.setState(ShooterState.PASSING);

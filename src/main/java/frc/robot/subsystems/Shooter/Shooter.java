@@ -1,5 +1,8 @@
 package frc.robot.subsystems.Shooter;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -63,6 +66,14 @@ public class Shooter extends SubsystemBase {
 
   public double getAngleFromDistance() {
     return ShooterUtils.instance.getAngleFromDistance(limelight.getDistance());
+  }
+
+  public double getFlywheelSpeed() {
+    return flywheelIO.getSpeed();
+  }
+
+  public double getPivotAngle() {
+    return pivotIO.getAngle();
   }
 
   @Override

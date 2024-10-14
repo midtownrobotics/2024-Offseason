@@ -104,6 +104,10 @@ public final class Constants {
         new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE", 0.81);
     public static LoggedDashboardNumber MAX_PIVOT_ANGLE =
         new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 0.99);
+    
+    public static LoggedDashboardNumber PIVOT_ANGLE_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/PIVOT_ANGLE_TOLERANCE", 0.02);
+    public static LoggedDashboardNumber AMP_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED_TOLERANCE", 15);
+    public static LoggedDashboardNumber SPEAKER_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/SUBWOOFER_SPEED_TOLERANCE", 50);
 
 		public static final class Simulation {
 			public static LoggedDashboardNumber FLYWHEEL_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_GEARING", 5.26);
