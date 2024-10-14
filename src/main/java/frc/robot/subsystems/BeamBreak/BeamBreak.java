@@ -46,7 +46,10 @@ public class BeamBreak extends SubsystemBase{
                 operator.setRumble(RumbleType.kBothRumble, 1);
             }
             if (beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get()) {
-                robotState.currentState = State.NOTE_HELD;
+                if (robotState.currentState == State.INTAKING) {
+                    robotState.currentState = State.NOTE_HELD;
+                }
+                
             }
             if (beamBreakBrokenTime == IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {
                 driver.setRumble(RumbleType.kBothRumble, 0);
