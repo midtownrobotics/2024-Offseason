@@ -64,6 +64,10 @@ public class Shooter extends SubsystemBase {
     currentState = to;
   }
 
+  public ShooterState getState() {
+    return currentState;
+  }
+
   public double getAngleFromDistance() {
     return ShooterUtils.instance.getAngleFromDistance(limelight.getDistance());
   }

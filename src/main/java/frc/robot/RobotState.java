@@ -147,6 +147,10 @@ public class RobotState {
     }
   }
 
+  public ShooterState getShooterState() {
+    return shooter.getState();
+  }
+
   public void setDriveState(DriveState newState) {
     drive.setState(newState);
   }
