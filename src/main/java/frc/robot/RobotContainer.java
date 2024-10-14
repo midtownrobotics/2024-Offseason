@@ -36,6 +36,7 @@ import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
+import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOSim;
@@ -45,7 +46,6 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
-import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.utils.AutonFactory;
 
 public class RobotContainer {
@@ -199,13 +199,13 @@ public class RobotContainer {
 
     operator
         .a()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
+        .whileTrue(new StartEndCommand(() -> robotState.setState(State.SUBWOOFER_REVSHOOT), () -> robotState.setState(State.IDLE), shooter));
     operator
         .x()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+        .whileTrue(new StartEndCommand(() -> robotState.setState(State.AMP_REVSHOOT), () -> robotState.setState(State.IDLE), shooter));
     operator
         .y()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.AUTO_AIM_REVVING), shooter));
+        .whileTrue(new StartEndCommand(() -> robotState.setState(State.AUTO_AIM_REVSHOOT), () -> robotState.setState(State.IDLE), shooter));
     operator
         .b()
         .whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));

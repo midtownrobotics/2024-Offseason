@@ -80,6 +80,11 @@ public class PivotIONeo implements PivotIO {
     pivotNeo.setVoltage(pidAmount);
   }
 
+  @Override
+  public double getAngle() {
+      return pivotEncoder.getAbsolutePosition();
+  }
+
   public void updatePIDControllers() {
     LoggedTunableNumber.ifChanged(
         hashCode(),

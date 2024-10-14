@@ -64,13 +64,17 @@ public class Shooter extends SubsystemBase {
     currentState = to;
   }
 
-    public double getAngleFromDistance() {
-        return ShooterUtils.instance.getAngleFromDistance(limelight.getDistance());
-    }
+  public double getAngleFromDistance() {
+    return ShooterUtils.instance.getAngleFromDistance(limelight.getDistance());
+  }
 
-    public double getFlywheelSpeed() {
-        return flywheelIO.getSpeed();
-    }
+  public double getFlywheelSpeed() {
+    return flywheelIO.getSpeed();
+  }
+
+  public double getPivotAngle() {
+    return pivotIO.getAngle();
+  }
 
   @Override
   public void periodic() {

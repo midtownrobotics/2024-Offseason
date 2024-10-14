@@ -8,4 +8,9 @@ public class PivotIOSim implements PivotIO {
   public void updateInputs(PivotIOInputs inputs) {}
 
   public void updatePIDControllers() {}
+
+  @Override
+  public double getAngle() {
+      return 0;
+  }
 }

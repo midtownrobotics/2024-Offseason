@@ -19,11 +19,13 @@ public class RobotState {
   public enum State {
     AMP,
     AMP_REVVING,
+    AMP_REVSHOOT,
     SUBWOOFER,
     SUBWOOFER_REVVING,
     SUBWOOFER_REVSHOOT,
     AUTO_AIM,
     AUTO_AIM_REVVING,
+    AUTO_AIM_REVSHOOT,
     PASSING,
     VOMITING,
     INTAKING,
@@ -74,6 +76,14 @@ public class RobotState {
         shooter.setState(ShooterState.AMP_REVVING);
         intake.setState(IntakeState.IDLE);
         break;
+      case AMP_REVSHOOT:
+        shooter.setState(ShooterState.AMP_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (shooter.getFlywheelSpeed() >= (ShooterConstants.AMP_SPEED.get())) {
+            shooter.setState(ShooterState.AMP);
+            intake.setState(IntakeState.SHOOTING);
+        }
+        break;
       case SUBWOOFER:
         shooter.setState(ShooterState.SUBWOOFER);
         intake.setState(IntakeState.SHOOTING);
@@ -85,8 +95,9 @@ public class RobotState {
     case SUBWOOFER_REVSHOOT:
         shooter.setState(ShooterState.SUBWOOFER_REVVING);
         intake.setState(IntakeState.IDLE);
-        if (shooter.getFlywheelSpeed() >= ShooterConstants.SPEAKER_SPEED.get()) {
+        if (shooter.getFlywheelSpeed() >= (ShooterConstants.SPEAKER_SPEED.get())) {
             shooter.setState(ShooterState.SUBWOOFER);
+            intake.setState(IntakeState.SHOOTING);
         }
         break;
       case AUTO_AIM:
@@ -96,6 +107,20 @@ public class RobotState {
       case AUTO_AIM_REVVING:
         shooter.setState(ShooterState.AUTO_AIM_REVVING);
         intake.setState(IntakeState.IDLE);
+        break;
+      case AUTO_AIM_REVSHOOT:
+        shooter.setState(ShooterState.AUTO_AIM_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (
+          shooter.getFlywheelSpeed() >= (ShooterConstants.SPEAKER_SPEED.get() - ShooterConstants.SPEAKER_SPEED_TOLERANCE.get()) &&
+          (
+            shooter.getPivotAngle() >= (shooter.getAngleFromDistance() - ShooterConstants.PIVOT_ANGLE_TOLERANCE.get()) &&
+            shooter.getPivotAngle() <= (shooter.getAngleFromDistance() + ShooterConstants.PIVOT_ANGLE_TOLERANCE.get())
+          )
+        ) {
+            shooter.setState(ShooterState.AUTO_AIM);
+            intake.setState(IntakeState.SHOOTING);
+        }
         break;
       case PASSING:
         shooter.setState(ShooterState.PASSING);
