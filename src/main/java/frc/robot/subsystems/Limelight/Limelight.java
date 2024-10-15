@@ -13,6 +13,7 @@ public class Limelight extends SubsystemBase {
   private LimelightIO limelightIO;
   private LimelightIOInputsAutoLogged limelightIOInputs = new LimelightIOInputsAutoLogged();
   private Pose2d latestVisionPose;
+  private boolean autonVisionEnabled = false;
 
   public Limelight(LimelightIO limelightIO) {
     this.limelightIO = limelightIO;
@@ -41,12 +42,18 @@ public class Limelight extends SubsystemBase {
     Logger.processInputs("Limelight", limelightIOInputs);
   }
 
+  public void setAutonVisionEnabled(boolean autonVisionEnabled) {
+    this.autonVisionEnabled = autonVisionEnabled;
+  }
+
   public LimelightHelpers.PoseEstimate getMegatagPose(Pose2d estimatedPose) {
     LimelightHelpers.SetRobotOrientation(
         "limelight", estimatedPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 =
         LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
-    if (RobotState.isAutonomous()) return null; // For now ignore vision in auto
+
+    if (RobotState.isAutonomous() && !autonVisionEnabled) return null; // For now ignore vision in auto
+
     if (mt2 == null || mt2.pose == null || mt2.tagCount == 0) {
       Pose2d nullPose = null;
       Logger.recordOutput("Limelight/VisionPose", nullPose);
