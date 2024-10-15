@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3955312300092195,
+        "x": 1.44283883432246,
         "y": 5.5
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7398195846681712,
-        "y": 6.10255395452983
+        "x": 2.4499707772596704,
+        "y": 6.113056676897948
       },
       "isLocked": false,
       "linkedName": "Center Start"
@@ -32,11 +32,11 @@
     },
     {
       "anchor": {
-        "x": 1.3955312300092195,
+        "x": 1.44283883432246,
         "y": 5.5
       },
       "prevControl": {
-        "x": 1.547807621361837,
+        "x": 1.5951152256750776,
         "y": 5.470068573890665
       },
       "nextControl": null,
@@ -46,7 +46,25 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.5,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "SubwooferRev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 1.5,

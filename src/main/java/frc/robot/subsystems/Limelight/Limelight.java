@@ -40,6 +40,7 @@ public class Limelight extends SubsystemBase {
     limelightIO.updateInputs(limelightIOInputs);
     limelightIOInputs.latestPose = latestVisionPose;
     Logger.processInputs("Limelight", limelightIOInputs);
+    Logger.recordOutput("Limelight/AutonVision", autonVisionEnabled);
   }
 
   public void setAutonVisionEnabled(boolean autonVisionEnabled) {
@@ -64,6 +65,8 @@ public class Limelight extends SubsystemBase {
     mt2.pose =
         new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
     latestVisionPose = mt2.pose;
+
+    
 
     return mt2;
   }
