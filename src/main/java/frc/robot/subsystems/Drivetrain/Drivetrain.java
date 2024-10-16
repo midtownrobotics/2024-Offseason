@@ -5,6 +5,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
@@ -51,19 +53,21 @@ public class Drivetrain extends SubsystemBase {
     m_swerveDrivetrainIO.updatePIDControllers();
 
     m_swerveDrivetrainIO.updateOdometry();
-    // if (!state.equals(DriveState.FOLLOW_PATH)) {
-      m_swerveDrivetrainIO.updateOdometryWithVision(m_limelight);
-    // }
+    m_swerveDrivetrainIO.updateOdometryWithVision(m_limelight);
 
     switch (state) {
       case SPEAKER_AUTO_ALIGN:
         if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
+          double desiredOmega = autoAimPID.calculate(m_limelight.getTx());
+
+          // if (DriverStation.getAlliance().get() == Alliance.Blue) {
+          //   desiredOmega *= -1;
+          // }
+
           m_swerveDrivetrainIO.drive(
               driverChassisSpeeds.vxMetersPerSecond,
               driverChassisSpeeds.vyMetersPerSecond,
-              // driveX,
-              // driveY,
-              -autoAimPID.calculate(m_limelight.getTx()),
+              desiredOmega,
               false,
               false,
               speedBoost);

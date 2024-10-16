@@ -132,11 +132,17 @@ public class RobotContainer {
                 drivetrain));
     driver
         .y()
-        .whileTrue(
-            new StartEndCommand(
+        .onTrue(
+            new InstantCommand(
                 () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
+                drivetrain
+            )
+        )
+        .onFalse(new InstantCommand(
                 () -> drivetrain.setState(DriveState.MANUAL),
-                drivetrain));
+                drivetrain
+            )
+        );
 
     driver
         .leftTrigger()
