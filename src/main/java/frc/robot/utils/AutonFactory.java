@@ -1,14 +1,18 @@
 package frc.robot.utils;
 
+import com.fasterxml.jackson.core.sym.Name;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -16,6 +20,10 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 import frc.robot.commands.auton.ShootSubwoofer;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
+import frc.robot.subsystems.Limelight.Limelight;
+
+import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -24,6 +32,7 @@ public class AutonFactory extends VirtualSubsystem {
 
   private final Drivetrain m_drivetrain;
   private final RobotState m_robotState;
+  private final Limelight m_limelight;
   private final LoggedDashboardChooser<String> m_autonChooser;
   private String m_currAutonChoice;
   private Command m_currentAutonCommand;
@@ -41,9 +50,10 @@ public class AutonFactory extends VirtualSubsystem {
   private LoggedTunableNumber PATHPLANNER_ROTATION_D =
       new LoggedTunableNumber("PathPlanner/ROTATION_D", 0);
 
-  public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
+  public AutonFactory(RobotState robotState, Drivetrain drivetrain, Limelight limelight) {
     this.m_drivetrain = drivetrain;
     this.m_robotState = robotState;
+    this.m_limelight = limelight;
 
     NamedCommands.registerCommand(
         "Idle",
@@ -66,13 +76,26 @@ public class AutonFactory extends VirtualSubsystem {
     //     robotState.setState(State.SUBWOOFER);
     // })))));
 
+    // NamedCommands.registerCommand(
+    //     "SubwooferShoot",
+    //     new SequentialCommandGroup(
+    //         new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING)),
+    //         new WaitCommand(2),
+    //         new InstantCommand(() -> robotState.setState(State.SUBWOOFER)),
+    //         new WaitCommand(1)));
+
+    NamedCommands.registerCommand("SubwooferRev", new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING)));
+
     NamedCommands.registerCommand(
-        "SubwooferShoot",
-        new SequentialCommandGroup(
-            new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING)),
-            new WaitCommand(2),
-            new InstantCommand(() -> robotState.setState(State.SUBWOOFER)),
-            new WaitCommand(1)));
+      "SubwooferShoot",
+        new FunctionalCommand(
+          () -> robotState.setState(State.SUBWOOFER_REVSHOOT),
+          () -> {},
+          (interrupted) -> {},
+          () -> {
+            return robotState.getShooterState() == ShooterState.SUBWOOFER;
+          }
+        ).andThen(new WaitCommand(1).andThen(new InstantCommand(() -> robotState.setState(State.IDLE)))));
 
     NamedCommands.registerCommand(
         "SubwooferJustShoot",
@@ -87,6 +110,20 @@ public class AutonFactory extends VirtualSubsystem {
             () -> {
               robotState.setState(State.INTAKING);
             }));
+
+    NamedCommands.registerCommand(
+        "EnableVision",
+        new InstantCommand(
+          () -> {
+            m_limelight.setAutonVisionEnabled(true);
+          }));
+
+    NamedCommands.registerCommand(
+        "DisableVision",
+        new InstantCommand(
+          () -> {
+            m_limelight.setAutonVisionEnabled(false);
+          }));
 
     m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     m_autonChooser.addOption("Do Nothing", "Do Nothing");

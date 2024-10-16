@@ -345,6 +345,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
     if (mt2 != null) {
       m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+      Logger.recordOutput("Limelight/MegatagPose", mt2.pose);
     }
   }
 
