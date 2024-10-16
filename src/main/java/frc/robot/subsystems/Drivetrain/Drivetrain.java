@@ -51,9 +51,9 @@ public class Drivetrain extends SubsystemBase {
     m_swerveDrivetrainIO.updatePIDControllers();
 
     m_swerveDrivetrainIO.updateOdometry();
-    if (!state.equals(DriveState.FOLLOW_PATH)) {
+    // if (!state.equals(DriveState.FOLLOW_PATH)) {
       m_swerveDrivetrainIO.updateOdometryWithVision(m_limelight);
-    }
+    // }
 
     switch (state) {
       case SPEAKER_AUTO_ALIGN:

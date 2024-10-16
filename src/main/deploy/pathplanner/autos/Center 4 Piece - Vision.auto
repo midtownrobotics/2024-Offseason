@@ -14,7 +14,19 @@
         {
           "type": "named",
           "data": {
+            "name": "EnableVision"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "SubwooferShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DisableVision"
           }
         },
         {
@@ -32,7 +44,19 @@
         {
           "type": "named",
           "data": {
+            "name": "EnableVision"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "SubwooferShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DisableVision"
           }
         },
         {
@@ -50,7 +74,19 @@
         {
           "type": "named",
           "data": {
+            "name": "EnableVision"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "SubwooferShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DisableVision"
           }
         },
         {
@@ -68,7 +104,19 @@
         {
           "type": "named",
           "data": {
+            "name": "EnableVision"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "SubwooferShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "DisableVision"
           }
         }
       ]
