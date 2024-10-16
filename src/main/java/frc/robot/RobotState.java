@@ -25,6 +25,7 @@ public class RobotState {
     SUBWOOFER_REVSHOOT,
     AUTO_AIM,
     AUTO_AIM_REVVING,
+    INTAKE_REVVING,
     AUTO_AIM_REVSHOOT,
     PASSING,
     VOMITING,
@@ -92,12 +93,15 @@ public class RobotState {
         shooter.setState(ShooterState.SUBWOOFER_REVVING);
         intake.setState(IntakeState.IDLE);
         break;
-    case SUBWOOFER_REVSHOOT:
+      case INTAKE_REVVING:
+        shooter.setState(ShooterState.SUBWOOFER_REVVING);
+        intake.setState(IntakeState.INTAKING);
+        break;
+      case SUBWOOFER_REVSHOOT:
         shooter.setState(ShooterState.SUBWOOFER_REVVING);
         intake.setState(IntakeState.IDLE);
         if (shooter.getFlywheelSpeed() >= (ShooterConstants.SPEAKER_SPEED.get())) {
-            shooter.setState(ShooterState.SUBWOOFER);
-            intake.setState(IntakeState.SHOOTING);
+           setState(State.SUBWOOFER);
         }
         break;
       case AUTO_AIM:
@@ -112,14 +116,13 @@ public class RobotState {
         shooter.setState(ShooterState.AUTO_AIM_REVVING);
         intake.setState(IntakeState.IDLE);
         if (
-          shooter.getFlywheelSpeed() >= (ShooterConstants.SPEAKER_SPEED.get() - ShooterConstants.SPEAKER_SPEED_TOLERANCE.get()) &&
+          shooter.getFlywheelSpeed() >= (shooter.getSpeedFromDistance() - ShooterConstants.SPEAKER_SPEED_TOLERANCE.get()) &&
           (
             shooter.getPivotAngle() >= (shooter.getAngleFromDistance() - ShooterConstants.PIVOT_ANGLE_TOLERANCE.get()) &&
             shooter.getPivotAngle() <= (shooter.getAngleFromDistance() + ShooterConstants.PIVOT_ANGLE_TOLERANCE.get())
           )
         ) {
-            shooter.setState(ShooterState.AUTO_AIM);
-            intake.setState(IntakeState.SHOOTING);
+            setState(State.AUTO_AIM);
         }
         break;
       case PASSING:
@@ -157,6 +160,7 @@ public class RobotState {
 
   public void onAutonomousInit() {
     drive.setState(DriveState.FOLLOW_PATH);
+    setState(State.IDLE);
   }
 
   public void onTeleopInit() {

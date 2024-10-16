@@ -42,23 +42,13 @@ public class PivotIONeo implements PivotIO {
     inputs.pivotCurrentAmps = pivotNeo.getOutputCurrent();
     inputs.encoderReading = pivotEncoder.getAbsolutePosition();
 
-    double editedEncoderReading = pivotEncoder.getAbsolutePosition();
-
-    if (editedEncoderReading < 0.5) {
-      editedEncoderReading++;
-    }
-
-    inputs.editedEncoderReading = editedEncoderReading;
+    inputs.editedEncoderReading = getAngle();
   }
 
   @Override
   public void setAngle(double angle) {
 
-    double encoderReading = pivotEncoder.getAbsolutePosition();
-
-    if (encoderReading < 0.5) {
-      encoderReading++;
-    }
+    double encoderReading = getAngle();
 
     Logger.recordOutput("Shooter/DesiredPivotAngle", angle);
     Logger.recordOutput("Shooter/PivotAngle", encoderReading);
@@ -82,7 +72,12 @@ public class PivotIONeo implements PivotIO {
 
   @Override
   public double getAngle() {
-      return pivotEncoder.getAbsolutePosition();
+    double encoderReading = pivotEncoder.getAbsolutePosition();
+    if (encoderReading < 0.5) {
+      encoderReading++;
+    }
+    
+    return encoderReading;
   }
 
   public void updatePIDControllers() {

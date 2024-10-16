@@ -26,31 +26,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center-2-Center"
+            "pathName": "Center-2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "SubwooferShoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Center-1-Center"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferShoot"
+            "name": "AutoAimRevShoot"
           }
         },
         {
@@ -62,13 +44,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center-3-Center"
+            "pathName": "2-1"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "SubwooferShoot"
+            "name": "AutoAimRevShoot"
           }
         },
         {
@@ -80,7 +62,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center-4-Center"
+            "pathName": "Center-3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.3
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoAimRotate"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoAimRevShoot"
           }
         }
       ]

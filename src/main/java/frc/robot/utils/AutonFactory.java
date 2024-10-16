@@ -16,10 +16,12 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 import frc.robot.commands.auton.ShootSubwoofer;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
+import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Limelight.Limelight;
 
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
@@ -95,20 +97,13 @@ public class AutonFactory extends VirtualSubsystem {
           () -> {
             return robotState.getShooterState() == ShooterState.SUBWOOFER;
           }
-        ).andThen(new WaitCommand(1).andThen(new InstantCommand(() -> robotState.setState(State.IDLE)))));
-
-    NamedCommands.registerCommand(
-        "SubwooferJustShoot",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.SUBWOOFER);
-            }));
+        ).andThen(new WaitCommand(0.5).andThen(new InstantCommand(() -> robotState.setState(State.INTAKE_REVVING)))));
 
     NamedCommands.registerCommand(
         "Intake",
         new InstantCommand(
             () -> {
-              robotState.setState(State.INTAKING);
+              robotState.setState(State.INTAKE_REVVING);
             }));
 
     NamedCommands.registerCommand(
@@ -124,6 +119,23 @@ public class AutonFactory extends VirtualSubsystem {
           () -> {
             m_limelight.setAutonVisionEnabled(false);
           }));
+    
+    NamedCommands.registerCommand(
+      "AutoAimRotate", 
+      new InstantCommand(() -> {
+        drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN);
+      }));
+
+    NamedCommands.registerCommand(
+      "AutoAimRevShoot",
+        new FunctionalCommand(
+          () -> robotState.setState(State.AUTO_AIM_REVSHOOT),
+          () -> {},
+          (interrupted) -> {},
+          () -> {
+            return robotState.getShooterState() == ShooterState.AUTO_AIM;
+          }
+        ).andThen(new WaitCommand(0.5).andThen(new InstantCommand(() -> robotState.setState(State.INTAKE_REVVING)))));
 
     m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     m_autonChooser.addOption("Do Nothing", "Do Nothing");

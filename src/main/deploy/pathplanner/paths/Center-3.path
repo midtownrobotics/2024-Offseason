@@ -20,28 +20,12 @@
         "y": 3.817732713924771
       },
       "prevControl": {
-        "x": 2.1220673539777883,
-        "y": 3.747467694650082
-      },
-      "nextControl": {
-        "x": 3.1765438055029467,
-        "y": 3.826553428514469
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 1.44283883432246,
-        "y": 5.5
-      },
-      "prevControl": {
-        "x": 3.30486184510172,
-        "y": 5.515804013063089
+        "x": 2.1194361107519706,
+        "y": 3.817732713924771
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Center Start"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -55,7 +39,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0,
+    "rotation": 0.0,
     "rotateFast": false
   },
   "reversed": false,
