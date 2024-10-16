@@ -103,7 +103,7 @@ public final class Constants {
     public static LoggedDashboardNumber MIN_PIVOT_ANGLE =
         new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE", 0.81);
     public static LoggedDashboardNumber MAX_PIVOT_ANGLE =
-        new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 0.99);
+        new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 1.12);
     
     public static LoggedDashboardNumber PIVOT_ANGLE_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/PIVOT_ANGLE_TOLERANCE", 0.02);
     public static LoggedDashboardNumber AMP_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED_TOLERANCE", 15);

@@ -72,6 +72,10 @@ public class Shooter extends SubsystemBase {
     return ShooterUtils.instance.getAngleFromDistance(limelight.getDistance());
   }
 
+  public double getSpeedFromDistance() {
+    return ShooterUtils.instance.getSpeedFromDistance(limelight.getDistance());
+  }
+
   public double getFlywheelSpeed() {
     return flywheelIO.getSpeed();
   }
@@ -118,14 +122,12 @@ public class Shooter extends SubsystemBase {
         pivotIO.setAngle(ShooterConstants.SPEAKER_ANGLE.get());
         break;
       case AUTO_AIM_REVVING:
-        flywheelIO.setSpeed(
-            ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
+        flywheelIO.setSpeed(getSpeedFromDistance() * 0.35, getSpeedFromDistance());
         feederIO.setVoltage(0);
         pivotIO.setAngle(getAngleFromDistance());
         break;
       case AUTO_AIM:
-        flywheelIO.setSpeed(
-            ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
+        flywheelIO.setSpeed(getSpeedFromDistance() * 0.35, getSpeedFromDistance());
         feederIO.setVoltage(ShooterConstants.SPEAKER_ROLLER_VOLTAGE.get());
         pivotIO.setAngle(getAngleFromDistance());
         break;
