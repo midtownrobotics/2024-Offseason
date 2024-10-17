@@ -14,31 +14,13 @@
         {
           "type": "named",
           "data": {
-            "name": "SubwooferShoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Center-3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "3-Center"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferShoot"
+            "name": "AutoAimRevShoot"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 1.0
           }
         },
         {
@@ -75,6 +57,12 @@
           "type": "named",
           "data": {
             "name": "AutoAimRevShoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
           }
         }
       ]

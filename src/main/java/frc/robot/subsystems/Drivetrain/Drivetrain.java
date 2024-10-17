@@ -31,11 +31,11 @@ public class Drivetrain extends SubsystemBase {
 
   private DriveState state = DriveState.MANUAL;
 
-  private ChassisSpeeds driverChassisSpeeds; // Robot Relative
+  private ChassisSpeeds driverChassisSpeeds = new ChassisSpeeds(); // Robot Relative
   // private double driveX;
   // private double driveY;
   // private double driveOmega;
-  private ChassisSpeeds pathplannerChassisSpeeds; // Robot Relative
+  private ChassisSpeeds pathplannerChassisSpeeds = new ChassisSpeeds(); // Robot Relative
 
   private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
 

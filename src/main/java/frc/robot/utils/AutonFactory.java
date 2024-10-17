@@ -199,7 +199,7 @@ public class AutonFactory extends VirtualSubsystem {
         () -> {
           return m_robotState.getShooterState() == ShooterState.SUBWOOFER;
         }
-      ).andThen(new WaitCommand(0.5).andThen(new InstantCommand(() -> m_robotState.setState(State.INTAKE_REVVING)))));
+      ).andThen(new WaitCommand(0.1).andThen(new InstantCommand(() -> m_robotState.setState(State.INTAKE_REVVING)))));
   
     NamedCommands.registerCommand(
       "Intake",
@@ -236,7 +236,7 @@ public class AutonFactory extends VirtualSubsystem {
           return m_robotState.getShooterState() == ShooterState.AUTO_AIM;
         }
       ).andThen(
-        new WaitCommand(0.5).andThen(
+        new WaitCommand(0.1).andThen(
           new InstantCommand(
             () -> m_robotState.setState(State.INTAKE_REVVING)
           )

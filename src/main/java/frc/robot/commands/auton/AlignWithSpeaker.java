@@ -6,6 +6,7 @@ import frc.robot.Constants.AutonConstants;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.ApriltagHelper;
 
 public class AlignWithSpeaker extends Command {
   private final Limelight limelight;
@@ -24,6 +25,6 @@ public class AlignWithSpeaker extends Command {
   @Override
   public boolean isFinished() {
     double tolerance = AutonConstants.AUTO_AIM_TOLERANCE.get();
-    return Math.abs(limelight.getTx()) < tolerance;
+    return limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId()) && Math.abs(limelight.getTx()) < tolerance;
   }
 }
