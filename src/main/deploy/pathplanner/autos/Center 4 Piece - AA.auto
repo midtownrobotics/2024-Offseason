@@ -26,61 +26,55 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center-2-Center"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferShoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Center-1-Center"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferShoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "Center-3"
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 0.3
+            "pathName": "3-Center"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "SubwooferShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center-2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoAimRevShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2-1"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "AutoAimRotate"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
           }
         },
         {
