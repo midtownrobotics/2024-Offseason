@@ -31,12 +31,11 @@ public final class Constants {
   public static final boolean tuningMode = true;
 
   public static final class AutonConstants {
-    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_LENGTH_SEC =
-        new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_LENGTH_SEC", 1.0);
-    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC =
-        new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC", 1.0);
-    public static LoggedDashboardNumber AUTON_SHOOT_AUTO_AIM_LENGTH_SEC =
-        new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_AUTO_AIM_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTON_SHOOT_AUTO_AIM_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_AUTO_AIM_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTO_AIM_TOLERANCE = new LoggedDashboardNumber("Auton/Constants/AUTO_AIM_TOLERANCE", 1.0);
+
   }
 
   public static final LoggedDashboardNumber deadzone =
