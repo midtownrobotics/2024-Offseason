@@ -37,8 +37,7 @@ public class PivotIONeo implements PivotIO {
     inputs.pivotOutputVoltage = pivotNeo.getBusVoltage() * pivotNeo.getAppliedOutput();
     inputs.pivotIsOn = Math.abs(pivotNeo.getAppliedOutput()) > 0.01;
     inputs.pivotVelocityRPM = pivotNeo.getEncoder().getVelocity();
-    inputs.pivotTempFahrenheit =
-        TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
+    inputs.pivotTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
     inputs.pivotCurrentAmps = pivotNeo.getOutputCurrent();
     inputs.encoderReading = pivotEncoder.getAbsolutePosition();
 

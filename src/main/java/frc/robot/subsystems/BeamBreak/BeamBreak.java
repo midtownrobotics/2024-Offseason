@@ -41,7 +41,7 @@ public class BeamBreak extends SubsystemBase {
 
     if (beamBreakIO.getIsBroken()) {
       if (beamBreakBrokenTime == 0) {
-        if (edu.wpi.first.wpilibj.RobotState.isTeleop()) {
+        if (edu.wpi.first.wpilibj.RobotState.isTeleop() && edu.wpi.first.wpilibj.RobotState.isEnabled()) {
           driver.setRumble(RumbleType.kBothRumble, 1);
           operator.setRumble(RumbleType.kBothRumble, 1);
         }

@@ -1,6 +1,5 @@
 package frc.robot.utils;
 
-import com.fasterxml.jackson.core.sym.Name;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -8,17 +7,15 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 
-import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.State;
+import frc.robot.commands.auton.AlignWithSpeaker;
 import frc.robot.commands.auton.ShootSubwoofer;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
@@ -57,89 +54,12 @@ public class AutonFactory extends VirtualSubsystem {
     this.m_robotState = robotState;
     this.m_limelight = limelight;
 
-    NamedCommands.registerCommand(
-        "Idle",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.IDLE);
-            }));
-
-    NamedCommands.registerCommand(
-        "Rev",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.SUBWOOFER_REVVING);
-            }));
-
-    // NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new
-    // WaitCommand(2).deadlineWith(new InstantCommand(()->{
-    //     robotState.setState(State.SUBWOOFER_REVVING);
-    // }), new WaitCommand(1).deadlineWith(new InstantCommand(()->{
-    //     robotState.setState(State.SUBWOOFER);
-    // })))));
-
-    // NamedCommands.registerCommand(
-    //     "SubwooferShoot",
-    //     new SequentialCommandGroup(
-    //         new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING)),
-    //         new WaitCommand(2),
-    //         new InstantCommand(() -> robotState.setState(State.SUBWOOFER)),
-    //         new WaitCommand(1)));
-
-    NamedCommands.registerCommand("SubwooferRev", new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING)));
-
-    NamedCommands.registerCommand(
-      "SubwooferShoot",
-        new FunctionalCommand(
-          () -> robotState.setState(State.SUBWOOFER_REVSHOOT),
-          () -> {},
-          (interrupted) -> {},
-          () -> {
-            return robotState.getShooterState() == ShooterState.SUBWOOFER;
-          }
-        ).andThen(new WaitCommand(0.5).andThen(new InstantCommand(() -> robotState.setState(State.INTAKE_REVVING)))));
-
-    NamedCommands.registerCommand(
-        "Intake",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.INTAKE_REVVING);
-            }));
-
-    NamedCommands.registerCommand(
-        "EnableVision",
-        new InstantCommand(
-          () -> {
-            m_limelight.setAutonVisionEnabled(true);
-          }));
-
-    NamedCommands.registerCommand(
-        "DisableVision",
-        new InstantCommand(
-          () -> {
-            m_limelight.setAutonVisionEnabled(false);
-          }));
-    
-    NamedCommands.registerCommand(
-      "AutoAimRotate", 
-      new InstantCommand(() -> {
-        drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN);
-      }));
-
-    NamedCommands.registerCommand(
-      "AutoAimRevShoot",
-        new FunctionalCommand(
-          () -> robotState.setState(State.AUTO_AIM_REVSHOOT),
-          () -> {},
-          (interrupted) -> {},
-          () -> {
-            return robotState.getShooterState() == ShooterState.AUTO_AIM;
-          }
-        ).andThen(new WaitCommand(0.5).andThen(new InstantCommand(() -> robotState.setState(State.INTAKE_REVVING)))));
-
     m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     m_autonChooser.addOption("Do Nothing", "Do Nothing");
     m_autonChooser.addOption("Shoot Preload", "Shoot Preload");
+
+    registerNamedCommands();
+
     List<String> paths = PathPlannerUtil.getExistingPaths();
     for (String path : paths) {
       m_autonChooser.addOption(path, path);
@@ -249,5 +169,78 @@ public class AutonFactory extends VirtualSubsystem {
     }
 
     return m_currentAutonCommand;
+  }
+
+  public void registerNamedCommands() {
+    NamedCommands.registerCommand(
+      "Idle",
+      new InstantCommand(
+        () -> {
+          m_robotState.setState(State.IDLE);
+        }));
+  
+    NamedCommands.registerCommand(
+      "Rev",
+      new InstantCommand(
+        () -> {
+          m_robotState.setState(State.SUBWOOFER_REVVING);
+        }));
+  
+    NamedCommands.registerCommand(
+      "SubwooferRev",
+      new InstantCommand(() -> m_robotState.setState(State.SUBWOOFER_REVVING)));
+  
+    NamedCommands.registerCommand(
+      "SubwooferShoot",
+      new FunctionalCommand(
+        () -> m_robotState.setState(State.SUBWOOFER_REVSHOOT),
+        () -> {},
+        (interrupted) -> {},
+        () -> {
+          return m_robotState.getShooterState() == ShooterState.SUBWOOFER;
+        }
+      ).andThen(new WaitCommand(0.1).andThen(new InstantCommand(() -> m_robotState.setState(State.INTAKE_REVVING)))));
+  
+    NamedCommands.registerCommand(
+      "Intake",
+      new InstantCommand(
+        () -> {
+          m_robotState.setState(State.INTAKE_REVVING);
+        }));
+  
+    NamedCommands.registerCommand(
+      "EnableVision",
+      new InstantCommand(
+        () -> {
+          m_limelight.setAutonVisionEnabled(true);
+        }));
+  
+    NamedCommands.registerCommand(
+      "DisableVision",
+      new InstantCommand(
+        () -> {
+          m_limelight.setAutonVisionEnabled(false);
+        }));
+  
+    NamedCommands.registerCommand(
+      "AutoAimRotate",
+      new AlignWithSpeaker(m_limelight, m_drivetrain));
+  
+    NamedCommands.registerCommand(
+      "AutoAimRevShoot",
+      new FunctionalCommand(
+        () -> m_robotState.setState(State.AUTO_AIM_REVSHOOT),
+        () -> {},
+        (interrupted) -> {},
+        () -> {
+          return m_robotState.getShooterState() == ShooterState.AUTO_AIM;
+        }
+      ).andThen(
+        new WaitCommand(0.1).andThen(
+          new InstantCommand(
+            () -> m_robotState.setState(State.INTAKE_REVVING)
+          )
+        )
+      ));
   }
 }
