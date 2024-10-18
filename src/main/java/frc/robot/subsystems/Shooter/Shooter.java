@@ -53,7 +53,7 @@ public class Shooter extends SubsystemBase {
     IDLE
   }
 
-  private ShooterState currentState = ShooterState.IDLE;
+  public ShooterState currentState = ShooterState.IDLE;
 
   public Shooter(FlywheelIO flywheelIO, PivotIO pivotIO, FeederIO feederIO, Limelight limelight) {
     this.flywheelIO = flywheelIO;

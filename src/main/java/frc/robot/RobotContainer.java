@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.time.Instant;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -31,6 +29,7 @@ import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIONeo;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIOSim;
 import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
@@ -38,6 +37,8 @@ import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
+import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOSim;
@@ -47,7 +48,6 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
-import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.utils.AutonFactory;
 
 public class RobotContainer {
@@ -154,78 +154,98 @@ public class RobotContainer {
         .whileTrue(
             new StartEndCommand(
                 () -> {
-                  if (robotState.currentState != State.NOTE_HELD) {
-                    robotState.setState(State.INTAKING);
+                  if (intake.currentSetState != IntakeState.NOTE_HELD) {
+                    intake.setState(IntakeState.INTAKING);
                   }
                 },
                 () -> {
-                  if (robotState.currentState != State.NOTE_HELD) {
-                    robotState.setState(State.IDLE);
+                  if (intake.currentSetState != IntakeState.NOTE_HELD) {
+                    intake.setState(IntakeState.IDLE);
                   }
                 },
                 intake));
 
+    // operator
+    //     .leftBumper()
+    //     .whileTrue(
+    //         new StartEndCommand(
+    //             () -> {
+    //               if (robotState.currentState != State.NOTE_HELD) {
+    //                 robotState.setState(State.INTAKE_REVVING);
+    //               } else {
+    //                 robotState.setState(State.SUBWOOFER_REVVING);
+    //               }
+    //             },
+    //             () -> {
+    //               if (robotState.currentState != State.NOTE_HELD) {
+    //                 robotState.setState(State.IDLE);
+    //               }
+    //             },
+    //             intake));
+    // operator
+    //     .leftTrigger()
+    //     .whileTrue(
+    //         new StartEndCommand(
+    //             () -> robotState.setState(State.VOMITING),
+    //             () -> robotState.setState(State.IDLE),
+    //             intake,
+    //             shooter));
     operator
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> {
-                  if (robotState.currentState != State.NOTE_HELD) {
-                    robotState.setState(State.INTAKE_REVVING);
-                  } else {
-                    robotState.setState(State.SUBWOOFER_REVVING);
-                  }
-                },
-                () -> {
-                  if (robotState.currentState != State.NOTE_HELD) {
-                    robotState.setState(State.IDLE);
-                  }
-                },
-                intake));
-    operator
-        .leftTrigger()
-        .whileTrue(
-            new StartEndCommand(
-                () -> robotState.setState(State.VOMITING),
-                () -> robotState.setState(State.IDLE),
-                intake,
-                shooter));
+    .leftTrigger()
+    .whileTrue(
+        new StartEndCommand(
+            () -> {
+              intake.setState(IntakeState.VOMITING);
+              shooter.setState(ShooterState.VOMITING);
+            },
+            () -> {
+              shooter.setState(ShooterState.IDLE);
+              intake.setState(IntakeState.IDLE);
+            },
+            intake,
+            shooter));
 
     operator
         .rightTrigger()
         .whileTrue(
             new StartEndCommand(
                 () -> {
-                  switch (robotState.currentState) {
+                  switch (shooter.currentState) {
                     case SUBWOOFER_REVVING:
-                      robotState.setState(State.SUBWOOFER);
+                      shooter.setState(ShooterState.SUBWOOFER);
+                      intake.setState(IntakeState.SHOOTING);
                       break;
                     case AMP_REVVING:
-                      robotState.setState(State.AMP);
+                      shooter.setState(ShooterState.AMP);
+                      intake.setState(IntakeState.SHOOTING);
                       break;
                     case AUTO_AIM_REVVING:
-                      robotState.setState(State.AUTO_AIM);
+                      shooter.setState(ShooterState.AUTO_AIM);
+                      intake.setState(IntakeState.SHOOTING);
                       break;
                     default:
                       break;
                   }
                 },
-                () -> robotState.setState(State.IDLE),
+                () -> {
+                  shooter.setState(ShooterState.IDLE);
+                  intake.setState(IntakeState.IDLE);
+                },
                 shooter,
                 intake));
 
     operator
         .a()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.SUBWOOFER_REVVING), shooter));
     operator
         .x()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AMP_REVVING), shooter));
     operator
         .y()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.AUTO_AIM_REVVING), shooter));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AUTO_AIM_REVVING), shooter));
     operator
         .b()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.IDLE), shooter));
     // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     // joystick.b().whileTrue(drivetrain
     //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),

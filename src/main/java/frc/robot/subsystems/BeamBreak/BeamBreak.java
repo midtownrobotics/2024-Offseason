@@ -8,6 +8,8 @@ import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIOInputsAutoLogged;
+import frc.robot.subsystems.Intake.Intake.IntakeState;
+
 import org.littletonrobotics.junction.Logger;
 
 public class BeamBreak extends SubsystemBase {
@@ -47,8 +49,8 @@ public class BeamBreak extends SubsystemBase {
         }
       }
       if (beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get()) {
-        if (robotState != null && robotState.currentState == State.INTAKING) {
-          robotState.currentState = State.NOTE_HELD;
+        if (robotState != null && robotState.intake != null && robotState.intake.currentSetState == IntakeState.INTAKING) {
+          robotState.intake.currentSetState = IntakeState.NOTE_HELD;
         }
       }
       if (beamBreakBrokenTime == IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {

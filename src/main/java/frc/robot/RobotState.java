@@ -12,9 +12,9 @@ import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 
 public class RobotState {
-  private Shooter shooter;
-  private Intake intake;
-  private Drivetrain drive;
+  public Shooter shooter;
+  public Intake intake;
+  public Drivetrain drive;
 
   public enum State {
     AMP,
@@ -31,6 +31,7 @@ public class RobotState {
     VOMITING,
     INTAKING,
     NOTE_HELD,
+    TELEOP,
     IDLE
   }
 
@@ -144,6 +145,8 @@ public class RobotState {
       case IDLE:
         shooter.setState(ShooterState.IDLE);
         intake.setState(IntakeState.IDLE);
+        break;
+      case TELEOP:
         break;
       default:
         break;
