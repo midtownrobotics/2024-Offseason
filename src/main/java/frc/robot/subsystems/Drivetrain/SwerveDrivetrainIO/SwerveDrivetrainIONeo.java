@@ -337,11 +337,12 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   public void resetOdometry(Pose2d pose) {
+    resetHeading(-pose.getRotation().getDegrees());
     m_poseEstimator.resetPosition(Rotation2d.fromDegrees(0), getSwerveModulePositions(), pose);
   }
 
   public void updateOdometry() {
-    m_poseEstimator.update(Rotation2d.fromDegrees(0), getSwerveModulePositions());
+    m_poseEstimator.update(Rotation2d.fromDegrees(getPigeonYaw()), getSwerveModulePositions());
   }
 
   public void updateOdometryWithVision(Limelight limelight) {
@@ -352,6 +353,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
       Logger.recordOutput("Limelight/MegatagPose", mt2.pose);
     }
   }
+
 
   public void updatePIDControllers() {
     m_frontLeft.updatePIDControllers();
