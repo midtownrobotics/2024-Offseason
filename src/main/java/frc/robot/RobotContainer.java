@@ -169,10 +169,19 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             new StartEndCommand(
-                () -> robotState.setState(State.VOMITING),
-                () -> robotState.setState(State.IDLE),
-                intake,
-                shooter));
+                () -> {
+                  if (robotState.currentState != State.NOTE_HELD) {
+                    robotState.setState(State.INTAKE_REVVING);
+                  } else {
+                    robotState.setState(State.SUBWOOFER_REVVING);
+                  }
+                },
+                () -> {
+                  if (robotState.currentState != State.NOTE_HELD) {
+                    robotState.setState(State.IDLE);
+                  }
+                },
+                intake));
     operator
         .leftTrigger()
         .whileTrue(
