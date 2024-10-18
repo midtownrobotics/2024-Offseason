@@ -62,6 +62,11 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
   }
 
   @Override
+  public void resetHeading(double heading) {
+    // throw new UnsupportedOperationException("Unimplemented method 'resetHeading'");
+  }
+
+  @Override
   public void drive(
       double xSpeed,
       double ySpeed,

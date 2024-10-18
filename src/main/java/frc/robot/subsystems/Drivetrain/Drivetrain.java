@@ -147,6 +147,10 @@ public class Drivetrain extends SubsystemBase {
     m_swerveDrivetrainIO.resetHeading();
   }
 
+  public void resetHeading(double heading) {
+    m_swerveDrivetrainIO.resetHeading(heading);
+  }
+
   public Pose2d getPose() {
     return m_swerveDrivetrainIO.getPose();
   }

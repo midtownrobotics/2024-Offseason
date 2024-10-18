@@ -24,6 +24,8 @@ public class BeamBreak extends SubsystemBase {
   private int beamBreakBrokenTime;
   private BeamBreakState currentState = BeamBreakState.IDLE;
 
+  private boolean isRumbling = false;
+
   public enum BeamBreakState {
     IDLE,
     NOTE_HELD,
@@ -46,6 +48,7 @@ public class BeamBreak extends SubsystemBase {
         if (edu.wpi.first.wpilibj.RobotState.isTeleop() && edu.wpi.first.wpilibj.RobotState.isEnabled()) {
           driver.setRumble(RumbleType.kBothRumble, 1);
           operator.setRumble(RumbleType.kBothRumble, 1);
+          isRumbling = true;
         }
       }
       if (beamBreakBrokenTime == IntakeConstants.BEAMBREAK_DELAY.get()) {
@@ -56,6 +59,7 @@ public class BeamBreak extends SubsystemBase {
       if (beamBreakBrokenTime == IntakeConstants.CONTROLLER_RUMBLE_TIME.get()) {
         driver.setRumble(RumbleType.kBothRumble, 0);
         operator.setRumble(RumbleType.kBothRumble, 0);
+        isRumbling = false;
       }
       beamBreakBrokenTime++;
     } else {
@@ -63,6 +67,7 @@ public class BeamBreak extends SubsystemBase {
     }
 
     Logger.recordOutput("BeamBreak/State", currentState.toString());
+    Logger.recordOutput("BeamBreak/RumberOp", isRumbling);
     Logger.recordOutput("BeamBreak/Counter", beamBreakBrokenTime);
 
     beamBreakIO.updateInputs(beamBreakIOInputs);

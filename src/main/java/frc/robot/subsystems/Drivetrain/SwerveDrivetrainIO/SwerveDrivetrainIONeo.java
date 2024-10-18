@@ -200,8 +200,12 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   @Override
+  public void resetHeading(double heading) {
+    m_pigeon.setYaw(heading);
+  }
+
   public void resetHeading() {
-    m_pigeon.setYaw(0);
+    resetHeading(0);
   }
 
   @Override

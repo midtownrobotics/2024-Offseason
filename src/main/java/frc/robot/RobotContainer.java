@@ -4,9 +4,13 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -58,6 +62,7 @@ public class RobotContainer {
   private BeamBreak beamBreak;
   private Limelight limelight;
   private AutonFactory m_autonFactory;
+  private LoggedDashboardChooser<Integer> drivingMode;
 
   private Drivetrain drivetrain;
 
@@ -75,6 +80,9 @@ public class RobotContainer {
       return 0;
     }
   }
+
+  private boolean operatorPovUp = false;
+  private boolean operatorPovDown = false;
 
   private void configureBindings() {
 
@@ -117,7 +125,17 @@ public class RobotContainer {
             () -> {
               double operatorLeft = Constants.deadzone(-operator.getLeftY());
               double operatorRight = Constants.deadzone(-operator.getRightY());
-              climber.setPower(operatorLeft, operatorRight);
+              if (operatorLeft == 0 && operatorRight == 0) {
+                if (operatorPovUp) {
+                  climber.setPower(1, 1);
+                } else if (operatorPovDown) {
+                  climber.setPower(-1, -1);
+                } else {
+                  climber.setPower(0, 0);
+                }
+              } else {
+                climber.setPower(operatorLeft, operatorRight);
+              }
             },
             climber));
 
@@ -148,6 +166,14 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
+
+    operator
+        .povUp()
+        .whileTrue(new StartEndCommand(() -> operatorPovUp = true, () -> operatorPovUp = false));
+
+    operator
+        .povDown()
+        .whileTrue(new StartEndCommand(() -> operatorPovDown = true, () -> operatorPovDown = false));
 
     operator
         .rightBumper()
@@ -210,6 +236,7 @@ public class RobotContainer {
         .whileTrue(
             new StartEndCommand(
                 () -> {
+                  
                   switch (shooter.currentState) {
                     case SUBWOOFER_REVVING:
                       shooter.setState(ShooterState.SUBWOOFER);
@@ -228,8 +255,20 @@ public class RobotContainer {
                   }
                 },
                 () -> {
-                  shooter.setState(ShooterState.IDLE);
                   intake.setState(IntakeState.IDLE);
+                  switch (shooter.currentState) {
+                    case SUBWOOFER:
+                      shooter.setState(ShooterState.SUBWOOFER_REVVING);
+                      break;
+                    case AMP:
+                      shooter.setState(ShooterState.AMP_REVVING);
+                      break;
+                    case AUTO_AIM:
+                      shooter.setState(ShooterState.AUTO_AIM_REVVING);
+                      break;
+                    default:
+                      break;
+                  }
                 },
                 shooter,
                 intake));
@@ -347,6 +386,11 @@ public class RobotContainer {
     // Robot State
     robotState = new RobotState(shooter, climber, intake, drivetrain);
     beamBreak.setRobotState(robotState);
+
+    drivingMode = new LoggedDashboardChooser<Integer>("Driving Mode");
+    drivingMode.addOption("Field Relative", 0);
+    drivingMode.addOption("Robot Relative", 1);
+
   }
 
   public RobotContainer() {
@@ -367,6 +411,14 @@ public class RobotContainer {
               robotState.setState(State.IDLE);
             },
             drivetrain);
+  }
+
+  public AutonFactory getAutonFactory() {
+    return m_autonFactory;
+  }
+
+  public Drivetrain getDrivetrain() {
+    return drivetrain;
   }
 
   public void onDriverStationConnected() {

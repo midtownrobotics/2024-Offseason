@@ -168,6 +168,6 @@ public class RobotState {
 
   public void onTeleopInit() {
     drive.setState(DriveState.MANUAL);
-    setState(State.IDLE);
+    setState(State.TELEOP);
   }
 }

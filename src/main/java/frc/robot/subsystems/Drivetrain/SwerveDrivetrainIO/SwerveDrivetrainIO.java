@@ -25,6 +25,7 @@ public interface SwerveDrivetrainIO {
 
   void updateInputs(SwerveIOInputs inputs);
 
+  public void resetHeading(double heading);
   public void resetHeading();
 
   default void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative, boolean speedBoost) {

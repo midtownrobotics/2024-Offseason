@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
@@ -16,8 +15,6 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOInputsAutoLogged;
 import frc.robot.utils.ApriltagHelper;
 import frc.robot.utils.ShooterUtils;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class Shooter extends SubsystemBase {
 
@@ -29,6 +26,9 @@ public class Shooter extends SubsystemBase {
   private FlywheelIOInputsAutoLogged flywheelIOInputs = new FlywheelIOInputsAutoLogged();
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
   private FeederIOInputsAutoLogged feederIOInputs = new FeederIOInputsAutoLogged();
+
+  private double angleFromDistance;
+  private double speedFromDistance;
 
   // For tuning the shooter. Only takes effect if in TUNING state.
   private LoggedDashboardNumber flywheelLeftSpeed =
@@ -124,17 +124,21 @@ public class Shooter extends SubsystemBase {
         pivotIO.setAngle(ShooterConstants.SPEAKER_ANGLE.get());
         break;
       case AUTO_AIM_REVVING:
-        // if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
-          flywheelIO.setSpeed(getSpeedFromDistance() * 0.35, getSpeedFromDistance());
-          pivotIO.setAngle(getAngleFromDistance());
-        // }
+        if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
+          speedFromDistance = getSpeedFromDistance();
+          angleFromDistance = getAngleFromDistance();
+        }
+        flywheelIO.setSpeed(speedFromDistance * 0.35, speedFromDistance);
+        pivotIO.setAngle(angleFromDistance);
         feederIO.setVoltage(0);
         break;
       case AUTO_AIM:
-        // if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
-          flywheelIO.setSpeed(getSpeedFromDistance() * 0.35, getSpeedFromDistance());
-          pivotIO.setAngle(getAngleFromDistance());
-        // }
+        if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
+          speedFromDistance = getSpeedFromDistance();
+          angleFromDistance = getAngleFromDistance();
+        }
+        flywheelIO.setSpeed(speedFromDistance * 0.35, speedFromDistance);
+        pivotIO.setAngle(angleFromDistance);
         feederIO.setVoltage(ShooterConstants.SPEAKER_ROLLER_VOLTAGE.get());
         break;
       case INTAKING:
@@ -144,7 +148,8 @@ public class Shooter extends SubsystemBase {
         // TODO
         break;
       case VOMITING:
-        // TODO
+        flywheelIO.setSpeed(-ShooterConstants.AMP_SPEED.get(), -ShooterConstants.AMP_SPEED.get());
+        feederIO.setVoltage(-12);
         break;
       case TUNING:
         flywheelIO.setSpeed(flywheelLeftSpeed.get(), flywheelRightSpeed.get());

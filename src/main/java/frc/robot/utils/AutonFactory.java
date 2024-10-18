@@ -62,6 +62,7 @@ public class AutonFactory extends VirtualSubsystem {
 
     List<String> paths = PathPlannerUtil.getExistingPaths();
     for (String path : paths) {
+      if (!path.startsWith("REAL")) continue;
       m_autonChooser.addOption(path, path);
     }
 
@@ -169,6 +170,10 @@ public class AutonFactory extends VirtualSubsystem {
     }
 
     return m_currentAutonCommand;
+  }
+
+  public String getAutonCommandString() {
+    return m_autonChooser.get();
   }
 
   public void registerNamedCommands() {
