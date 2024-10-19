@@ -50,6 +50,8 @@ public class Shooter extends SubsystemBase {
     VOMITING,
     TUNING,
     INTAKING,
+    GRITS_FEEDING,
+    GRITS_FEEDING_REVVING,
     IDLE
   }
 
@@ -160,7 +162,18 @@ public class Shooter extends SubsystemBase {
         flywheelIO.setSpeed(0, 0);
         feederIO.setVoltage(0);
         pivotIO.setAngle(Constants.ShooterConstants.SPEAKER_ANGLE.get());
+        break;  
+      case GRITS_FEEDING_REVVING:
+        flywheelIO.setSpeed(4000, 4000 * 0.35);
+        feederIO.setVoltage(0);
+        pivotIO.setAngle(1.12);
+        // if (flywheelIO.getSpeed() >= 4000) setState(ShooterState.GRITS_FEEDING);
         break;
+      case GRITS_FEEDING:
+        flywheelIO.setSpeed(4000, 4000 * 0.35);
+        feederIO.setVoltage(1);
+        pivotIO.setAngle(1.12);
+      
       default:
         break;
     }

@@ -169,5 +169,7 @@ public class RobotState {
   public void onTeleopInit() {
     drive.setState(DriveState.MANUAL);
     setState(State.TELEOP);
+    shooter.setState(ShooterState.IDLE);
+    intake.setState(IntakeState.IDLE);
   }
 }

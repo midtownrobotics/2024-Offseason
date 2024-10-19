@@ -62,7 +62,7 @@ public class RobotContainer {
   private BeamBreak beamBreak;
   private Limelight limelight;
   private AutonFactory m_autonFactory;
-  private LoggedDashboardChooser<Integer> drivingMode;
+  private LoggedDashboardChooser<String> drivingMode;
 
   private Drivetrain drivetrain;
 
@@ -114,9 +114,13 @@ public class RobotContainer {
               // drivetrain.setDriverDesired(
               //   driverX, driverY, driverRot
               // );
+              double pigeonValue = drivetrain.getAngle();
+              if (drivingMode != null && drivingMode.get() != null && drivingMode.get().equals("robot")) {
+                pigeonValue = 0;
+              }
               drivetrain.setDriverDesired(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
-                      driverX, driverY, driverRot, Rotation2d.fromDegrees(drivetrain.getAngle())));
+                      driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
             },
             drivetrain));
 
@@ -190,7 +194,13 @@ public class RobotContainer {
                   }
                 },
                 intake));
-
+    // operator.leftBumper().onTrue(new InstantCommand(() -> {
+    //     // intake.setState(IntakeState.GRITS_FEEDING);
+    //     shooter.setState(ShooterState.GRITS_FEEDING_REVVING);
+    //   }), shooter)
+    //   .onFalse(new InstantCommand(() -> {
+    //     shooter.setState(ShooterState.IDLE);
+    //   }), shooter);
     // operator
     //     .leftBumper()
     //     .whileTrue(
@@ -387,9 +397,9 @@ public class RobotContainer {
     robotState = new RobotState(shooter, climber, intake, drivetrain);
     beamBreak.setRobotState(robotState);
 
-    drivingMode = new LoggedDashboardChooser<Integer>("Driving Mode");
-    drivingMode.addOption("Field Relative", 0);
-    drivingMode.addOption("Robot Relative", 1);
+    drivingMode = new LoggedDashboardChooser<String>("Driving Mode");
+    drivingMode.addDefaultOption("Field Relative", "field");
+    drivingMode.addOption("Robot Relative", "robot");
 
   }
 
