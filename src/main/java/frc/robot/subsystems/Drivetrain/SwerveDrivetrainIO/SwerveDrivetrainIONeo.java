@@ -337,12 +337,13 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   public void resetOdometry(Pose2d pose) {
-    resetHeading(-pose.getRotation().getDegrees());
+    // resetHeading(-pose.getRotation().getDegrees());
     m_poseEstimator.resetPosition(Rotation2d.fromDegrees(0), getSwerveModulePositions(), pose);
   }
 
   public void updateOdometry() {
-    m_poseEstimator.update(Rotation2d.fromDegrees(getPigeonYaw()), getSwerveModulePositions());
+    // m_poseEstimator.update(Rotation2d.fromDegrees(getPigeonYaw()), getSwerveModulePositions());
+    m_poseEstimator.update(Rotation2d.fromDegrees(0), getSwerveModulePositions());
   }
 
   public void updateOdometryWithVision(Limelight limelight) {

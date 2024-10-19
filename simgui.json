@@ -2,7 +2,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Auton Chooser": "String Chooser"
+      "/SmartDashboard/Auton Chooser": "String Chooser",
+      "/SmartDashboard/Driving Mode": "String Chooser"
     },
     "windows": {
       "/SmartDashboard/Auton Chooser": {
@@ -13,11 +14,22 @@
     }
   },
   "NetworkTables": {
+    "Persistent Values": {
+      "open": false
+    },
+    "Retained Values": {
+      "open": false
+    },
     "retained": {
       "SmartDashboard": {
         "Auton Chooser": {
           "open": true
         },
+        "open": true
+      }
+    },
+    "transitory": {
+      "FMSInfo": {
         "open": true
       }
     }

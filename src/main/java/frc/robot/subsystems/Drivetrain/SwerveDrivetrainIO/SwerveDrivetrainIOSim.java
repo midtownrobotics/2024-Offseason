@@ -12,6 +12,8 @@ import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.AllianceFlipUtil;
+
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
@@ -58,12 +60,12 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
 
   @Override
   public void resetHeading() {
-    // throw new UnsupportedOperationException("Unimplemented method 'resetHeading'");
+    m_gyro.setAngle(0);
   }
 
   @Override
   public void resetHeading(double heading) {
-    // throw new UnsupportedOperationException("Unimplemented method 'resetHeading'");
+    m_gyro.setAngle(heading);
   }
 
   @Override
@@ -140,6 +142,7 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
 
   @Override
   public void resetOdometry(Pose2d pose) {
+    // resetHeading(AllianceFlipUtil.apply(pose.getRotation()).getDegrees());
     m_poseEstimator.resetPosition(
         Rotation2d.fromRotations(getPigeonYaw()), getSwerveModulePositions(), pose);
   }

@@ -14,6 +14,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.VirtualSubsystem;
@@ -87,14 +89,16 @@ public class Robot extends LoggedRobot {
       autonCommand.schedule();
     }
     String currentAuton = m_robotContainer.getAutonFactory().getAutonCommandString();
-    
-    // if (currentAuton.toLowerCase().contains("amp")) {
-    //   m_robotContainer.getDrivetrain().resetHeading(60);
-    // } else if (currentAuton.toLowerCase().contains("source")) {
-    //   m_robotContainer.getDrivetrain().resetHeading(-60);
-    // } else if (currentAuton.toLowerCase().contains("center")) {
-    //   m_robotContainer.getDrivetrain().resetHeading(0);
-    // }
+    double desiredHeading = 0;
+    if (currentAuton.toLowerCase().contains("amp")) {
+      desiredHeading = 60;
+    } else if (currentAuton.toLowerCase().contains("source")) {
+      desiredHeading = -60;
+    }
+    if (Alliance.Red.equals(DriverStation.getAlliance().get())) {
+      desiredHeading *= -1;
+    }
+    m_robotContainer.getDrivetrain().resetHeading(desiredHeading);
   }
 
   @Override

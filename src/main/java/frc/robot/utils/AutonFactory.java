@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 import frc.robot.commands.auton.AlignWithSpeaker;
@@ -177,6 +178,7 @@ public class AutonFactory extends VirtualSubsystem {
   }
 
   public void registerNamedCommands() {
+    if (Robot.isSimulation()) return;
     NamedCommands.registerCommand(
       "Idle",
       new InstantCommand(
