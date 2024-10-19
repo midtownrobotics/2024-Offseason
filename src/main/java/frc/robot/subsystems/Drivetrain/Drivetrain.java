@@ -20,6 +20,7 @@ public class Drivetrain extends SubsystemBase {
   public enum DriveState {
     MANUAL,
     FOLLOW_PATH,
+    FOLLOW_PATH_ALIGNED,
     SPEAKER_AUTO_ALIGN,
     X,
     TUNING
@@ -80,8 +81,34 @@ public class Drivetrain extends SubsystemBase {
         m_swerveDrivetrainIO.drive(driverChassisSpeeds, false, speedBoost);
         // m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
         break;
+      case FOLLOW_PATH_ALIGNED:
+          if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
+            double desiredOmega = autoAimPID.calculate(m_limelight.getTx());
+
+            // if (DriverStation.getAlliance().get() == Alliance.Blue) {
+            //   desiredOmega *= -1;
+            // }
+
+            m_swerveDrivetrainIO.drive(
+                pathplannerChassisSpeeds.vxMetersPerSecond,
+                pathplannerChassisSpeeds.vyMetersPerSecond,
+                desiredOmega,
+                false,
+                false,
+                speedBoost);
+            break;
+          }
+      // INTENTIONAL FALL THROUGH
       case FOLLOW_PATH:
-        m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
+        m_swerveDrivetrainIO.drive(
+          pathplannerChassisSpeeds.vxMetersPerSecond,
+          pathplannerChassisSpeeds.vyMetersPerSecond,
+          0, // PathPlanner banned from rotating robot
+          false,
+          false,
+          speedBoost
+        );
+        // m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
         break;
       case X:
         // m_swerveDrivetrainIO.drive(4,
@@ -164,5 +191,10 @@ public class Drivetrain extends SubsystemBase {
         Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(
             m_swerveDrivetrainIO.getSwerveModuleStates());
     return output;
+  }
+
+  public ChassisSpeeds getRobotRelativeSpeedsNoOmega() {
+    ChassisSpeeds speeds = getRobotRelativeSpeeds();
+    return new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
   }
 }

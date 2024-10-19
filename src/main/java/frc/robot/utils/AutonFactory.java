@@ -249,5 +249,12 @@ public class AutonFactory extends VirtualSubsystem {
           )
         )
       ));
+
+      NamedCommands.registerCommand(
+        "EnableAlignedFollowPath",
+        new InstantCommand(() -> {
+          m_drivetrain.setState(DriveState.FOLLOW_PATH_ALIGNED);
+        })
+      );
   }
 }
