@@ -75,13 +75,9 @@ public final class Constants {
     public static LoggedDashboardNumber SPEAKER_ROLLER_VOLTAGE =
         new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ROLLER_VOLTAGE", 12);
 
-    public static LoggedDashboardNumber AMP_ANGLE =
-        new LoggedDashboardNumber("Shooter/Constants/AMP_ANGLE", 1.12); // 0.812
-    public static LoggedDashboardNumber AMP_SPEED =
-        new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED", 1750);
-    public static LoggedDashboardNumber AMP_ROLLER_VOLTAGE =
-        new LoggedDashboardNumber(
-            "Shooter/Constants/AMP_ROLLER_VOLTAGE", AMP_SPEED.get() / 700 * 12);
+    public static double AMP_ANGLE = 1.12;
+    public static double AMP_SPEED = 1400;
+    public static double AMP_ROLLER_VOLTAGE = AMP_SPEED / 700 * 12;
 
     public static LoggedTunableNumber FLYWHEEL_SPEED_P =
         new LoggedTunableNumber("Shooter/Constants/FLYWHEEL_SPEED_P", 0.0005);
@@ -103,6 +99,8 @@ public final class Constants {
         new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE", 0.81);
     public static LoggedDashboardNumber MAX_PIVOT_ANGLE =
         new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 1.12);
+
+    public static LoggedTunableNumber ALIGN_ZERO_P = new LoggedTunableNumber("Shooter/Constants/ALIGN_ZERO_P", 0.01);
     
     public static LoggedDashboardNumber PIVOT_ANGLE_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/PIVOT_ANGLE_TOLERANCE", 0.02);
     public static LoggedDashboardNumber AMP_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED_TOLERANCE", 15);

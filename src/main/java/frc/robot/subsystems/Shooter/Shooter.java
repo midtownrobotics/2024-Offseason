@@ -3,6 +3,8 @@ package frc.robot.subsystems.Shooter;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -50,18 +52,23 @@ public class Shooter extends SubsystemBase {
     VOMITING,
     TUNING,
     INTAKING,
-    GRITS_FEEDING,
-    GRITS_FEEDING_REVVING,
     IDLE
   }
 
   public ShooterState currentState = ShooterState.IDLE;
+
+  private double FEEDER_SPEED = ShooterConstants.AMP_SPEED;
+  private double FEEDER_ANGLE = ShooterConstants.AMP_ANGLE;
+  private double FEEDER_ROLLER_VOLTAGE = ShooterConstants.AMP_ROLLER_VOLTAGE;
 
   public Shooter(FlywheelIO flywheelIO, PivotIO pivotIO, FeederIO feederIO, Limelight limelight) {
     this.flywheelIO = flywheelIO;
     this.pivotIO = pivotIO;
     this.feederIO = feederIO;
     this.limelight = limelight;
+
+    SmartDashboard.putNumber("FEEDER_SPEED", FEEDER_SPEED);
+    SmartDashboard.putNumber("FEEDER_ANGLE", FEEDER_ANGLE);
   }
 
   public void setState(ShooterState to) {
@@ -91,6 +98,11 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
 
+    // FEEDER_ANGLE = SmartDashboard.getNumber("FEEDER_ANGLE", ShooterConstants.AMP_ANGLE);
+    // FEEDER_SPEED = SmartDashboard.getNumber("FEEDER_SPEED", ShooterConstants.AMP_SPEED);
+
+    // FEEDER_ROLLER_VOLTAGE = MathUtil.clamp(FEEDER_SPEED / 700 * 12, -12, 12);
+
     flywheelIO.updateInputs(flywheelIOInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelIOInputs);
 
@@ -104,13 +116,13 @@ public class Shooter extends SubsystemBase {
 
     switch (currentState) {
       case AMP:
-        flywheelIO.setSpeed(ShooterConstants.AMP_SPEED.get(), ShooterConstants.AMP_SPEED.get());
-        pivotIO.setAngle(ShooterConstants.AMP_ANGLE.get());
-        feederIO.setVoltage(ShooterConstants.AMP_ROLLER_VOLTAGE.get());
+        flywheelIO.setSpeed(FEEDER_SPEED, FEEDER_SPEED);
+        pivotIO.setAngle(FEEDER_ANGLE);
+        feederIO.setVoltage(FEEDER_ROLLER_VOLTAGE);
         break;
       case AMP_REVVING:
-        flywheelIO.setSpeed(ShooterConstants.AMP_SPEED.get(), ShooterConstants.AMP_SPEED.get());
-        pivotIO.setAngle(ShooterConstants.AMP_ANGLE.get());
+        flywheelIO.setSpeed(FEEDER_SPEED, FEEDER_SPEED);
+        pivotIO.setAngle(FEEDER_ANGLE);
         feederIO.setVoltage(0);
         break;
       case SUBWOOFER:
@@ -150,7 +162,7 @@ public class Shooter extends SubsystemBase {
         // TODO
         break;
       case VOMITING:
-        flywheelIO.setSpeed(-ShooterConstants.AMP_SPEED.get(), -ShooterConstants.AMP_SPEED.get());
+        flywheelIO.setSpeed(-800, -800);
         feederIO.setVoltage(-12);
         break;
       case TUNING:
@@ -163,17 +175,6 @@ public class Shooter extends SubsystemBase {
         feederIO.setVoltage(0);
         pivotIO.setAngle(Constants.ShooterConstants.SPEAKER_ANGLE.get());
         break;  
-      case GRITS_FEEDING_REVVING:
-        flywheelIO.setSpeed(4000, 4000 * 0.35);
-        feederIO.setVoltage(0);
-        pivotIO.setAngle(1.12);
-        // if (flywheelIO.getSpeed() >= 4000) setState(ShooterState.GRITS_FEEDING);
-        break;
-      case GRITS_FEEDING:
-        flywheelIO.setSpeed(4000, 4000 * 0.35);
-        feederIO.setVoltage(1);
-        pivotIO.setAngle(1.12);
-      
       default:
         break;
     }

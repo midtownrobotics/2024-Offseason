@@ -171,6 +171,20 @@ public class RobotContainer {
         .whileTrue(
             new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
 
+    driver
+        .b()
+        .onTrue(
+            new InstantCommand(
+                () -> drivetrain.setState(DriveState.ALIGN_ZERO),
+                drivetrain
+            )
+        )
+        .onFalse(new InstantCommand(
+                () -> drivetrain.setState(DriveState.MANUAL),
+                drivetrain
+            )
+        );
+
     operator
         .povUp()
         .whileTrue(new StartEndCommand(() -> operatorPovUp = true, () -> operatorPovUp = false));
