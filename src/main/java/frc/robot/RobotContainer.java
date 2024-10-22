@@ -4,11 +4,13 @@
 
 package frc.robot;
 
-import java.time.Instant;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -31,6 +33,7 @@ import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIONeo;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIOSim;
 import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
@@ -38,6 +41,8 @@ import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
+import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOSim;
@@ -47,7 +52,6 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
-import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.utils.AutonFactory;
 
 public class RobotContainer {
@@ -58,6 +62,7 @@ public class RobotContainer {
   private BeamBreak beamBreak;
   private Limelight limelight;
   private AutonFactory m_autonFactory;
+  private LoggedDashboardChooser<String> drivingMode;
 
   private Drivetrain drivetrain;
 
@@ -75,6 +80,9 @@ public class RobotContainer {
       return 0;
     }
   }
+
+  private boolean operatorPovUp = false;
+  private boolean operatorPovDown = false;
 
   private void configureBindings() {
 
@@ -106,9 +114,13 @@ public class RobotContainer {
               // drivetrain.setDriverDesired(
               //   driverX, driverY, driverRot
               // );
+              double pigeonValue = drivetrain.getAngle();
+              if (drivingMode != null && drivingMode.get() != null && drivingMode.get().equals("robot")) {
+                pigeonValue = 0;
+              }
               drivetrain.setDriverDesired(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
-                      driverX, driverY, driverRot, Rotation2d.fromDegrees(drivetrain.getAngle())));
+                      driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
             },
             drivetrain));
 
@@ -117,7 +129,17 @@ public class RobotContainer {
             () -> {
               double operatorLeft = Constants.deadzone(-operator.getLeftY());
               double operatorRight = Constants.deadzone(-operator.getRightY());
-              climber.setPower(operatorLeft, operatorRight);
+              if (operatorLeft == 0 && operatorRight == 0) {
+                if (operatorPovUp) {
+                  climber.setPower(1, 1);
+                } else if (operatorPovDown) {
+                  climber.setPower(-1, -1);
+                } else {
+                  climber.setPower(0, 0);
+                }
+              } else {
+                climber.setPower(operatorLeft, operatorRight);
+              }
             },
             climber));
 
@@ -149,74 +171,144 @@ public class RobotContainer {
         .whileTrue(
             new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
 
+    driver
+        .b()
+        .onTrue(
+            new InstantCommand(
+                () -> drivetrain.setState(DriveState.ALIGN_ZERO),
+                drivetrain
+            )
+        )
+        .onFalse(new InstantCommand(
+                () -> drivetrain.setState(DriveState.MANUAL),
+                drivetrain
+            )
+        );
+
+    operator
+        .povUp()
+        .whileTrue(new StartEndCommand(() -> operatorPovUp = true, () -> operatorPovUp = false));
+
+    operator
+        .povDown()
+        .whileTrue(new StartEndCommand(() -> operatorPovDown = true, () -> operatorPovDown = false));
+
     operator
         .rightBumper()
         .whileTrue(
             new StartEndCommand(
                 () -> {
-                  if (robotState.currentState != State.NOTE_HELD) {
-                    robotState.setState(State.INTAKING);
+                  if (intake.currentSetState != IntakeState.NOTE_HELD) {
+                    intake.setState(IntakeState.INTAKING);
                   }
                 },
                 () -> {
-                  if (robotState.currentState != State.NOTE_HELD) {
-                    robotState.setState(State.IDLE);
+                  if (intake.currentSetState != IntakeState.NOTE_HELD) {
+                    intake.setState(IntakeState.IDLE);
                   }
                 },
                 intake));
-
+    // operator.leftBumper().onTrue(new InstantCommand(() -> {
+    //     // intake.setState(IntakeState.GRITS_FEEDING);
+    //     shooter.setState(ShooterState.GRITS_FEEDING_REVVING);
+    //   }), shooter)
+    //   .onFalse(new InstantCommand(() -> {
+    //     shooter.setState(ShooterState.IDLE);
+    //   }), shooter);
+    // operator
+    //     .leftBumper()
+    //     .whileTrue(
+    //         new StartEndCommand(
+    //             () -> {
+    //               if (robotState.currentState != State.NOTE_HELD) {
+    //                 robotState.setState(State.INTAKE_REVVING);
+    //               } else {
+    //                 robotState.setState(State.SUBWOOFER_REVVING);
+    //               }
+    //             },
+    //             () -> {
+    //               if (robotState.currentState != State.NOTE_HELD) {
+    //                 robotState.setState(State.IDLE);
+    //               }
+    //             },
+    //             intake));
+    // operator
+    //     .leftTrigger()
+    //     .whileTrue(
+    //         new StartEndCommand(
+    //             () -> robotState.setState(State.VOMITING),
+    //             () -> robotState.setState(State.IDLE),
+    //             intake,
+    //             shooter));
     operator
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> robotState.setState(State.VOMITING),
-                () -> robotState.setState(State.IDLE),
-                intake,
-                shooter));
-    operator
-        .leftTrigger()
-        .whileTrue(
-            new StartEndCommand(
-                () -> robotState.setState(State.VOMITING),
-                () -> robotState.setState(State.IDLE),
-                intake,
-                shooter));
+    .leftTrigger()
+    .whileTrue(
+        new StartEndCommand(
+            () -> {
+              intake.setState(IntakeState.VOMITING);
+              shooter.setState(ShooterState.VOMITING);
+            },
+            () -> {
+              shooter.setState(ShooterState.IDLE);
+              intake.setState(IntakeState.IDLE);
+            },
+            intake,
+            shooter));
 
     operator
         .rightTrigger()
         .whileTrue(
             new StartEndCommand(
                 () -> {
-                  switch (robotState.currentState) {
+                  
+                  switch (shooter.currentState) {
                     case SUBWOOFER_REVVING:
-                      robotState.setState(State.SUBWOOFER);
+                      shooter.setState(ShooterState.SUBWOOFER);
+                      intake.setState(IntakeState.SHOOTING);
                       break;
                     case AMP_REVVING:
-                      robotState.setState(State.AMP);
+                      shooter.setState(ShooterState.AMP);
+                      intake.setState(IntakeState.SHOOTING);
                       break;
                     case AUTO_AIM_REVVING:
-                      robotState.setState(State.AUTO_AIM);
+                      shooter.setState(ShooterState.AUTO_AIM);
+                      intake.setState(IntakeState.SHOOTING);
                       break;
                     default:
                       break;
                   }
                 },
-                () -> robotState.setState(State.IDLE),
+                () -> {
+                  intake.setState(IntakeState.IDLE);
+                  switch (shooter.currentState) {
+                    case SUBWOOFER:
+                      shooter.setState(ShooterState.SUBWOOFER_REVVING);
+                      break;
+                    case AMP:
+                      shooter.setState(ShooterState.AMP_REVVING);
+                      break;
+                    case AUTO_AIM:
+                      shooter.setState(ShooterState.AUTO_AIM_REVVING);
+                      break;
+                    default:
+                      break;
+                  }
+                },
                 shooter,
                 intake));
 
     operator
         .a()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING), shooter));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.SUBWOOFER_REVVING), shooter));
     operator
         .x()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.AMP_REVVING), shooter));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AMP_REVVING), shooter));
     operator
         .y()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.AUTO_AIM_REVVING), shooter));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AUTO_AIM_REVVING), shooter));
     operator
         .b()
-        .whileTrue(new InstantCommand(() -> robotState.setState(State.IDLE), shooter, intake));
+        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.IDLE), shooter));
     // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     // joystick.b().whileTrue(drivetrain
     //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),
@@ -318,6 +410,11 @@ public class RobotContainer {
     // Robot State
     robotState = new RobotState(shooter, climber, intake, drivetrain);
     beamBreak.setRobotState(robotState);
+
+    drivingMode = new LoggedDashboardChooser<String>("Driving Mode");
+    drivingMode.addDefaultOption("Field Relative", "field");
+    drivingMode.addOption("Robot Relative", "robot");
+
   }
 
   public RobotContainer() {
@@ -338,6 +435,14 @@ public class RobotContainer {
               robotState.setState(State.IDLE);
             },
             drivetrain);
+  }
+
+  public AutonFactory getAutonFactory() {
+    return m_autonFactory;
+  }
+
+  public Drivetrain getDrivetrain() {
+    return drivetrain;
   }
 
   public void onDriverStationConnected() {

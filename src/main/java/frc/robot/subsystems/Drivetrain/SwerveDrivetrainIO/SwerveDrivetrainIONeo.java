@@ -200,8 +200,12 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   @Override
+  public void resetHeading(double heading) {
+    m_pigeon.setYaw(heading);
+  }
+
   public void resetHeading() {
-    m_pigeon.setYaw(0);
+    resetHeading(0);
   }
 
   @Override
@@ -333,10 +337,12 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   public void resetOdometry(Pose2d pose) {
+    // resetHeading(-pose.getRotation().getDegrees());
     m_poseEstimator.resetPosition(Rotation2d.fromDegrees(0), getSwerveModulePositions(), pose);
   }
 
   public void updateOdometry() {
+    // m_poseEstimator.update(Rotation2d.fromDegrees(getPigeonYaw()), getSwerveModulePositions());
     m_poseEstimator.update(Rotation2d.fromDegrees(0), getSwerveModulePositions());
   }
 
@@ -348,6 +354,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
       Logger.recordOutput("Limelight/MegatagPose", mt2.pose);
     }
   }
+
 
   public void updatePIDControllers() {
     m_frontLeft.updatePIDControllers();

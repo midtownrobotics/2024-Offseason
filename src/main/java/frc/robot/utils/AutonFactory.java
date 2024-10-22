@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.State;
 import frc.robot.commands.auton.AlignWithSpeaker;
@@ -62,6 +63,7 @@ public class AutonFactory extends VirtualSubsystem {
 
     List<String> paths = PathPlannerUtil.getExistingPaths();
     for (String path : paths) {
+      if (!path.startsWith("REAL")) continue;
       m_autonChooser.addOption(path, path);
     }
 
@@ -171,7 +173,12 @@ public class AutonFactory extends VirtualSubsystem {
     return m_currentAutonCommand;
   }
 
+  public String getAutonCommandString() {
+    return m_autonChooser.get();
+  }
+
   public void registerNamedCommands() {
+    if (Robot.isSimulation()) return;
     NamedCommands.registerCommand(
       "Idle",
       new InstantCommand(
@@ -242,5 +249,12 @@ public class AutonFactory extends VirtualSubsystem {
           )
         )
       ));
+
+      NamedCommands.registerCommand(
+        "EnableAlignedFollowPath",
+        new InstantCommand(() -> {
+          m_drivetrain.setState(DriveState.FOLLOW_PATH_ALIGNED);
+        })
+      );
   }
 }

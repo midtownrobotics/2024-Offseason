@@ -15,10 +15,12 @@ public class Intake extends SubsystemBase {
     VOMITING,
     TUNING,
     IDLE,
+    NOTE_HELD,
     SHOOTING
   }
+  
 
-  private IntakeState currentSetState = IntakeState.IDLE;
+  public IntakeState currentSetState = IntakeState.IDLE;
 
   public Intake(RollerIO rollerIO) {
     this.rollerIO = rollerIO;
@@ -46,6 +48,7 @@ public class Intake extends SubsystemBase {
       case TUNING:
         // TODO
         break;
+      case NOTE_HELD:
       case IDLE:
         rollerIO.setSpeed(0);
         break;

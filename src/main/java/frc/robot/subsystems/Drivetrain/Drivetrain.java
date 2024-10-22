@@ -1,26 +1,29 @@
 package frc.robot.subsystems.Drivetrain;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.ApriltagHelper.Tags;
-import org.littletonrobotics.junction.Logger;
 
 public class Drivetrain extends SubsystemBase {
 
   public enum DriveState {
     MANUAL,
     FOLLOW_PATH,
+    FOLLOW_PATH_ALIGNED,
     SPEAKER_AUTO_ALIGN,
+    ALIGN_ZERO,
     X,
     TUNING
   }
@@ -39,6 +42,8 @@ public class Drivetrain extends SubsystemBase {
 
   private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
 
+  private PIDController alignZeroPID = new PIDController(ShooterConstants.ALIGN_ZERO_P.get(), 0, 0);
+
   private boolean speedBoost;
 
   public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight) {
@@ -46,10 +51,18 @@ public class Drivetrain extends SubsystemBase {
     m_limelight = limelight;
 
     autoAimPID.setSetpoint(0);
+
+    alignZeroPID.enableContinuousInput(0, 360);
+    alignZeroPID.setSetpoint(0);
   }
 
   @Override
   public void periodic() {
+
+    LoggedTunableNumber.ifChanged(hashCode(), () -> {
+      alignZeroPID.setP(ShooterConstants.ALIGN_ZERO_P.get());
+    }, ShooterConstants.ALIGN_ZERO_P);
+
     m_swerveDrivetrainIO.updatePIDControllers();
 
     m_swerveDrivetrainIO.updateOdometry();
@@ -80,8 +93,34 @@ public class Drivetrain extends SubsystemBase {
         m_swerveDrivetrainIO.drive(driverChassisSpeeds, false, speedBoost);
         // m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
         break;
+      case FOLLOW_PATH_ALIGNED:
+          if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
+            double desiredOmega = autoAimPID.calculate(m_limelight.getTx());
+
+            // if (DriverStation.getAlliance().get() == Alliance.Blue) {
+            //   desiredOmega *= -1;
+            // }
+
+            m_swerveDrivetrainIO.drive(
+                pathplannerChassisSpeeds.vxMetersPerSecond,
+                pathplannerChassisSpeeds.vyMetersPerSecond,
+                desiredOmega,
+                false,
+                false,
+                speedBoost);
+            break;
+          }
+      // INTENTIONAL FALL THROUGH
       case FOLLOW_PATH:
-        m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
+        m_swerveDrivetrainIO.drive(
+          pathplannerChassisSpeeds.vxMetersPerSecond,
+          pathplannerChassisSpeeds.vyMetersPerSecond,
+          0, // PathPlanner banned from rotating robot
+          false,
+          false,
+          speedBoost
+        );
+        // m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
         break;
       case X:
         // m_swerveDrivetrainIO.drive(4,
@@ -97,6 +136,17 @@ public class Drivetrain extends SubsystemBase {
               new SwerveModuleState(0, Rotation2d.fromDegrees(45))
             });
         break;
+      case ALIGN_ZERO:
+        double desiredOmega = alignZeroPID.calculate(getAngle());
+
+        m_swerveDrivetrainIO.drive(
+            driverChassisSpeeds.vxMetersPerSecond,
+            driverChassisSpeeds.vyMetersPerSecond,
+            desiredOmega,
+            false,
+            false,
+            speedBoost);
+      break;
     }
 
     // Logger.recordOutput("Drive/DrivetrainState", state.toString());
@@ -147,6 +197,10 @@ public class Drivetrain extends SubsystemBase {
     m_swerveDrivetrainIO.resetHeading();
   }
 
+  public void resetHeading(double heading) {
+    m_swerveDrivetrainIO.resetHeading(heading);
+  }
+
   public Pose2d getPose() {
     return m_swerveDrivetrainIO.getPose();
   }
@@ -160,5 +214,10 @@ public class Drivetrain extends SubsystemBase {
         Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(
             m_swerveDrivetrainIO.getSwerveModuleStates());
     return output;
+  }
+
+  public ChassisSpeeds getRobotRelativeSpeedsNoOmega() {
+    ChassisSpeeds speeds = getRobotRelativeSpeeds();
+    return new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
   }
 }
