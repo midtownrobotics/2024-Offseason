@@ -75,9 +75,13 @@ public final class Constants {
     public static LoggedDashboardNumber SPEAKER_ROLLER_VOLTAGE =
         new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ROLLER_VOLTAGE", 12);
 
-    public static double AMP_ANGLE = 1.12;
-    public static double AMP_SPEED = 1400;
-    public static double AMP_ROLLER_VOLTAGE = AMP_SPEED / 700 * 12;
+    public static LoggedDashboardNumber AMP_ANGLE =
+        new LoggedDashboardNumber("Shooter/Constants/AMP_ANGLE", 0.812);
+    public static LoggedDashboardNumber AMP_SPEED =
+        new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED", 430);
+    public static LoggedDashboardNumber AMP_ROLLER_VOLTAGE =
+        new LoggedDashboardNumber(
+            "Shooter/Constants/AMP_ROLLER_VOLTAGE", AMP_SPEED.get() / 700 * 12);
 
     public static LoggedTunableNumber FLYWHEEL_SPEED_P =
         new LoggedTunableNumber("Shooter/Constants/FLYWHEEL_SPEED_P", 0.0005);

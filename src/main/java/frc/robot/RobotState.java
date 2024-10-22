@@ -81,7 +81,7 @@ public class RobotState {
       case AMP_REVSHOOT:
         shooter.setState(ShooterState.AMP_REVVING);
         intake.setState(IntakeState.IDLE);
-        if (shooter.getFlywheelSpeed() >= (ShooterConstants.AMP_SPEED) - 100) {
+        if (shooter.getFlywheelSpeed() >= (ShooterConstants.AMP_SPEED.get()) - 100) {
             shooter.setState(ShooterState.AMP);
             intake.setState(IntakeState.SHOOTING);
         }

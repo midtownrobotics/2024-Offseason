@@ -57,18 +57,11 @@ public class Shooter extends SubsystemBase {
 
   public ShooterState currentState = ShooterState.IDLE;
 
-  private double FEEDER_SPEED = ShooterConstants.AMP_SPEED;
-  private double FEEDER_ANGLE = ShooterConstants.AMP_ANGLE;
-  private double FEEDER_ROLLER_VOLTAGE = ShooterConstants.AMP_ROLLER_VOLTAGE;
-
   public Shooter(FlywheelIO flywheelIO, PivotIO pivotIO, FeederIO feederIO, Limelight limelight) {
     this.flywheelIO = flywheelIO;
     this.pivotIO = pivotIO;
     this.feederIO = feederIO;
     this.limelight = limelight;
-
-    SmartDashboard.putNumber("FEEDER_SPEED", FEEDER_SPEED);
-    SmartDashboard.putNumber("FEEDER_ANGLE", FEEDER_ANGLE);
   }
 
   public void setState(ShooterState to) {
@@ -116,13 +109,13 @@ public class Shooter extends SubsystemBase {
 
     switch (currentState) {
       case AMP:
-        flywheelIO.setSpeed(FEEDER_SPEED, FEEDER_SPEED);
-        pivotIO.setAngle(FEEDER_ANGLE);
-        feederIO.setVoltage(FEEDER_ROLLER_VOLTAGE);
+        flywheelIO.setSpeed(ShooterConstants.AMP_SPEED.get(), ShooterConstants.AMP_SPEED.get());
+        pivotIO.setAngle(ShooterConstants.AMP_ANGLE.get());
+        feederIO.setVoltage(ShooterConstants.AMP_ROLLER_VOLTAGE.get());
         break;
       case AMP_REVVING:
-        flywheelIO.setSpeed(FEEDER_SPEED, FEEDER_SPEED);
-        pivotIO.setAngle(FEEDER_ANGLE);
+        flywheelIO.setSpeed(ShooterConstants.AMP_SPEED.get(), ShooterConstants.AMP_SPEED.get());
+        pivotIO.setAngle(ShooterConstants.AMP_ANGLE.get());
         feederIO.setVoltage(0);
         break;
       case SUBWOOFER:
