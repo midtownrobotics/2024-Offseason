@@ -8,9 +8,10 @@ import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+import frc.robot.utils.IOProtectionXboxController;
+
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
@@ -18,9 +19,8 @@ public class RobotState {
   private Shooter shooter;
   private Intake intake;
   BeamBreak beamBreak;
-  XboxController driver; 
-  XboxController operator;
-  private boolean rumbleLastCycle;
+  IOProtectionXboxController driver; 
+  IOProtectionXboxController operator;
 
  private Drivetrain drive;
 
@@ -63,8 +63,8 @@ public class RobotState {
     this.intake = intake;
     this.drive = drive;
     this.beamBreak = beamBreak;
-    this.driver = new XboxController(driverPort);
-    this.operator = new XboxController(operatorPort);
+    this.driver = new IOProtectionXboxController(driverPort);
+    this.operator = new IOProtectionXboxController(operatorPort);
   }
 
   public State currentState = State.IDLE;
@@ -157,7 +157,7 @@ public class RobotState {
 
       driver.setRumble(RumbleType.kBothRumble, 1);
       operator.setRumble(RumbleType.kBothRumble, 1);
-    } else {
+    } else P
       driver.setRumble(RumbleType.kBothRumble, 0);
       operator.setRumble(RumbleType.kBothRumble, 0); 
     }
