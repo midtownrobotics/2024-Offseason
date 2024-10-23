@@ -10,6 +10,7 @@ import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
@@ -133,12 +134,7 @@ public class RobotState {
         break;
     }
 
-    if (beamBreak.isBroken() && !rumbleLastCycle) {
-      setControllerRumble();
-      rumbleLastCycle = true; 
-    } else if (rumbleLastCycle) {
-      rumbleLastCycle = false;
-    }
+    setControllerRumble(); 
   }
 
   public void setDriveState(DriveState newState) {
@@ -155,9 +151,15 @@ public class RobotState {
   }
 
   public void setControllerRumble(){
-    if (beamBreak.isBroken() && edu.wpi.first.wpilibj.RobotState.isTeleop()) {
+    if (beamBreak.isBroken() && 
+        edu.wpi.first.wpilibj.RobotState.isTeleop() && 
+        Constants.RUMBLE_DURATION > beamBreak.getBrokenTime()) {
+
       driver.setRumble(RumbleType.kBothRumble, 1);
       operator.setRumble(RumbleType.kBothRumble, 1);
+    } else {
+      driver.setRumble(RumbleType.kBothRumble, 0);
+      operator.setRumble(RumbleType.kBothRumble, 0); 
     }
   }
 }
