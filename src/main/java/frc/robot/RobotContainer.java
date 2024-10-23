@@ -297,7 +297,7 @@ public class RobotContainer {
       beamBreakIO = new BeamBreakIOSim();
     }
 
-    beamBreak = new BeamBreak(beamBreakIO, robotState);
+    beamBreak = new BeamBreak(beamBreakIO);
 
     // Drivetrain
 
@@ -314,9 +314,7 @@ public class RobotContainer {
     }
 
     // Robot State
-    robotState = new RobotState(shooter, climber, intake, drivetrain);
-
-    beamBreak.setRobotState(robotState);
+    robotState = new RobotState(shooter, climber, intake, drivetrain, beamBreak, Ports.driverControllerPort, Ports.operatorControllerPort);
   }
 
   public RobotContainer() {

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
@@ -9,10 +10,18 @@ import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+
 public class RobotState {
   private Shooter shooter;
   private Intake intake;
-  private Drivetrain drive;
+  BeamBreak beamBreak;
+  XboxController driver; 
+  XboxController operator;
+  private boolean rumbleLastCycle;
+
+ private Drivetrain drive;
 
   public enum State {
     AMP,
@@ -31,7 +40,14 @@ public class RobotState {
   // private final LoggedDashboardChooser<State> stateChooser = new LoggedDashboardChooser<>("Robot
   // State");
 
-  public RobotState(Shooter shooter, Climber climber, Intake intake, Drivetrain drive) {
+  public RobotState(Shooter shooter, 
+                    Climber climber, 
+                    Intake intake, 
+                    Drivetrain drive, 
+                    BeamBreak beamBreak, 
+                    int driverPort, 
+                    int operatorPort) {
+
     // stateChooser.addOption("AMP", State.AMP);
     // stateChooser.addOption("AMP_REVVING", State.AMP_REVVING);
     // stateChooser.addOption("SUBWOOFER", State.SUBWOOFER);
@@ -45,6 +61,9 @@ public class RobotState {
     this.shooter = shooter;
     this.intake = intake;
     this.drive = drive;
+    this.beamBreak = beamBreak;
+    this.driver = new XboxController(driverPort);
+    this.operator = new XboxController(operatorPort);
   }
 
   public State currentState = State.IDLE;
@@ -98,6 +117,9 @@ public class RobotState {
       case INTAKING:
         shooter.setState(ShooterState.INTAKING);
         intake.setState(IntakeState.INTAKING);
+        if (beamBreak.isBroken()) {
+          setState(State.NOTE_HELD);
+        }
         break;
       case NOTE_HELD:
         shooter.setState(ShooterState.IDLE);
@@ -109,6 +131,13 @@ public class RobotState {
         break;
       default:
         break;
+    }
+
+    if (beamBreak.isBroken() && !rumbleLastCycle) {
+      setControllerRumble();
+      rumbleLastCycle = true; 
+    } else if (rumbleLastCycle) {
+      rumbleLastCycle = false;
     }
   }
 
@@ -123,5 +152,12 @@ public class RobotState {
   public void onTeleopInit() {
     drive.setState(DriveState.MANUAL);
     setState(State.IDLE);
+  }
+
+  public void setControllerRumble(){
+    if (beamBreak.isBroken() && edu.wpi.first.wpilibj.RobotState.isTeleop()) {
+      driver.setRumble(RumbleType.kBothRumble, 1);
+      operator.setRumble(RumbleType.kBothRumble, 1);
+    }
   }
 }
