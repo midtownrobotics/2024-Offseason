@@ -12,6 +12,11 @@ public class ClimberIONeo implements ClimberIO {
   private double leftDesiredPower;
   private double rightDesiredPower;
 
+  /**
+   * 
+   * @param rightClimberID
+   * @param leftClimberID
+   */
   public ClimberIONeo(int rightClimberID, int leftClimberID) {
     rightClimber = new CANSparkMax(rightClimberID, MotorType.kBrushless);
     leftClimber = new CANSparkMax(leftClimberID, MotorType.kBrushless);

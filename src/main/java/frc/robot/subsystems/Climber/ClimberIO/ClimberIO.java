@@ -20,6 +20,11 @@ public interface ClimberIO {
     public double rightDesiredPower;
   }
 
+  /**
+   * set right and left power as percents from -1.0 to 1.0
+   * @param rightPower
+   * @param leftPower
+   */
   public void setPower(double rightPower, double leftPower);
 
   public void updateInputs(ClimberIOInputs inputs);

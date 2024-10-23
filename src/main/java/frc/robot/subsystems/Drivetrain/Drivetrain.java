@@ -46,6 +46,11 @@ public class Drivetrain extends SubsystemBase {
 
   private boolean speedBoost;
 
+  /**
+   * 
+   * @param swerveDrivetrainIO
+   * @param limelight
+   */
   public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight) {
     m_swerveDrivetrainIO = swerveDrivetrainIO;
     m_limelight = limelight;
@@ -159,10 +164,18 @@ public class Drivetrain extends SubsystemBase {
     Logger.processInputs("Drive", swerveIOInputs);
   }
 
+  /**
+   * set robot state
+   * @param state to set
+   */
   public void setState(DriveState state) {
     this.state = state;
   }
 
+  /**
+   * set boost mode
+   * @param boost true for fast false for slow
+   */
   public void setBoost(boolean boost) {
     speedBoost = boost;
   }
@@ -173,6 +186,10 @@ public class Drivetrain extends SubsystemBase {
   //     this.driveOmega = driveOmega;
   // }
 
+  /**
+   * set desired for teleop
+   * @param speeds
+   */
   public void setDriverDesired(ChassisSpeeds speeds) {
     boolean discretizing = false;
     if ((Math.abs(speeds.vxMetersPerSecond) + Math.abs(speeds.vyMetersPerSecond)) > 1
@@ -184,6 +201,10 @@ public class Drivetrain extends SubsystemBase {
     this.driverChassisSpeeds = speeds;
   }
 
+  /**
+   * set auton speeds
+   * @param speeds 
+   */
   public void setPathPlannerDesired(ChassisSpeeds speeds) {
     pathplannerChassisSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     Logger.recordOutput("Drive/PathPlannerSpeed", pathplannerChassisSpeeds);

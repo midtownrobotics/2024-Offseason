@@ -24,6 +24,11 @@ public class Climber extends SubsystemBase {
     Logger.processInputs("Climber", inputs);
   }
 
+  /**
+   * set left and right power as percents from -1.0 to 1.0
+   * @param rightPower
+   * @param leftPower
+   */
   public void setPower(double rightPower, double leftPower) {
     climberIO.setPower(rightPower, leftPower);
   }

@@ -32,6 +32,15 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
   private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
+  /**
+   * 
+   * @param drivingCANId
+   * @param turningCANId
+   * @param turningAnalogPort
+   * @param offset
+   * @param inverted
+   * @param moduleName
+   */
   public SwerveModuleIONeo(
       int drivingCANId,
       int turningCANId,

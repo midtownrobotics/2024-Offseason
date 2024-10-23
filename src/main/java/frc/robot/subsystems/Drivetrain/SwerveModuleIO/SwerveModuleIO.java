@@ -28,11 +28,27 @@ public interface SwerveModuleIO {
 
   public void updateInputs(SwerveModuleIOInputs inputs);
 
+  /**
+   * what we want the modules to do
+   * @return what we want the modules to do
+   */
   public SwerveModuleState getDesiredState();
 
+  /**
+   * tell the modules what to do
+   * @param desiredState what we want the modules to do
+   */
   public void setDesiredState(SwerveModuleState desiredState);
 
+  /**
+   * get the state of the module
+   * @return the state of the module
+   */
   public SwerveModuleState getState();
 
+  /**
+   * get position of the module
+   * @return the position of the module
+   */
   public SwerveModulePosition getPosition();
 }

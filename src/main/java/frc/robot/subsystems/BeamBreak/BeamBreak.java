@@ -32,6 +32,13 @@ public class BeamBreak extends SubsystemBase {
     COUNTING
   }
 
+  /**
+   * 
+   * @param beamBreakIO
+   * @param robotState
+   * @param driverPort
+   * @param operatorPort
+   */
   public BeamBreak(
       BeamBreakIO beamBreakIO, RobotState robotState, int driverPort, int operatorPort) {
     this.beamBreakIO = beamBreakIO;
@@ -74,6 +81,10 @@ public class BeamBreak extends SubsystemBase {
     Logger.processInputs("BeamBreak/Inputs", beamBreakIOInputs);
   }
 
+  /**
+   * 
+   * @param robotState
+   */
   public void setRobotState(RobotState robotState) {
     this.robotState = robotState;
   }

@@ -14,6 +14,9 @@ public class BeamBreakIODIO implements BeamBreakIO {
     return beamBreakDigitalInput.get();
   }
 
+  /**
+   * @param inputs
+   */
   public void updateInputs(BeamBreakIOInputs inputs) {
     inputs.isBroken = beamBreakDigitalInput.get();
   }
