@@ -143,8 +143,13 @@ public class RobotContainer {
             },
             climber));
 
-    driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-    // Note: These probably do not need to require drivetrain
+    driver
+        .a()
+        .onTrue(
+          new InstantCommand(
+            () -> drivetrain.resetHeading()
+            ));
+
     driver
         .x()
         .whileTrue(
@@ -169,7 +174,10 @@ public class RobotContainer {
     driver
         .leftTrigger()
         .whileTrue(
-            new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
+            new StartEndCommand(
+                () -> drivetrain.setBoost(true), 
+                () -> drivetrain.setBoost(false)
+                ));
 
     driver
         .b()
@@ -241,19 +249,22 @@ public class RobotContainer {
     //             intake,
     //             shooter));
     operator
-    .leftTrigger()
-    .whileTrue(
-        new StartEndCommand(
-            () -> {
-              intake.setState(IntakeState.VOMITING);
-              shooter.setState(ShooterState.VOMITING);
-            },
-            () -> {
-              shooter.setState(ShooterState.IDLE);
-              intake.setState(IntakeState.IDLE);
-            },
-            intake,
-            shooter));
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> robotState.setState(State.VOMITING),
+                () -> robotState.setState(State.IDLE),
+                intake,
+                shooter));
+
+    operator
+        .leftTrigger()
+        .whileTrue(
+            new StartEndCommand(
+                () -> robotState.setState(State.VOMITING),
+                () -> robotState.setState(State.IDLE),
+                intake,
+                shooter));
 
     operator
         .rightTrigger()
@@ -371,8 +382,7 @@ public class RobotContainer {
     ClimberIO climberIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
-      climberIO =
-          new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
     } else {
       climberIO = new ClimberIOSim();
     }
@@ -389,9 +399,7 @@ public class RobotContainer {
       beamBreakIO = new BeamBreakIOSim();
     }
 
-    beamBreak =
-        new BeamBreak(
-            beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
+    beamBreak = new BeamBreak(beamBreakIO);
 
     // Drivetrain
 
@@ -408,13 +416,11 @@ public class RobotContainer {
     }
 
     // Robot State
-    robotState = new RobotState(shooter, climber, intake, drivetrain);
-    beamBreak.setRobotState(robotState);
+    robotState = new RobotState(shooter, climber, intake, drivetrain, beamBreak, Ports.driverControllerPort, Ports.operatorControllerPort);
 
     drivingMode = new LoggedDashboardChooser<String>("Driving Mode");
     drivingMode.addDefaultOption("Field Relative", "field");
     drivingMode.addOption("Robot Relative", "robot");
-
   }
 
   public RobotContainer() {
