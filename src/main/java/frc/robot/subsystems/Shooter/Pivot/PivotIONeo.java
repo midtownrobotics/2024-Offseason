@@ -37,28 +37,17 @@ public class PivotIONeo implements PivotIO {
     inputs.pivotOutputVoltage = pivotNeo.getBusVoltage() * pivotNeo.getAppliedOutput();
     inputs.pivotIsOn = Math.abs(pivotNeo.getAppliedOutput()) > 0.01;
     inputs.pivotVelocityRPM = pivotNeo.getEncoder().getVelocity();
-    inputs.pivotTempFahrenheit =
-        TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
+    inputs.pivotTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
     inputs.pivotCurrentAmps = pivotNeo.getOutputCurrent();
     inputs.encoderReading = pivotEncoder.getAbsolutePosition();
 
-    double editedEncoderReading = pivotEncoder.getAbsolutePosition();
-
-    if (editedEncoderReading < 0.5) {
-      editedEncoderReading++;
-    }
-
-    inputs.editedEncoderReading = editedEncoderReading;
+    inputs.editedEncoderReading = getAngle();
   }
 
   @Override
   public void setAngle(double angle) {
 
-    double encoderReading = pivotEncoder.getAbsolutePosition();
-
-    if (encoderReading < 0.5) {
-      encoderReading++;
-    }
+    double encoderReading = getAngle();
 
     Logger.recordOutput("Shooter/DesiredPivotAngle", angle);
     Logger.recordOutput("Shooter/PivotAngle", encoderReading);
@@ -78,6 +67,16 @@ public class PivotIONeo implements PivotIO {
     Logger.recordOutput("Shooter/DesiredVoltage", pidAmount);
 
     pivotNeo.setVoltage(pidAmount);
+  }
+
+  @Override
+  public double getAngle() {
+    double encoderReading = pivotEncoder.getAbsolutePosition();
+    if (encoderReading < 0.5) {
+      encoderReading++;
+    }
+    
+    return encoderReading;
   }
 
   public void updatePIDControllers() {

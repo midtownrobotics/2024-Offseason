@@ -32,12 +32,11 @@ public final class Constants {
   public static final boolean tuningMode = true;
 
   public static final class AutonConstants {
-    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_LENGTH_SEC =
-        new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_LENGTH_SEC", 1.0);
-    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC =
-        new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC", 1.0);
-    public static LoggedDashboardNumber AUTON_SHOOT_AUTO_AIM_LENGTH_SEC =
-        new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_AUTO_AIM_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTON_SHOOT_AUTO_AIM_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_AUTO_AIM_LENGTH_SEC", 1.0);
+    public static LoggedDashboardNumber AUTO_AIM_TOLERANCE = new LoggedDashboardNumber("Auton/Constants/AUTO_AIM_TOLERANCE", 10.0);
+
   }
 
   public static final LoggedDashboardNumber deadzone =
@@ -104,7 +103,13 @@ public final class Constants {
     public static LoggedDashboardNumber MIN_PIVOT_ANGLE =
         new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE", 0.81);
     public static LoggedDashboardNumber MAX_PIVOT_ANGLE =
-        new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 0.99);
+        new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 1.12);
+
+    public static LoggedTunableNumber ALIGN_ZERO_P = new LoggedTunableNumber("Shooter/Constants/ALIGN_ZERO_P", 0.01);
+    
+    public static LoggedDashboardNumber PIVOT_ANGLE_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/PIVOT_ANGLE_TOLERANCE", 0.02);
+    public static LoggedDashboardNumber AMP_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED_TOLERANCE", 15);
+    public static LoggedDashboardNumber SPEAKER_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/SUBWOOFER_SPEED_TOLERANCE", 50);
 
 		public static final class Simulation {
 			public static LoggedDashboardNumber FLYWHEEL_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_GEARING", 5.26);

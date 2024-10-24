@@ -39,7 +39,5 @@ public class BeamBreak extends SubsystemBase {
     }
     
     beamBreakIO.updateInputs(beamBreakIOInputs);
-    Logger.recordOutput("BrokenTime", getBrokenTime());
-    Logger.recordOutput("IsBroken", isBroken());
   }
 }

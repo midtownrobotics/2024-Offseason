@@ -6,16 +6,24 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.State;
+import frc.robot.commands.auton.AlignWithSpeaker;
 import frc.robot.commands.auton.ShootSubwoofer;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
+import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
+import frc.robot.subsystems.Limelight.Limelight;
+
+import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -24,6 +32,7 @@ public class AutonFactory extends VirtualSubsystem {
 
   private final Drivetrain m_drivetrain;
   private final RobotState m_robotState;
+  private final Limelight m_limelight;
   private final LoggedDashboardChooser<String> m_autonChooser;
   private String m_currAutonChoice;
   private Command m_currentAutonCommand;
@@ -41,58 +50,20 @@ public class AutonFactory extends VirtualSubsystem {
   private LoggedTunableNumber PATHPLANNER_ROTATION_D =
       new LoggedTunableNumber("PathPlanner/ROTATION_D", 0);
 
-  public AutonFactory(RobotState robotState, Drivetrain drivetrain) {
+  public AutonFactory(RobotState robotState, Drivetrain drivetrain, Limelight limelight) {
     this.m_drivetrain = drivetrain;
     this.m_robotState = robotState;
-
-    NamedCommands.registerCommand(
-        "Idle",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.IDLE);
-            }));
-
-    NamedCommands.registerCommand(
-        "Rev",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.SUBWOOFER_REVVING);
-            }));
-
-    // NamedCommands.registerCommand("SubwooferShoot", new SequentialCommandGroup(new
-    // WaitCommand(2).deadlineWith(new InstantCommand(()->{
-    //     robotState.setState(State.SUBWOOFER_REVVING);
-    // }), new WaitCommand(1).deadlineWith(new InstantCommand(()->{
-    //     robotState.setState(State.SUBWOOFER);
-    // })))));
-
-    NamedCommands.registerCommand(
-        "SubwooferShoot",
-        new SequentialCommandGroup(
-            new InstantCommand(() -> robotState.setState(State.SUBWOOFER_REVVING)),
-            new WaitCommand(2),
-            new InstantCommand(() -> robotState.setState(State.SUBWOOFER)),
-            new WaitCommand(1)));
-
-    NamedCommands.registerCommand(
-        "SubwooferJustShoot",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.SUBWOOFER);
-            }));
-
-    NamedCommands.registerCommand(
-        "Intake",
-        new InstantCommand(
-            () -> {
-              robotState.setState(State.INTAKING);
-            }));
+    this.m_limelight = limelight;
 
     m_autonChooser = new LoggedDashboardChooser<>("Auton Chooser");
     m_autonChooser.addOption("Do Nothing", "Do Nothing");
     m_autonChooser.addOption("Shoot Preload", "Shoot Preload");
+
+    registerNamedCommands();
+
     List<String> paths = PathPlannerUtil.getExistingPaths();
     for (String path : paths) {
+      if (!path.startsWith("REAL")) continue;
       m_autonChooser.addOption(path, path);
     }
 
@@ -200,5 +171,90 @@ public class AutonFactory extends VirtualSubsystem {
     }
 
     return m_currentAutonCommand;
+  }
+
+  public String getAutonCommandString() {
+    return m_autonChooser.get();
+  }
+
+  public void registerNamedCommands() {
+    if (Robot.isSimulation()) return;
+    NamedCommands.registerCommand(
+      "Idle",
+      new InstantCommand(
+        () -> {
+          m_robotState.setState(State.IDLE);
+        }));
+  
+    NamedCommands.registerCommand(
+      "Rev",
+      new InstantCommand(
+        () -> {
+          m_robotState.setState(State.SUBWOOFER_REVVING);
+        }));
+  
+    NamedCommands.registerCommand(
+      "SubwooferRev",
+      new InstantCommand(() -> m_robotState.setState(State.SUBWOOFER_REVVING)));
+  
+    NamedCommands.registerCommand(
+      "SubwooferShoot",
+      new FunctionalCommand(
+        () -> m_robotState.setState(State.SUBWOOFER_REVSHOOT),
+        () -> {},
+        (interrupted) -> {},
+        () -> {
+          return m_robotState.getShooterState() == ShooterState.SUBWOOFER;
+        }
+      ).andThen(new WaitCommand(0.1).andThen(new InstantCommand(() -> m_robotState.setState(State.INTAKE_REVVING)))));
+  
+    NamedCommands.registerCommand(
+      "Intake",
+      new InstantCommand(
+        () -> {
+          m_robotState.setState(State.INTAKE_REVVING);
+        }));
+  
+    NamedCommands.registerCommand(
+      "EnableVision",
+      new InstantCommand(
+        () -> {
+          m_limelight.setAutonVisionEnabled(true);
+        }));
+  
+    NamedCommands.registerCommand(
+      "DisableVision",
+      new InstantCommand(
+        () -> {
+          m_limelight.setAutonVisionEnabled(false);
+        }));
+  
+    NamedCommands.registerCommand(
+      "AutoAimRotate",
+      new AlignWithSpeaker(m_limelight, m_drivetrain));
+  
+    NamedCommands.registerCommand(
+      "AutoAimRevShoot",
+      new FunctionalCommand(
+        () -> m_robotState.setState(State.AUTO_AIM_REVSHOOT),
+        () -> {},
+        (interrupted) -> {},
+        () -> {
+          return m_robotState.getShooterState() == ShooterState.AUTO_AIM;
+        }
+      ).andThen(
+        new WaitCommand(0.1).andThen(
+          new InstantCommand(
+            () -> m_robotState.setState(State.INTAKE_REVVING)
+          )
+        )
+      ));
+
+      NamedCommands.registerCommand(
+        "EnableAlignedFollowPath",
+        new InstantCommand(() -> {
+          m_drivetrain.setState(DriveState.FOLLOW_PATH_ALIGNED);
+        })
+      );
   }
 }

@@ -18,15 +18,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Intake"
+            "pathName": "Center-3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Center-2-Center"
+            "pathName": "3-Center"
           }
         },
         {
@@ -36,21 +36,9 @@
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Center-1-Center"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "SubwooferShoot"
+            "waitTime": 0.1
           }
         },
         {
@@ -62,13 +50,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center-3-Center"
+            "pathName": "Center-2"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "SubwooferShoot"
+            "name": "AutoAimRevShoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2-1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoAimRotate"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AutoAimRevShoot"
           }
         }
       ]

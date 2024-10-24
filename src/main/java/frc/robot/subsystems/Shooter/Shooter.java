@@ -1,5 +1,10 @@
 package frc.robot.subsystems.Shooter;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -10,9 +15,8 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIO;
 import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOInputsAutoLogged;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOInputsAutoLogged;
+import frc.robot.utils.ApriltagHelper;
 import frc.robot.utils.ShooterUtils;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class Shooter extends SubsystemBase {
 
@@ -24,6 +28,9 @@ public class Shooter extends SubsystemBase {
   private FlywheelIOInputsAutoLogged flywheelIOInputs = new FlywheelIOInputsAutoLogged();
   private PivotIOInputsAutoLogged pivotIOInputs = new PivotIOInputsAutoLogged();
   private FeederIOInputsAutoLogged feederIOInputs = new FeederIOInputsAutoLogged();
+
+  private double angleFromDistance;
+  private double speedFromDistance;
 
   // For tuning the shooter. Only takes effect if in TUNING state.
   private LoggedDashboardNumber flywheelLeftSpeed =
@@ -48,7 +55,7 @@ public class Shooter extends SubsystemBase {
     IDLE
   }
 
-  private ShooterState currentState = ShooterState.IDLE;
+  public ShooterState currentState = ShooterState.IDLE;
 
   public Shooter(FlywheelIO flywheelIO, PivotIO pivotIO, FeederIO feederIO, Limelight limelight) {
     this.flywheelIO = flywheelIO;
@@ -61,12 +68,33 @@ public class Shooter extends SubsystemBase {
     currentState = to;
   }
 
+  public ShooterState getState() {
+    return currentState;
+  }
+
   public double getAngleFromDistance() {
     return ShooterUtils.instance.getAngleFromDistance(limelight.getDistance());
   }
 
+  public double getSpeedFromDistance() {
+    return ShooterUtils.instance.getSpeedFromDistance(limelight.getDistance());
+  }
+
+  public double getFlywheelSpeed() {
+    return flywheelIO.getSpeed();
+  }
+
+  public double getPivotAngle() {
+    return pivotIO.getAngle();
+  }
+
   @Override
   public void periodic() {
+
+    // FEEDER_ANGLE = SmartDashboard.getNumber("FEEDER_ANGLE", ShooterConstants.AMP_ANGLE);
+    // FEEDER_SPEED = SmartDashboard.getNumber("FEEDER_SPEED", ShooterConstants.AMP_SPEED);
+
+    // FEEDER_ROLLER_VOLTAGE = MathUtil.clamp(FEEDER_SPEED / 700 * 12, -12, 12);
 
     flywheelIO.updateInputs(flywheelIOInputs);
     Logger.processInputs("Shooter/Flywheel", flywheelIOInputs);
@@ -103,16 +131,22 @@ public class Shooter extends SubsystemBase {
         pivotIO.setAngle(ShooterConstants.SPEAKER_ANGLE.get());
         break;
       case AUTO_AIM_REVVING:
-        flywheelIO.setSpeed(
-            ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
+        if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
+          speedFromDistance = getSpeedFromDistance();
+          angleFromDistance = getAngleFromDistance();
+        }
+        flywheelIO.setSpeed(speedFromDistance * 0.35, speedFromDistance);
+        pivotIO.setAngle(angleFromDistance);
         feederIO.setVoltage(0);
-        pivotIO.setAngle(getAngleFromDistance());
         break;
       case AUTO_AIM:
-        flywheelIO.setSpeed(
-            ShooterConstants.SPEAKER_SPEED.get() * 0.35, ShooterConstants.SPEAKER_SPEED.get());
+        if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
+          speedFromDistance = getSpeedFromDistance();
+          angleFromDistance = getAngleFromDistance();
+        }
+        flywheelIO.setSpeed(speedFromDistance * 0.35, speedFromDistance);
+        pivotIO.setAngle(angleFromDistance);
         feederIO.setVoltage(ShooterConstants.SPEAKER_ROLLER_VOLTAGE.get());
-        pivotIO.setAngle(getAngleFromDistance());
         break;
       case INTAKING:
         feederIO.setVoltage(ShooterConstants.INTAKING_ROLLER_VOLTAGE.get());
@@ -121,7 +155,8 @@ public class Shooter extends SubsystemBase {
         // TODO
         break;
       case VOMITING:
-        // TODO
+        flywheelIO.setSpeed(-800, -800);
+        feederIO.setVoltage(-12);
         break;
       case TUNING:
         flywheelIO.setSpeed(flywheelLeftSpeed.get(), flywheelRightSpeed.get());
@@ -132,7 +167,7 @@ public class Shooter extends SubsystemBase {
         flywheelIO.setSpeed(0, 0);
         feederIO.setVoltage(0);
         pivotIO.setAngle(Constants.ShooterConstants.SPEAKER_ANGLE.get());
-        break;
+        break;  
       default:
         break;
     }

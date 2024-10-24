@@ -1,6 +1,8 @@
 package frc.robot;
 
 import frc.robot.subsystems.BeamBreak.BeamBreak;
+import org.littletonrobotics.junction.Logger;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Climber.Climber;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
@@ -9,32 +11,33 @@ import frc.robot.subsystems.Intake.Intake.IntakeState;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import frc.robot.utils.IOProtectionXboxController;
-
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 public class RobotState {
-  private Shooter shooter;
-  private Intake intake;
-  BeamBreak beamBreak;
-  IOProtectionXboxController driver; 
-  IOProtectionXboxController operator;
-
- private Drivetrain drive;
+  public BeamBreak beamBreak;
+  public IOProtectionXboxController driver; 
+  public IOProtectionXboxController operator;
+  public Shooter shooter;
+  public Intake intake;
+  public Drivetrain drive;
 
   public enum State {
     AMP,
     AMP_REVVING,
+    AMP_REVSHOOT,
     SUBWOOFER,
     SUBWOOFER_REVVING,
+    SUBWOOFER_REVSHOOT,
     AUTO_AIM,
     AUTO_AIM_REVVING,
+    INTAKE_REVVING,
+    AUTO_AIM_REVSHOOT,
     PASSING,
     VOMITING,
     INTAKING,
     NOTE_HELD,
+    TELEOP,
     IDLE
   }
 
@@ -91,6 +94,14 @@ public class RobotState {
         shooter.setState(ShooterState.AMP_REVVING);
         intake.setState(IntakeState.IDLE);
         break;
+      case AMP_REVSHOOT:
+        shooter.setState(ShooterState.AMP_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (shooter.getFlywheelSpeed() >= (ShooterConstants.AMP_SPEED.get()) - 100) {
+            shooter.setState(ShooterState.AMP);
+            intake.setState(IntakeState.SHOOTING);
+        }
+        break;
       case SUBWOOFER:
         shooter.setState(ShooterState.SUBWOOFER);
         intake.setState(IntakeState.SHOOTING);
@@ -99,6 +110,17 @@ public class RobotState {
         shooter.setState(ShooterState.SUBWOOFER_REVVING);
         intake.setState(IntakeState.IDLE);
         break;
+      case INTAKE_REVVING:
+        shooter.setState(ShooterState.SUBWOOFER_REVVING);
+        intake.setState(IntakeState.INTAKING);
+        break;
+      case SUBWOOFER_REVSHOOT:
+        shooter.setState(ShooterState.SUBWOOFER_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (shooter.getFlywheelSpeed() >= (ShooterConstants.SPEAKER_SPEED.get())) {
+           setState(State.SUBWOOFER);
+        }
+        break;
       case AUTO_AIM:
         shooter.setState(ShooterState.AUTO_AIM);
         intake.setState(IntakeState.SHOOTING);
@@ -106,6 +128,19 @@ public class RobotState {
       case AUTO_AIM_REVVING:
         shooter.setState(ShooterState.AUTO_AIM_REVVING);
         intake.setState(IntakeState.IDLE);
+        break;
+      case AUTO_AIM_REVSHOOT:
+        shooter.setState(ShooterState.AUTO_AIM_REVVING);
+        intake.setState(IntakeState.IDLE);
+        if (
+          shooter.getFlywheelSpeed() >= (shooter.getSpeedFromDistance() - ShooterConstants.SPEAKER_SPEED_TOLERANCE.get()) &&
+          (
+            shooter.getPivotAngle() >= (shooter.getAngleFromDistance() - ShooterConstants.PIVOT_ANGLE_TOLERANCE.get()) &&
+            shooter.getPivotAngle() <= (shooter.getAngleFromDistance() + ShooterConstants.PIVOT_ANGLE_TOLERANCE.get())
+          )
+        ) {
+            setState(State.AUTO_AIM);
+        }
         break;
       case PASSING:
         shooter.setState(ShooterState.PASSING);
@@ -130,11 +165,17 @@ public class RobotState {
         shooter.setState(ShooterState.IDLE);
         intake.setState(IntakeState.IDLE);
         break;
+      case TELEOP:
+        break;
       default:
         break;
     }
 
     setControllerRumble(); 
+  }
+
+  public ShooterState getShooterState() {
+    return shooter.getState();
   }
 
   public void setDriveState(DriveState newState) {
@@ -143,11 +184,14 @@ public class RobotState {
 
   public void onAutonomousInit() {
     drive.setState(DriveState.FOLLOW_PATH);
+    setState(State.IDLE);
   }
 
   public void onTeleopInit() {
     drive.setState(DriveState.MANUAL);
-    setState(State.IDLE);
+    setState(State.TELEOP);
+    shooter.setState(ShooterState.IDLE);
+    intake.setState(IntakeState.IDLE);
   }
 
   public void setControllerRumble(){

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3955312300092195,
-      "y": 5.5
+      "x": 0.6933452953924437,
+      "y": 6.640044321458116
     },
-    "rotation": 0
+    "rotation": 60.0
   },
   "command": {
     "type": "sequential",
@@ -14,25 +14,7 @@
         {
           "type": "named",
           "data": {
-            "name": "SubwooferShoot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Center-1-Center"
+            "name": "Rev"
           }
         },
         {
@@ -44,7 +26,13 @@
         {
           "type": "named",
           "data": {
-            "name": "SubwooferShoot"
+            "name": "AutoAimRevShoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
           }
         }
       ]
