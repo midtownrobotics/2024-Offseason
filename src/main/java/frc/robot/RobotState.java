@@ -198,10 +198,9 @@ public class RobotState {
     if (beamBreak.isBroken() && 
         edu.wpi.first.wpilibj.RobotState.isTeleop() && 
         Constants.RUMBLE_DURATION > beamBreak.getBrokenTime()) {
-
       driver.setRumble(RumbleType.kBothRumble, 1);
       operator.setRumble(RumbleType.kBothRumble, 1);
-    } else P
+    } else {
       driver.setRumble(RumbleType.kBothRumble, 0);
       operator.setRumble(RumbleType.kBothRumble, 0); 
     }
