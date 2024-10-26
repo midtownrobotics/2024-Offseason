@@ -375,7 +375,7 @@ public class RobotContainer {
       rollerIO = new RollerIOSim();
     }
 
-    intake = new Intake(rollerIO);
+    intake = new Intake(rollerIO, beamBreak);
 
     // Climber
 

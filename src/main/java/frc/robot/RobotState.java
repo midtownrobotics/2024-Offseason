@@ -152,10 +152,7 @@ public class RobotState {
         break;
       case INTAKING:
         shooter.setState(ShooterState.INTAKING);
-        intake.setState(IntakeState.INTAKING);
-        if (beamBreak.isBroken()) {
-          setState(State.NOTE_HELD);
-        }
+        intake.setState(IntakeState.INTAKING); 
         break;
       case NOTE_HELD:
         shooter.setState(ShooterState.IDLE);

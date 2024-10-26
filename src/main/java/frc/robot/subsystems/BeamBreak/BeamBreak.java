@@ -1,7 +1,5 @@
 package frc.robot.subsystems.BeamBreak;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
