@@ -252,8 +252,10 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             new StartEndCommand(
-                () -> robotState.setState(State.VOMITING),
-                () -> robotState.setState(State.IDLE),
+                () -> {intake.setState(IntakeState.VOMITING);
+                       shooter.setState(ShooterState.VOMITING);},
+                () -> {intake.setState(IntakeState.IDLE);
+                       shooter.setState(ShooterState.IDLE);},
                 intake,
                 shooter));
 
@@ -261,8 +263,10 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new StartEndCommand(
-                () -> robotState.setState(State.VOMITING),
-                () -> robotState.setState(State.IDLE),
+                () -> {intake.setState(IntakeState.VOMITING);
+                       shooter.setState(ShooterState.VOMITING);},
+                () -> {intake.setState(IntakeState.IDLE);
+                       shooter.setState(ShooterState.IDLE);},
                 intake,
                 shooter));
 
