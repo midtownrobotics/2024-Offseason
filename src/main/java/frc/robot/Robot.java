@@ -88,17 +88,6 @@ public class Robot extends LoggedRobot {
     if (autonCommand != null) {
       autonCommand.schedule();
     }
-    String currentAuton = m_robotContainer.getAutonFactory().getAutonCommandString();
-    double desiredHeading = 0;
-    if (currentAuton.toLowerCase().contains("amp")) {
-      desiredHeading = 60;
-    } else if (currentAuton.toLowerCase().contains("source")) {
-      desiredHeading = -60;
-    }
-    if (Alliance.Red.equals(DriverStation.getAlliance().get())) {
-      desiredHeading *= -1;
-    }
-    m_robotContainer.getDrivetrain().resetHeading(desiredHeading);
   }
 
   @Override
