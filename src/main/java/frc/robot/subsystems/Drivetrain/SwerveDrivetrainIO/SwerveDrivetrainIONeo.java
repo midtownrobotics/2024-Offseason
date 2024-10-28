@@ -202,9 +202,6 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
   @Override
   public void resetHeading(double heading) {
-    if (AllianceFlipUtil.shouldFlip()) {
-      heading += 180;
-    }
     m_pigeon.setYaw(heading);
   }
 
@@ -345,8 +342,8 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   public void resetOdometry(Pose2d pose) {
-    // resetHeading(-pose.getRotation().getDegrees());
-    m_poseEstimator.resetPosition(Rotation2d.fromDegrees(0), getSwerveModulePositions(), pose);
+    resetHeading(pose.getRotation().getDegrees());
+    m_poseEstimator.resetPosition(pose.getRotation(), getSwerveModulePositions(), pose);
   }
 
   public void updateOdometry() {

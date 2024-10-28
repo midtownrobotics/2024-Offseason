@@ -180,7 +180,6 @@ public class Drivetrain extends SubsystemBase {
     if (AllianceFlipUtil.shouldFlip()) {
       speeds.vxMetersPerSecond = -speeds.vxMetersPerSecond;
       speeds.vyMetersPerSecond = -speeds.vyMetersPerSecond;
-      speeds.omegaRadiansPerSecond = -speeds.omegaRadiansPerSecond;
     }
 
     if ((Math.abs(speeds.vxMetersPerSecond) + Math.abs(speeds.vyMetersPerSecond)) > 1
