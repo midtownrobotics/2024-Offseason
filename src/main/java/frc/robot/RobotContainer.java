@@ -369,6 +369,17 @@ public class RobotContainer {
 
     shooter = new Shooter(flywheelIO, pivotIO, feederIO, limelight);
 
+    // Beam break
+    BeamBreakIO beamBreakIO;
+
+    if (Constants.getMode() == Constants.Mode.REAL) {
+      beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
+    } else {
+      beamBreakIO = new BeamBreakIOSim();
+    }
+
+    beamBreak = new BeamBreak(beamBreakIO);
+
     // Intake
 
     RollerIO rollerIO;
@@ -392,18 +403,6 @@ public class RobotContainer {
     }
 
     climber = new Climber(operator, climberIO);
-
-    // BeamBreak
-
-    BeamBreakIO beamBreakIO;
-
-    if (Constants.getMode() == Constants.Mode.REAL) {
-      beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
-    } else {
-      beamBreakIO = new BeamBreakIOSim();
-    }
-
-    beamBreak = new BeamBreak(beamBreakIO);
 
     // Drivetrain
 
