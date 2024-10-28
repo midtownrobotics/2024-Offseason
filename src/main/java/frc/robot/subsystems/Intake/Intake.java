@@ -5,10 +5,11 @@ import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class Intake extends SubsystemBase {
-
   private RollerIO rollerIO;
+  private LoggedDashboardNumber rollerSpeed = new LoggedDashboardNumber("Intake/Tuning/rollerSpeed");
   private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
   private BeamBreak beamBreak;
 
@@ -52,7 +53,7 @@ public class Intake extends SubsystemBase {
         rollerIO.setSpeed(-1);
         break;
       case TUNING:
-        // TODO
+        rollerIO.setSpeed(rollerSpeed.get());
         break;
       case NOTE_HELD:
       case IDLE:

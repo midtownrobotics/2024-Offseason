@@ -1,14 +1,13 @@
 package frc.robot.subsystems.Drivetrain.SwerveModuleIO;
 
-import com.ctre.phoenix.sensors.AbsoluteSensorRange;
-import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
-import com.ctre.phoenix.sensors.CANCoderStatusFrame;
-import com.ctre.phoenix.sensors.SensorTimeBase;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -22,13 +21,11 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
   private final RelativeEncoder m_drivingEncoder;
   private final RelativeEncoder m_turningEncoder;
-  private final CANCoder m_turningAbsoluteEncoder;
+  private final CANcoder m_turningAbsoluteEncoder;
 
-  private final SparkMaxPIDController m_drivingPIDController;
-  private final SparkMaxPIDController m_turningPIDController;
+  private final SparkPIDController m_drivingPIDController;
+  private final SparkPIDController m_turningPIDController;
   private double offset = 0;
-
-  private final String moduleName;
 
   private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
@@ -37,10 +34,8 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
       int turningCANId,
       int turningAnalogPort,
       double offset,
-      boolean inverted,
-      String moduleName) {
-    this.moduleName = moduleName;
-
+      boolean inverted
+      ) {
     m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
     m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
     this.offset = offset;
@@ -55,14 +50,15 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     // Setup encoders and PID controllers for the driving and turning SPARKS MAX.
     m_drivingEncoder = m_drivingSparkMax.getEncoder();
     m_turningEncoder = m_turningSparkMax.getEncoder();
-    m_turningAbsoluteEncoder = new CANCoder(turningAnalogPort, "Sensors");
-    CANCoderConfiguration config = new CANCoderConfiguration();
-    config.sensorCoefficient = 2 * Math.PI / 4096;
-    config.unitString = "rad";
-    config.sensorTimeBase = SensorTimeBase.PerSecond;
-    config.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
-    m_turningAbsoluteEncoder.configAllSettings(config);
-    m_turningAbsoluteEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 100);
+    m_turningAbsoluteEncoder = new CANcoder(turningAnalogPort, "Sensors");
+    CANcoderConfiguration config = new CANcoderConfiguration();
+    // config.sensorCoefficient = 2 * Math.PI / 4096;
+    // config.unitString = "rad";
+    // config.sensorTimeBase = SensorTimeBase.PerSecond;
+    // config.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
+    config.MagnetSensor.AbsoluteSensorRange = AbsoluteSensorRangeValue.Signed_PlusMinusHalf;
+    m_turningAbsoluteEncoder.getConfigurator().apply(config);
+    // m_turningAbsoluteEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 100);
 
     m_drivingPIDController = m_drivingSparkMax.getPIDController();
     m_turningPIDController = m_turningSparkMax.getPIDController();
@@ -159,12 +155,12 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
     m_turningSparkMax.set(0);
-    m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + offset);
+    m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() + offset);
   }
 
   public void calibrateVirtualPosition(double angle) {
     // if (this.offset != angle) {
-    m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition() + angle);
+    m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() + angle);
     // }
     this.offset = angle;
   }
@@ -181,7 +177,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     return m_turningEncoder;
   }
 
-  public CANCoder getTurningAbsoluteEncoder() {
+  public CANcoder getTurningAbsoluteEncoder() {
     return m_turningAbsoluteEncoder;
   }
 

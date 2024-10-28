@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
-import com.ctre.phoenix.sensors.WPI_Pigeon2;
+import com.ctre.phoenix6.hardware.Pigeon2;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -43,16 +44,16 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
       new LoggedTunableNumber("Drive/Tuning/RearRightOffset", 1.78);
   private static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReversed
 
-  private static final double FIELD_LENGTH_INCHES = 54 * 12 + 1; // 54ft 1in
-  private static final double FIELD_WIDTH_INCHES = 26 * 12 + 7; // 26ft 7in
+  // private static final double FIELD_LENGTH_INCHES = 54 * 12 + 1; // 54ft 1in
+  // private static final double FIELD_WIDTH_INCHES = 26 * 12 + 7; // 26ft 7in
 
   /** TURN SETTINGS */
   // NOTE: it might make sense to decrease the PID controller period below 0.02 sec (which is the
   // period used by the main loop)
-  private static final double TURN_PID_CONTROLLER_PERIOD_SECONDS = .02; // 0.01 sec = 10 ms
+  // private static final double TURN_PID_CONTROLLER_PERIOD_SECONDS = .02; // 0.01 sec = 10 ms
 
-  private static final double MIN_TURN_PCT_OUTPUT = 0.1; // 0.1;
-  private static final double MAX_TURN_PCT_OUTPUT = 0.4; // 0.4;
+  // private static final double MIN_TURN_PCT_OUTPUT = 0.1; // 0.1;
+  // private static final double MAX_TURN_PCT_OUTPUT = 0.4; // 0.4;
 
   private static final double TURN_PROPORTIONAL_GAIN = 0.001; // 0.01;
   private static final double TURN_INTEGRAL_GAIN = 0.0;
@@ -60,8 +61,8 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
   private static final int DEGREE_THRESHOLD = 10; // 3;
 
-  private static final int TURN_ON_TARGET_MINIMUM_COUNT =
-      10; // number of times/iterations we need to be on target to really be on target
+  // private static final int TURN_ON_TARGET_MINIMUM_COUNT =
+      // 10; // number of times/iterations we need to be on target to really be on target
 
   /** END TURN SETTINGS */
 
@@ -72,8 +73,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           Ports.NeoDrive.FRONT_LEFT_TURNING,
           Ports.NeoDrive.FRONT_LEFT_TURNING_ABSOLUTE_ENCODER,
           FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get(),
-          false,
-          "FrontLeft");
+          false);
 
   private final SwerveModuleIONeo m_frontRight /* #1 */ =
       new SwerveModuleIONeo(
@@ -81,8 +81,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           Ports.NeoDrive.FRONT_RIGHT_TURNING,
           Ports.NeoDrive.FRONT_RIGHT_TURNING_ABSOLUTE_ENCODER,
           FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get(),
-          false,
-          "FrontRight");
+          false);
 
   private final SwerveModuleIONeo m_rearLeft /* #3 */ =
       new SwerveModuleIONeo(
@@ -90,8 +89,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           Ports.NeoDrive.REAR_LEFT_TURNING,
           Ports.NeoDrive.REAR_LEFT_TURNING_ABSOLUTE_ENCODER,
           REAR_LEFT_VIRTUAL_OFFSET_RADIANS.get(),
-          false,
-          "RearLeft");
+          false);
 
   private final SwerveModuleIONeo m_rearRight /* #4 */ =
       new SwerveModuleIONeo(
@@ -99,8 +97,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           Ports.NeoDrive.REAR_RIGHT_TURNING,
           Ports.NeoDrive.REAR_RIGHT_TURNING_ABSOLUTE_ENCODER,
           REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get(),
-          false,
-          "RearRight");
+          false);
 
   private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs =
       new SwerveModuleIOInputsAutoLogged();
@@ -111,7 +108,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   private final SwerveModuleIOInputsAutoLogged m_rearRightInputs =
       new SwerveModuleIOInputsAutoLogged();
 
-  private final WPI_Pigeon2 m_pigeon = new WPI_Pigeon2(5, "Sensors");
+  private final Pigeon2 m_pigeon = new Pigeon2(5, "Sensors");
 
   // Slew rate filter variables for controlling lateral acceleration
   private double m_currentRotation = 0.0;
@@ -125,11 +122,11 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   private double m_prevTime = WPIUtilJNI.now() * 1e-6;
 
   // other variables
-  private boolean
-      isTurning; // indicates that the drivetrain is turning using the PID controller hereunder
+  // private boolean
+  //     isTurning; // indicates that the drivetrain is turning using the PID controller hereunder
 
-  private int
-      onTargetCountTurning; // counter indicating how many times/iterations we were on target
+  // private int
+  //     onTargetCountTurning; // counter indicating how many times/iterations we were on target
 
   private PIDController m_turnPidController; // the PID controller used to turn
 
@@ -309,7 +306,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
   @Override
   public double getPigeonYaw() {
-    return m_pigeon.getYaw() * GYRO_ORIENTATION;
+    return m_pigeon.getYaw().getValueAsDouble() * GYRO_ORIENTATION;
   }
 
   @Override

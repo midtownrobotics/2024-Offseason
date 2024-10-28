@@ -12,7 +12,6 @@ import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
-import frc.robot.utils.AllianceFlipUtil;
 
 import org.littletonrobotics.junction.Logger;
 

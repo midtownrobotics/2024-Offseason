@@ -38,6 +38,7 @@ public class RobotState {
     INTAKING,
     NOTE_HELD,
     TELEOP,
+    TUNING,
     IDLE
   }
 
@@ -164,6 +165,10 @@ public class RobotState {
         break;
       case TELEOP:
         break;
+      case TUNING:
+        intake.setState(IntakeState.TUNING);
+        shooter.setState(ShooterState.TUNING);
+        drive.setState(DriveState.TUNING);
       default:
         break;
     }
