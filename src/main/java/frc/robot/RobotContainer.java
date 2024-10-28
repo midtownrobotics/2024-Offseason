@@ -118,6 +118,7 @@ public class RobotContainer {
               if (drivingMode != null && drivingMode.get() != null && drivingMode.get().equals("robot")) {
                 pigeonValue = 0;
               }
+
               drivetrain.setDriverDesired(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
                       driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
