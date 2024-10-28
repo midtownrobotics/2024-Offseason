@@ -17,6 +17,7 @@ import frc.robot.Ports;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIONeo;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.NeoSwerveUtils;
 import org.littletonrobotics.junction.Logger;
@@ -201,11 +202,18 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
   @Override
   public void resetHeading(double heading) {
+    if (AllianceFlipUtil.shouldFlip()) {
+      heading += 180;
+    }
     m_pigeon.setYaw(heading);
   }
 
   public void resetHeading() {
-    resetHeading(0);
+    int heading = 0;
+    if (AllianceFlipUtil.shouldFlip()) {
+      heading += 180;
+    }
+    resetHeading(heading);
   }
 
   @Override
