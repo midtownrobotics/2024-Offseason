@@ -1,5 +1,6 @@
 package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.VecBuilder;
@@ -138,6 +139,12 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           new Pose2d());
 
   public SwerveDrivetrainIONeo() {
+    Pigeon2Configuration config = new Pigeon2Configuration();
+    config.Pigeon2Features.EnableCompass = false;
+    config.MountPose.MountPosePitch = 0;
+    config.MountPose.MountPoseRoll = 0;
+    config.MountPose.MountPoseYaw = 0;
+    m_pigeon.getConfigurator().apply(config);
     m_turnPidController =
         new PIDController(TURN_PROPORTIONAL_GAIN, TURN_INTEGRAL_GAIN, TURN_DERIVATIVE_GAIN);
     m_turnPidController.enableContinuousInput(-180, 180);

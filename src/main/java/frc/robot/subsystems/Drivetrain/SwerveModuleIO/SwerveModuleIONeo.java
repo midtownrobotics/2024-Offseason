@@ -3,6 +3,7 @@ package frc.robot.subsystems.Drivetrain.SwerveModuleIO;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -52,6 +53,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     m_turningEncoder = m_turningSparkMax.getEncoder();
     m_turningAbsoluteEncoder = new CANcoder(turningAnalogPort, "Sensors");
     CANcoderConfiguration config = new CANcoderConfiguration();
+    config.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     // config.sensorCoefficient = 2 * Math.PI / 4096;
     // config.unitString = "rad";
     // config.sensorTimeBase = SensorTimeBase.PerSecond;
@@ -150,17 +152,18 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     inputs.desiredState = getDesiredState();
     inputs.offset = offset;
     inputs.turningEncoderPosition = getTurningEncoder().getPosition();
+    inputs.turningAbsolutePosition = getAbsoluteTurningPosition();
   }
 
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
     m_turningSparkMax.set(0);
-    m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() + offset);
+    m_turningEncoder.setPosition(getAbsoluteTurningPosition() + offset);
   }
 
   public void calibrateVirtualPosition(double angle) {
     // if (this.offset != angle) {
-    m_turningEncoder.setPosition(m_turningAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() + angle);
+    m_turningEncoder.setPosition(getAbsoluteTurningPosition() + angle);
     // }
     this.offset = angle;
   }
@@ -179,6 +182,10 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
   public CANcoder getTurningAbsoluteEncoder() {
     return m_turningAbsoluteEncoder;
+  }
+
+  public double getAbsoluteTurningPosition() {
+    return m_turningAbsoluteEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI;
   }
 
   @Override
