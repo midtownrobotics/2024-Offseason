@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Drivetrain;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,6 +32,11 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveDrivetrainIO m_swerveDrivetrainIO;
   private final SwerveIOInputsAutoLogged swerveIOInputs = new SwerveIOInputsAutoLogged();
   private final Limelight m_limelight;
+
+  private LoggedDashboardNumber vxMetersPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vxMetersPerSecond");
+  private LoggedDashboardNumber vyMetersPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vyMetersPerSecond");
+  private LoggedDashboardNumber omegaRadiansPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vxMetersPerSecond");
+
 
   private DriveState state = DriveState.MANUAL;
 
@@ -88,7 +94,6 @@ public class Drivetrain extends SubsystemBase {
         }
 
         // Intentional Fall-through - if Limelight does not detect target, we do manual driving
-      case TUNING:
       case MANUAL:
         m_swerveDrivetrainIO.drive(driverChassisSpeeds, false, speedBoost);
         // m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
@@ -148,6 +153,8 @@ public class Drivetrain extends SubsystemBase {
             false,
             speedBoost);
       break;
+      case TUNING:
+        setDriverDesired(new ChassisSpeeds(vxMetersPerSecond.get(), vyMetersPerSecond.get(), omegaRadiansPerSecond.get()));
     }
 
     // Logger.recordOutput("Drive/DrivetrainState", state.toString());
