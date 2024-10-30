@@ -19,6 +19,7 @@ import frc.robot.Ports;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIONeo;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.NeoSwerveUtils;
 import org.littletonrobotics.junction.Logger;
@@ -209,7 +210,11 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   public void resetHeading() {
-    resetHeading(0);
+    int heading = 0;
+    if (AllianceFlipUtil.shouldFlip()) {
+      heading += 180;
+    }
+    resetHeading(heading);
   }
 
   @Override
@@ -341,8 +346,8 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   }
 
   public void resetOdometry(Pose2d pose) {
-    // resetHeading(-pose.getRotation().getDegrees());
-    m_poseEstimator.resetPosition(Rotation2d.fromDegrees(0), getSwerveModulePositions(), pose);
+    resetHeading(pose.getRotation().getDegrees());
+    m_poseEstimator.resetPosition(pose.getRotation(), getSwerveModulePositions(), pose);
   }
 
   public void updateOdometry() {
