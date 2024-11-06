@@ -62,8 +62,8 @@ public class Limelight extends SubsystemBase {
     }
 
     // For some reason we need to invert?? MUST BE LOOKED INTO
-    mt2.pose =
-        new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
+    // mt2.pose =
+    //     new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
     latestVisionPose = mt2.pose;
 
     return mt2;
