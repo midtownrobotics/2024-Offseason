@@ -1,6 +1,10 @@
 # This gitignore has been specially created by the WPILib team.
 # If you remove items from this file, intellisense might break.
 
+# Panjabi MC IS the G.O.A.T.
+
+BuildConstants.java
+
 ### C++ ###
 # Prerequisites
 *.d

@@ -9,8 +9,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -144,8 +142,13 @@ public class RobotContainer {
             },
             climber));
 
-    driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
-    // Note: These probably do not need to require drivetrain
+    driver
+        .a()
+        .onTrue(
+          new InstantCommand(
+            () -> drivetrain.resetHeading()
+            ));
+
     driver
         .x()
         .whileTrue(
@@ -170,7 +173,10 @@ public class RobotContainer {
     driver
         .leftTrigger()
         .whileTrue(
-            new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
+            new StartEndCommand(
+                () -> drivetrain.setBoost(true), 
+                () -> drivetrain.setBoost(false)
+                ));
 
     driver
         .b()
@@ -242,19 +248,26 @@ public class RobotContainer {
     //             intake,
     //             shooter));
     operator
-    .leftTrigger()
-    .whileTrue(
-        new StartEndCommand(
-            () -> {
-              intake.setState(IntakeState.VOMITING);
-              shooter.setState(ShooterState.VOMITING);
-            },
-            () -> {
-              shooter.setState(ShooterState.IDLE);
-              intake.setState(IntakeState.IDLE);
-            },
-            intake,
-            shooter));
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> {intake.setState(IntakeState.VOMITING);
+                       shooter.setState(ShooterState.VOMITING);},
+                () -> {intake.setState(IntakeState.IDLE);
+                       shooter.setState(ShooterState.IDLE);},
+                intake,
+                shooter));
+
+    operator
+        .leftTrigger()
+        .whileTrue(
+            new StartEndCommand(
+                () -> {intake.setState(IntakeState.VOMITING);
+                       shooter.setState(ShooterState.VOMITING);},
+                () -> {intake.setState(IntakeState.IDLE);
+                       shooter.setState(ShooterState.IDLE);},
+                intake,
+                shooter));
 
     operator
         .rightTrigger()
@@ -355,6 +368,17 @@ public class RobotContainer {
 
     shooter = new Shooter(flywheelIO, pivotIO, feederIO, limelight);
 
+    // Beam break
+    BeamBreakIO beamBreakIO;
+
+    if (Constants.getMode() == Constants.Mode.REAL) {
+      beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
+    } else {
+      beamBreakIO = new BeamBreakIOSim();
+    }
+
+    beamBreak = new BeamBreak(beamBreakIO);
+
     // Intake
 
     RollerIO rollerIO;
@@ -365,34 +389,19 @@ public class RobotContainer {
       rollerIO = new RollerIOSim();
     }
 
-    intake = new Intake(rollerIO);
+    intake = new Intake(rollerIO, beamBreak);
 
     // Climber
 
     ClimberIO climberIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
-      climberIO =
-          new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
     } else {
       climberIO = new ClimberIOSim();
     }
 
     climber = new Climber(operator, climberIO);
-
-    // BeamBreak
-
-    BeamBreakIO beamBreakIO;
-
-    if (Constants.getMode() == Constants.Mode.REAL) {
-      beamBreakIO = new BeamBreakIODIO(IntakePorts.beamBreak);
-    } else {
-      beamBreakIO = new BeamBreakIOSim();
-    }
-
-    beamBreak =
-        new BeamBreak(
-            beamBreakIO, robotState, Ports.driverControllerPort, Ports.operatorControllerPort);
 
     // Drivetrain
 
@@ -409,13 +418,11 @@ public class RobotContainer {
     }
 
     // Robot State
-    robotState = new RobotState(shooter, climber, intake, drivetrain);
-    beamBreak.setRobotState(robotState);
+    robotState = new RobotState(shooter, climber, intake, drivetrain, beamBreak, Ports.driverControllerPort, Ports.operatorControllerPort);
 
     drivingMode = new LoggedDashboardChooser<String>("Driving Mode");
     drivingMode.addDefaultOption("Field Relative", "field");
     drivingMode.addOption("Robot Relative", "robot");
-
   }
 
   public RobotContainer() {
