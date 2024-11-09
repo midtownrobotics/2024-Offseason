@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Intake;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.Intake.Roller.RollerIO;
 import frc.robot.subsystems.Intake.Roller.RollerIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
@@ -10,6 +11,7 @@ public class Intake extends SubsystemBase {
   private RollerIO rollerIO;
   private LoggedDashboardNumber rollerSpeed = new LoggedDashboardNumber("Intake/Tuning/rollerSpeed");
   private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
+  private BeamBreak beamBreak;
 
   public enum IntakeState {
     INTAKING,
@@ -23,8 +25,9 @@ public class Intake extends SubsystemBase {
 
   public IntakeState currentSetState = IntakeState.IDLE;
 
-  public Intake(RollerIO rollerIO) {
+  public Intake(RollerIO rollerIO, BeamBreak beamBreak) {
     this.rollerIO = rollerIO;
+    this.beamBreak = beamBreak;
   }
 
   public void setState(IntakeState to) {
@@ -39,6 +42,9 @@ public class Intake extends SubsystemBase {
     switch (currentSetState) {
       case INTAKING:
         rollerIO.setSpeed(1);
+        if (beamBreak.isBroken()) {
+          setState(IntakeState.NOTE_HELD);
+        }
         break;
       case SHOOTING:
         rollerIO.setSpeed(1);

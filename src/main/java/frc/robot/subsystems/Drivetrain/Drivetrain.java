@@ -14,6 +14,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
 import frc.robot.subsystems.Limelight.Limelight;
+import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.ApriltagHelper.Tags;
 
@@ -132,7 +133,8 @@ public class Drivetrain extends SubsystemBase {
         //     0,
         //     0,
         //     false, false, speedBoost
-        // );
+        // )
+        // ;
         m_swerveDrivetrainIO.drive(
             new SwerveModuleState[] {
               new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
@@ -182,11 +184,18 @@ public class Drivetrain extends SubsystemBase {
 
   public void setDriverDesired(ChassisSpeeds speeds) {
     boolean discretizing = false;
+
+    if (AllianceFlipUtil.shouldFlip()) {
+      speeds.vxMetersPerSecond = -speeds.vxMetersPerSecond;
+      speeds.vyMetersPerSecond = -speeds.vyMetersPerSecond;
+    }
+
     if ((Math.abs(speeds.vxMetersPerSecond) + Math.abs(speeds.vyMetersPerSecond)) > 1
         && Math.abs(speeds.omegaRadiansPerSecond) > 0.25) {
       speeds = ChassisSpeeds.discretize(speeds, 0.02);
       discretizing = true;
     }
+
     Logger.recordOutput("Drive/Discretizing", discretizing);
     this.driverChassisSpeeds = speeds;
   }
