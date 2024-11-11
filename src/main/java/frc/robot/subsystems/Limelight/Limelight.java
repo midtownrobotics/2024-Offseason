@@ -51,7 +51,7 @@ public class Limelight extends SubsystemBase {
     LimelightHelpers.SetRobotOrientation(
         "limelight", estimatedPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
     LimelightHelpers.PoseEstimate mt2 =
-        LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
 
     if (RobotState.isAutonomous() && !autonVisionEnabled) return null; // For now ignore vision in auto
 
@@ -62,11 +62,9 @@ public class Limelight extends SubsystemBase {
     }
 
     // For some reason we need to invert?? MUST BE LOOKED INTO
-    mt2.pose =
-        new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
+    // mt2.pose =
+    //     new Pose2d(new Translation2d(-mt2.pose.getX(), mt2.pose.getY()), mt2.pose.getRotation());
     latestVisionPose = mt2.pose;
-
-    
 
     return mt2;
   }
