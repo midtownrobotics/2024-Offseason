@@ -343,7 +343,7 @@ public class RobotContainer {
 
     if (Constants.getMode() == Constants.Mode.REAL) {
       limelightIO =
-          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight"));
+          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight-test"));
     } else {
       limelightIO = new LimelightIOSim();
     }

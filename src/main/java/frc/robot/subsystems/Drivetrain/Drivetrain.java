@@ -47,7 +47,7 @@ public class Drivetrain extends SubsystemBase {
   // private double driveOmega;
   private ChassisSpeeds pathplannerChassisSpeeds = new ChassisSpeeds(); // Robot Relative
 
-  private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
+  private PIDController autoAimPID = new PIDController(0.002, 0, 0);
 
   private PIDController alignZeroPID = new PIDController(ShooterConstants.ALIGN_ZERO_P.get(), 0, 0);
 

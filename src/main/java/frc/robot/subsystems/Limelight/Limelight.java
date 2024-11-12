@@ -3,6 +3,7 @@ package frc.robot.subsystems.Limelight;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
@@ -28,19 +29,39 @@ public class Limelight extends SubsystemBase {
   }
 
   public double getTx() {
-    return limelightIO.getTx();
+    if (limelightIO.getTx() != 0) {
+      return -limelightIO.getTx();
+    } else  {
+      return -lastKnownTx;
+    }
   }
 
+  private double lastKnownTx = 0;
+  private double lastKnownTxTime = -1;
+
   public boolean isValidTarget(int targetId) {
-    return limelightIO.getValidTargetExists() && limelightIO.getId() == targetId;
+    // return limelightIO.getValidTargetExists() && limelightIO.getId() == targetId;
+    return lastKnownTx != 0;
   }
 
   @Override
   public void periodic() {
+    if (limelightIO.getTx() != 0) {
+      lastKnownTx = limelightIO.getTx();
+      lastKnownTxTime = Timer.getFPGATimestamp();
+    }
+
+    if (Timer.getFPGATimestamp() - lastKnownTxTime > 0.5) {
+      lastKnownTx = 0;
+    }
+
     limelightIO.updateInputs(limelightIOInputs);
     limelightIOInputs.latestPose = latestVisionPose;
     Logger.processInputs("Limelight", limelightIOInputs);
     Logger.recordOutput("Limelight/AutonVision", autonVisionEnabled);
+    Logger.recordOutput("Limelight/lastKnownTx", lastKnownTx);
+    Logger.recordOutput("Limelight/lastKnownTxTime", lastKnownTxTime);
+    Logger.recordOutput("Limelight/time", Timer.getFPGATimestamp());
   }
 
   public void setAutonVisionEnabled(boolean autonVisionEnabled) {
