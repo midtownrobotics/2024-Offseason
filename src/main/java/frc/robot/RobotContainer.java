@@ -37,7 +37,7 @@ import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
-import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
@@ -117,9 +117,7 @@ public class RobotContainer {
                 pigeonValue = 0;
               }
 
-              drivetrain.setDriverDesired(
-                  ChassisSpeeds.fromFieldRelativeSpeeds(
-                      driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
+              drivetrain.setDriverDesired(ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
             },
             drivetrain));
 
@@ -339,16 +337,18 @@ public class RobotContainer {
 
     // Limelight
 
-    LimelightIO limelightIO;
+    LimelightIO limelightFrontIO;
+    LimelightIO limelightBackIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
-      limelightIO =
-          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight-test"));
+      limelightFrontIO = new LimelightIOLimelight(NetworkTableInstance.getDefault().getTable("limelight-test"));
+      limelightBackIO = new LimelightIOLimelight(NetworkTableInstance.getDefault().getTable("limelight"));
     } else {
-      limelightIO = new LimelightIOSim();
+      limelightFrontIO = new LimelightIOSim();
+      limelightBackIO = new LimelightIOSim();
     }
 
-    limelight = new Limelight(limelightIO);
+    limelight = new Limelight(limelightFrontIO, limelightBackIO);
 
     // Shooter
 
@@ -412,9 +412,9 @@ public class RobotContainer {
     // drivetrain = new NeoSwerveDrivetrain();
     // }
     if (Robot.isSimulation()) {
-      drivetrain = new Drivetrain(new SwerveDrivetrainIOSim(), limelight);
+      drivetrain = new Drivetrain(new SwerveDrivetrainIOSim(), limelight, beamBreak::isBroken);
     } else {
-      drivetrain = new Drivetrain(new SwerveDrivetrainIONeo(), limelight);
+      drivetrain = new Drivetrain(new SwerveDrivetrainIONeo(), limelight, beamBreak::isBroken);
     }
 
     // Robot State

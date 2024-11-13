@@ -129,7 +129,7 @@ public class Shooter extends SubsystemBase {
         pivotIO.setAngle(ShooterConstants.SPEAKER_ANGLE.get());
         break;
       case AUTO_AIM_REVVING:
-        if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
+        if (limelight.isValidTargetAprilTag(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
           speedFromDistance = getSpeedFromDistance();
           angleFromDistance = getAngleFromDistance();
         }
@@ -138,7 +138,7 @@ public class Shooter extends SubsystemBase {
         feederIO.setVoltage(0);
         break;
       case AUTO_AIM:
-        if (limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
+        if (limelight.isValidTargetAprilTag(ApriltagHelper.Tags.SPEAKER_CENTER.getId())) {
           speedFromDistance = getSpeedFromDistance();
           angleFromDistance = getAngleFromDistance();
         }

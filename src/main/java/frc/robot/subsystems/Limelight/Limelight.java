@@ -1,8 +1,7 @@
 package frc.robot.subsystems.Limelight;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.RobotState;
+ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -11,56 +10,70 @@ import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOInputsAutoLogged;
 import org.littletonrobotics.junction.Logger;
 
 public class Limelight extends SubsystemBase {
-  private LimelightIO limelightIO;
-  private LimelightIOInputsAutoLogged limelightIOInputs = new LimelightIOInputsAutoLogged();
+  private LimelightIO limelightFrontIO;
+  private LimelightIO limelightBackIO;
+  private LimelightIOInputsAutoLogged limelightFrontIOInputs = new LimelightIOInputsAutoLogged();
+  private LimelightIOInputsAutoLogged limelightBackIOInputs = new LimelightIOInputsAutoLogged();
   private Pose2d latestVisionPose;
   private boolean autonVisionEnabled = false;
 
-  public Limelight(LimelightIO limelightIO) {
-    this.limelightIO = limelightIO;
+  private double lastKnownTxFront = 0;
+  private double lastKnownTxFrontTime = 0;
+
+  public Limelight(LimelightIO limelightFrontIO, LimelightIO limelightBackIO) {
+    this.limelightFrontIO = limelightFrontIO;
+    this.limelightBackIO = limelightBackIO;
   }
 
   public double getAngleOffset() {
-    return limelightIO.getAngleOffset();
+    return limelightBackIO.getAngleOffset();
   }
 
   public double getDistance() {
-    return limelightIO.getDistance();
+    return limelightBackIO.getDistance();
   }
 
-  public double getTx() {
-    if (limelightIO.getTx() != 0) {
-      return -limelightIO.getTx();
+  public double getTxFront() {
+    if (limelightFrontIO.getTx() != 0) {
+      return -limelightFrontIO.getTx();
     } else  {
-      return -lastKnownTx;
+      return -lastKnownTxFront;
     }
   }
 
-  private double lastKnownTx = 0;
-  private double lastKnownTxTime = -1;
-
-  public boolean isValidTarget(int targetId) {
-    // return limelightIO.getValidTargetExists() && limelightIO.getId() == targetId;
-    return lastKnownTx != 0;
+  public double getTxBack() {
+    return limelightBackIO.getTx();
   }
 
+  public boolean isValidTargetAprilTag(int targetId) {
+    return limelightBackIO.getValidTargetExists() && limelightBackIO.getId() == targetId;
+  }
+
+  public boolean isValidTargetNote() {
+    return lastKnownTxFront != 0;
+  }
+  
   @Override
   public void periodic() {
-    if (limelightIO.getTx() != 0) {
-      lastKnownTx = limelightIO.getTx();
-      lastKnownTxTime = Timer.getFPGATimestamp();
+    if (limelightFrontIO.getTx() != 0) {
+      lastKnownTxFront = limelightFrontIO.getTx();
+      lastKnownTxFrontTime = Timer.getFPGATimestamp();
     }
 
-    if (Timer.getFPGATimestamp() - lastKnownTxTime > 0.5) {
-      lastKnownTx = 0;
+    if (Timer.getFPGATimestamp() - lastKnownTxFrontTime > 0.5) {
+      lastKnownTxFront = 0;
     }
 
-    limelightIO.updateInputs(limelightIOInputs);
-    limelightIOInputs.latestPose = latestVisionPose;
-    Logger.processInputs("Limelight", limelightIOInputs);
+    limelightFrontIO.updateInputs(limelightFrontIOInputs);
+    Logger.processInputs("Limelight", limelightFrontIOInputs);
+
+    limelightBackIO.updateInputs(limelightBackIOInputs);
+    limelightBackIOInputs.latestPose = latestVisionPose;
+    Logger.processInputs("Limelight", limelightBackIOInputs);
+
     Logger.recordOutput("Limelight/AutonVision", autonVisionEnabled);
-    Logger.recordOutput("Limelight/lastKnownTx", lastKnownTx);
-    Logger.recordOutput("Limelight/lastKnownTxTime", lastKnownTxTime);
+    Logger.recordOutput("Limelight/lastKnownTx", lastKnownTxFront);
+    Logger.recordOutput("Limelight/lastKnownTxTime", lastKnownTxFrontTime);
     Logger.recordOutput("Limelight/time", Timer.getFPGATimestamp());
   }
 

@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Drivetrain;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
@@ -27,12 +29,14 @@ public class Drivetrain extends SubsystemBase {
     SPEAKER_AUTO_ALIGN,
     ALIGN_ZERO,
     X,
-    TUNING
+    TUNING,
+    NOTE_AUTO_PICKUP
   }
 
   private final SwerveDrivetrainIO m_swerveDrivetrainIO;
   private final SwerveIOInputsAutoLogged swerveIOInputs = new SwerveIOInputsAutoLogged();
   private final Limelight m_limelight;
+  private final Supplier<Boolean> beamBreakBrokenSupplier;
 
   private LoggedDashboardNumber vxMetersPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vxMetersPerSecond");
   private LoggedDashboardNumber vyMetersPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vyMetersPerSecond");
@@ -42,22 +46,23 @@ public class Drivetrain extends SubsystemBase {
   private DriveState state = DriveState.MANUAL;
 
   private ChassisSpeeds driverChassisSpeeds = new ChassisSpeeds(); // Robot Relative
-  // private double driveX;
-  // private double driveY;
-  // private double driveOmega;
+
   private ChassisSpeeds pathplannerChassisSpeeds = new ChassisSpeeds(); // Robot Relative
 
-  private PIDController autoAimPID = new PIDController(0.002, 0, 0);
+  private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
+  private PIDController noteAimPID = new PIDController(0.002, 0, 0);
 
   private PIDController alignZeroPID = new PIDController(ShooterConstants.ALIGN_ZERO_P.get(), 0, 0);
 
   private boolean speedBoost;
 
-  public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight) {
+  public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight, Supplier<Boolean> beamBreakBrokenSupplier) {
     m_swerveDrivetrainIO = swerveDrivetrainIO;
     m_limelight = limelight;
+    this.beamBreakBrokenSupplier = beamBreakBrokenSupplier;
 
     autoAimPID.setSetpoint(0);
+    noteAimPID.setSetpoint(0);
 
     alignZeroPID.enableContinuousInput(0, 360);
     alignZeroPID.setSetpoint(0);
@@ -76,9 +81,29 @@ public class Drivetrain extends SubsystemBase {
     m_swerveDrivetrainIO.updateOdometryWithVision(m_limelight);
 
     switch (state) {
+      case NOTE_AUTO_PICKUP:
+        if (m_limelight.isValidTargetNote() && !beamBreakBrokenSupplier.get()) {
+          double desiredOmega = noteAimPID.calculate(m_limelight.getTxFront());
+          double desiredX = 0.0;
+
+          if (Math.abs(m_limelight.getTxFront()) < 5) {
+            desiredX = 0.5;
+          }
+
+          m_swerveDrivetrainIO.drive(
+              desiredX,
+              0.0,
+              desiredOmega,
+              false,
+              false,
+              speedBoost);
+        } else {
+          m_swerveDrivetrainIO.drive(driverChassisSpeeds, false, speedBoost);
+        }
+        break;
       case SPEAKER_AUTO_ALIGN:
-        if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
-          double desiredOmega = autoAimPID.calculate(m_limelight.getTx());
+        if (m_limelight.isValidTargetAprilTag(Tags.SPEAKER_CENTER.getId())) {
+          double desiredOmega = autoAimPID.calculate(m_limelight.getTxBack());
 
           // if (DriverStation.getAlliance().get() == Alliance.Blue) {
           //   desiredOmega *= -1;
@@ -100,8 +125,8 @@ public class Drivetrain extends SubsystemBase {
         // m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
         break;
       case FOLLOW_PATH_ALIGNED:
-          if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
-            double desiredOmega = autoAimPID.calculate(m_limelight.getTx());
+          if (m_limelight.isValidTargetAprilTag(Tags.SPEAKER_CENTER.getId())) {
+            double desiredOmega = autoAimPID.calculate(m_limelight.getTxBack());
 
             // if (DriverStation.getAlliance().get() == Alliance.Blue) {
             //   desiredOmega *= -1;
@@ -190,8 +215,7 @@ public class Drivetrain extends SubsystemBase {
       speeds.vyMetersPerSecond = -speeds.vyMetersPerSecond;
     }
 
-    if ((Math.abs(speeds.vxMetersPerSecond) + Math.abs(speeds.vyMetersPerSecond)) > 1
-        && Math.abs(speeds.omegaRadiansPerSecond) > 0.25) {
+    if ((Math.abs(speeds.vxMetersPerSecond) + Math.abs(speeds.vyMetersPerSecond)) > 1 && Math.abs(speeds.omegaRadiansPerSecond) > 0.25) {
       speeds = ChassisSpeeds.discretize(speeds, 0.02);
       discretizing = true;
     }
