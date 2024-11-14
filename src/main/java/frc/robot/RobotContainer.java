@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
 // import frc.robot.generated.TunerConstants;
@@ -66,6 +67,8 @@ public class RobotContainer {
 
   private RobotState robotState;
 
+  private boolean boostDrivetrain = false;
+
   private final CommandXboxController driver =
       new CommandXboxController(Ports.driverControllerPort);
   private final CommandXboxController operator =
@@ -117,6 +120,16 @@ public class RobotContainer {
                 pigeonValue = 0;
               }
 
+              driverRot *= NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
+
+              if (boostDrivetrain) {
+                driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
+                driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
+              } else {
+                driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
+                driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
+              }
+
               drivetrain.setDriverDesired(ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
             },
             drivetrain));
@@ -154,6 +167,15 @@ public class RobotContainer {
                 () -> drivetrain.setState(DriveState.X),
                 () -> drivetrain.setState(DriveState.MANUAL),
                 drivetrain));
+
+    driver
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> drivetrain.setState(DriveState.NOTE_AUTO_PICKUP),
+                () -> drivetrain.setState(DriveState.MANUAL)
+              ));
+          
     driver
         .y()
         .onTrue(
@@ -172,8 +194,8 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new StartEndCommand(
-                () -> drivetrain.setBoost(true), 
-                () -> drivetrain.setBoost(false)
+                () -> boostDrivetrain = true, 
+                () -> boostDrivetrain = false
                 ));
 
     driver

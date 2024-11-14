@@ -41,6 +41,10 @@ public class Limelight extends SubsystemBase {
     }
   }
 
+  public double getTyFront() {
+    return limelightFrontIO.getTy();
+  }
+
   public double getTxBack() {
     return limelightBackIO.getTx();
   }

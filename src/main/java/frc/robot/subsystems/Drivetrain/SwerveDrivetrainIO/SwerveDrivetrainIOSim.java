@@ -68,42 +68,12 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
   }
 
   @Override
-  public void drive(
-      double xSpeed,
-      double ySpeed,
-      double rot,
-      boolean fieldRelative,
-      boolean rateLimit,
-      boolean speedBoost) {
+  public void chassisDrive(ChassisSpeeds speeds) {
+    SwerveModuleState[] swerveModuleStates = NeoDrivetrainConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
 
-    double maxSpeed;
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED);
 
-    if (speedBoost) {
-      maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
-    } else {
-      maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
-    }
-
-    double xSpeedDelivered = xSpeed * maxSpeed;
-    double ySpeedDelivered = ySpeed * maxSpeed;
-    double rotDelivered = rot * NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
-
-    SwerveModuleState[] swerveModuleStates =
-        NeoDrivetrainConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
-            fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xSpeedDelivered,
-                    ySpeedDelivered,
-                    rotDelivered,
-                    Rotation2d.fromRotations(getPigeonYaw()))
-                : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, maxSpeed);
-
-    m_frontLeft.setDesiredState(swerveModuleStates[0]);
-    m_frontRight.setDesiredState(swerveModuleStates[1]);
-    m_rearLeft.setDesiredState(swerveModuleStates[2]);
-    m_rearRight.setDesiredState(swerveModuleStates[3]);
+    drive(swerveModuleStates);
   }
 
   @Override

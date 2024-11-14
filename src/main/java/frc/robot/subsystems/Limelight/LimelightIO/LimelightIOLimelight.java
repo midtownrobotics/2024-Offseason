@@ -48,6 +48,10 @@ public class LimelightIOLimelight implements LimelightIO {
     return networkTable.getEntry("tx").getDouble(0);
   }
 
+  public double getTy() {
+    return networkTable.getEntry("ty").getDouble(0);
+  }
+
   public int getId() {
     return (int) networkTable.getEntry("tid").getInteger(0);
   }
