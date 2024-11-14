@@ -2,10 +2,10 @@ package frc.robot.subsystems.Limelight.LimelightIO;
 
 import edu.wpi.first.networktables.NetworkTable;
 
-public class LimelightIOLimelight3 implements LimelightIO {
+public class LimelightIOLimelight implements LimelightIO {
   private NetworkTable networkTable;
 
-  public LimelightIOLimelight3(NetworkTable networkTable) {
+  public LimelightIOLimelight(NetworkTable networkTable) {
     this.networkTable = networkTable;
   }
 
@@ -46,6 +46,10 @@ public class LimelightIOLimelight3 implements LimelightIO {
 
   public double getTx() {
     return networkTable.getEntry("tx").getDouble(0);
+  }
+
+  public double getTy() {
+    return networkTable.getEntry("ty").getDouble(0);
   }
 
   public int getId() {

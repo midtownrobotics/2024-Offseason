@@ -13,6 +13,10 @@ public class LimelightIOSim implements LimelightIO {
     return 0.0;
   }
 
+  public double getTy() {
+    return 0.0;
+  }
+
   public int getId() {
     return 0;
   }
