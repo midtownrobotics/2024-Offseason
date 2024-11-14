@@ -198,6 +198,8 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     SwerveModuleState optimizedState =
         SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getPosition()));
 
+    optimizedState.speedMetersPerSecond *= optimizedState.angle.minus(new Rotation2d(m_turningEncoder.getPosition())).getCos();
+
     // NOTE: Changed from working swerve code. Original just set this to desired state
     m_desiredState = optimizedState;
 
