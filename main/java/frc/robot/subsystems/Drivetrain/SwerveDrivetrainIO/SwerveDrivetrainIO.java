@@ -28,28 +28,6 @@ public interface SwerveDrivetrainIO {
   public void resetHeading(double heading);
   public void resetHeading();
 
-  default void drive(ChassisSpeeds chassisSpeeds, boolean fieldRelative, boolean speedBoost) {
-    if (chassisSpeeds == null) {
-      chassisSpeeds = new ChassisSpeeds();
-    }
-
-    drive(
-        chassisSpeeds.vxMetersPerSecond,
-        chassisSpeeds.vyMetersPerSecond,
-        chassisSpeeds.omegaRadiansPerSecond,
-        fieldRelative,
-        false,
-        speedBoost);
-  }
-
-  void drive(
-      double xSpeed,
-      double ySpeed,
-      double rot,
-      boolean fieldRelative,
-      boolean rateLimit,
-      boolean speedBoost);
-
   default void drive(SwerveModuleState[] desiredStates) {
     SwerveDriveKinematics.desaturateWheelSpeeds(
         desiredStates, NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND);
@@ -58,6 +36,8 @@ public interface SwerveDrivetrainIO {
     getRearLeftModule().setDesiredState(desiredStates[2]);
     getRearRightModule().setDesiredState(desiredStates[3]);
   }
+
+  void chassisDrive(ChassisSpeeds chassisSpeeds);
 
   public abstract double getPigeonYaw();
 

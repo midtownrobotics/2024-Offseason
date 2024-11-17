@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -68,6 +69,12 @@ public class Drivetrain extends SubsystemBase {
     alignZeroPID.setSetpoint(0);
   }
 
+  private boolean lockedToNote = false;
+
+  private PIDController autoPickUpX = new PIDController(0, 0, 0);
+  private PIDController autoPickUpY = new PIDController(0.21, 0, 0);
+  private PIDController noteAimPID = new PIDController(0.07, 0, 0);
+
   @Override
   public void periodic() {
 
@@ -79,6 +86,10 @@ public class Drivetrain extends SubsystemBase {
 
     m_swerveDrivetrainIO.updateOdometry();
     m_swerveDrivetrainIO.updateOdometryWithVision(m_limelight);
+
+    if (!state.equals(DriveState.NOTE_AUTO_PICKUP)) {
+      lockedToNote = false;
+    }
 
     switch (state) {
       case NOTE_AUTO_PICKUP:
@@ -105,52 +116,29 @@ public class Drivetrain extends SubsystemBase {
         if (m_limelight.isValidTargetAprilTag(Tags.SPEAKER_CENTER.getId())) {
           double desiredOmega = autoAimPID.calculate(m_limelight.getTxBack());
 
-          // if (DriverStation.getAlliance().get() == Alliance.Blue) {
-          //   desiredOmega *= -1;
-          // }
+          ChassisSpeeds speeds = new ChassisSpeeds(driverChassisSpeeds.vxMetersPerSecond, driverChassisSpeeds.vyMetersPerSecond, desiredOmega);
 
-          m_swerveDrivetrainIO.drive(
-              driverChassisSpeeds.vxMetersPerSecond,
-              driverChassisSpeeds.vyMetersPerSecond,
-              desiredOmega,
-              false,
-              false,
-              speedBoost);
+          m_swerveDrivetrainIO.chassisDrive(speeds);
           break;
         }
 
         // Intentional Fall-through - if Limelight does not detect target, we do manual driving
       case MANUAL:
-        m_swerveDrivetrainIO.drive(driverChassisSpeeds, false, speedBoost);
+        m_swerveDrivetrainIO.chassisDrive(driverChassisSpeeds);
         // m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
         break;
       case FOLLOW_PATH_ALIGNED:
           if (m_limelight.isValidTargetAprilTag(Tags.SPEAKER_CENTER.getId())) {
             double desiredOmega = autoAimPID.calculate(m_limelight.getTxBack());
 
-            // if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            //   desiredOmega *= -1;
-            // }
+            ChassisSpeeds speeds = new ChassisSpeeds(pathplannerChassisSpeeds.vxMetersPerSecond, pathplannerChassisSpeeds.vyMetersPerSecond, desiredOmega);
 
-            m_swerveDrivetrainIO.drive(
-                pathplannerChassisSpeeds.vxMetersPerSecond,
-                pathplannerChassisSpeeds.vyMetersPerSecond,
-                desiredOmega,
-                false,
-                false,
-                speedBoost);
+            m_swerveDrivetrainIO.chassisDrive(speeds);
             break;
           }
       // INTENTIONAL FALL THROUGH
       case FOLLOW_PATH:
-        m_swerveDrivetrainIO.drive(
-          pathplannerChassisSpeeds.vxMetersPerSecond,
-          pathplannerChassisSpeeds.vyMetersPerSecond,
-          0, // PathPlanner banned from rotating robot
-          false,
-          false,
-          speedBoost
-        );
+        m_swerveDrivetrainIO.chassisDrive(pathplannerChassisSpeeds);
         // m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
         break;
       case X:
@@ -171,13 +159,9 @@ public class Drivetrain extends SubsystemBase {
       case ALIGN_ZERO:
         double desiredOmega = alignZeroPID.calculate(getAngle());
 
-        m_swerveDrivetrainIO.drive(
-            driverChassisSpeeds.vxMetersPerSecond,
-            driverChassisSpeeds.vyMetersPerSecond,
-            desiredOmega,
-            false,
-            false,
-            speedBoost);
+        ChassisSpeeds speeds = new ChassisSpeeds(driverChassisSpeeds.vxMetersPerSecond, driverChassisSpeeds.vyMetersPerSecond, desiredOmega);
+
+        m_swerveDrivetrainIO.chassisDrive(speeds);
       break;
       case TUNING:
         setDriverDesired(new ChassisSpeeds(vxMetersPerSecond.get(), vyMetersPerSecond.get(), omegaRadiansPerSecond.get()));
