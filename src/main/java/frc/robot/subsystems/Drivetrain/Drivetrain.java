@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -55,7 +54,7 @@ public class Drivetrain extends SubsystemBase {
 
   private PIDController alignZeroPID = new PIDController(ShooterConstants.ALIGN_ZERO_P.get(), 0, 0);
 
-  private boolean speedBoost;
+  // private boolean speedBoost;
 
   public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight, Supplier<Boolean> beamBreakBrokenSupplier) {
     m_swerveDrivetrainIO = swerveDrivetrainIO;
@@ -70,10 +69,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private boolean lockedToNote = false;
-
-  private PIDController autoPickUpX = new PIDController(0, 0, 0);
-  private PIDController autoPickUpY = new PIDController(0.21, 0, 0);
-  private PIDController noteAimPID = new PIDController(0.07, 0, 0);
 
   @Override
   public void periodic() {
@@ -93,23 +88,28 @@ public class Drivetrain extends SubsystemBase {
 
     switch (state) {
       case NOTE_AUTO_PICKUP:
-        if (m_limelight.isValidTargetNote() && !beamBreakBrokenSupplier.get()) {
-          double desiredOmega = noteAimPID.calculate(m_limelight.getTxFront());
-          double desiredX = 0.0;
+        if (!beamBreakBrokenSupplier.get()) {
+          double rotAssist = noteAimPID.calculate(m_limelight.getTxFront());
+          double xAssist = 0;
+          // double yAssist = MathUtil.clamp(autoPickUpY.calculate(m_limelight.getTxFront()), -1, 1);
+          double yAssist = 0;
+          // double desiredX = 0.0;
 
-          if (Math.abs(m_limelight.getTxFront()) < 5) {
-            desiredX = 0.5;
+          if (lockedToNote) {
+            xAssist = 0.5;
           }
 
-          m_swerveDrivetrainIO.drive(
-              desiredX,
-              0.0,
-              desiredOmega,
-              false,
-              false,
-              speedBoost);
+          if (m_limelight.isValidTargetNote() && Math.abs(m_limelight.getTxFront()) < 3) {
+            lockedToNote = true;
+            xAssist = 1;
+          }
+
+          ChassisSpeeds speeds = new ChassisSpeeds(xAssist+driverChassisSpeeds.vxMetersPerSecond, yAssist+driverChassisSpeeds.vyMetersPerSecond, rotAssist+driverChassisSpeeds.omegaRadiansPerSecond);
+
+          m_swerveDrivetrainIO.chassisDrive(speeds);
         } else {
-          m_swerveDrivetrainIO.drive(driverChassisSpeeds, false, speedBoost);
+          m_swerveDrivetrainIO.chassisDrive(driverChassisSpeeds);
+          lockedToNote = false;
         }
         break;
       case SPEAKER_AUTO_ALIGN:
@@ -181,9 +181,9 @@ public class Drivetrain extends SubsystemBase {
     this.state = state;
   }
 
-  public void setBoost(boolean boost) {
-    speedBoost = boost;
-  }
+  // public void setBoost(boolean boost) {
+  //   speedBoost = boost;
+  // }
 
   // public void setDriverDesired(double driveX, double driveY, double driveOmega) {
   //     this.driveX = driveX;

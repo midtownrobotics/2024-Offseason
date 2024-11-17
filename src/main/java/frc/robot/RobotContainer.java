@@ -361,8 +361,6 @@ public class RobotContainer {
 
     LimelightIO limelightFrontIO;
     LimelightIO limelightBackIO;
-    LimelightIO limelightFrontIO;
-    LimelightIO limelightBackIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
       limelightFrontIO = new LimelightIOLimelight(NetworkTableInstance.getDefault().getTable("limelight-test"));
