@@ -1,29 +1,33 @@
 package frc.robot.subsystems.Intake.Roller;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.TempuratureConverter;
 import org.littletonrobotics.junction.Logger;
 
 public class RollerIONeo implements RollerIO {
 
-  private CANSparkMax runExternal;
-  private CANSparkMax runInternal;
+  private SparkMax runExternal;
+  private SparkMax runInternal;
 
   public RollerIONeo(int runExternalID, int runInternalID) {
-    runExternal = new CANSparkMax(runExternalID, MotorType.kBrushless);
-    runInternal = new CANSparkMax(runInternalID, MotorType.kBrushless);
+    runExternal = new SparkMax(runExternalID, MotorType.kBrushless);
+    runInternal = new SparkMax(runInternalID, MotorType.kBrushless);
 
-    runExternal.restoreFactoryDefaults();
-    runExternal.setInverted(true);
-    runExternal.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
-    runExternal.burnFlash();
+    SparkMaxConfig externalConfig = new SparkMaxConfig();
+    externalConfig.inverted(true);
+    externalConfig.smartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+    runExternal.configure(externalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    runInternal.restoreFactoryDefaults();
-    runInternal.setInverted(false);
-    runInternal.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
-    runInternal.burnFlash();
+    SparkMaxConfig internalConfig = new SparkMaxConfig();
+    internalConfig.inverted(false);
+    internalConfig.smartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+    runInternal.configure(internalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override

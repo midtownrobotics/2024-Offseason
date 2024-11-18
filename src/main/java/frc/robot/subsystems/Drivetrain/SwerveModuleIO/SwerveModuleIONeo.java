@@ -4,10 +4,15 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -17,16 +22,19 @@ import frc.robot.Constants.NeoSwerveModuleConstants;
 import frc.robot.utils.LoggedTunableNumber;
 
 public class SwerveModuleIONeo implements SwerveModuleIO {
-  private final CANSparkMax m_drivingSparkMax;
-  private final CANSparkMax m_turningSparkMax;
+  private final SparkMax m_drivingSparkMax;
+  private final SparkMax m_turningSparkMax;
 
   private final RelativeEncoder m_drivingEncoder;
   private final RelativeEncoder m_turningEncoder;
   private final CANcoder m_turningAbsoluteEncoder;
 
-  private final SparkPIDController m_drivingPIDController;
-  private final SparkPIDController m_turningPIDController;
+  private final SparkClosedLoopController m_drivingPIDController;
+  private final SparkClosedLoopController m_turningPIDController;
   private double offset = 0;
+
+  SparkMaxConfig m_turningMotorConfig = new SparkMaxConfig();
+  SparkMaxConfig m_drivingMotorConfig = new SparkMaxConfig();
 
   private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
@@ -37,14 +45,10 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
       double offset,
       boolean inverted
       ) {
-    m_drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
-    m_turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
+    m_drivingSparkMax = new SparkMax(drivingCANId, MotorType.kBrushless);
+    m_turningSparkMax = new SparkMax(turningCANId, MotorType.kBrushless);
+    
     this.offset = offset;
-
-    // Factory reset, so we get the SPARKS MAX to a known state before configuring
-    // them. This is useful in case a SPARK MAX is swapped out.
-    m_drivingSparkMax.restoreFactoryDefaults();
-    m_turningSparkMax.restoreFactoryDefaults();
 
     m_drivingSparkMax.setInverted(inverted);
 
@@ -62,24 +66,22 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     m_turningAbsoluteEncoder.getConfigurator().apply(config);
     // m_turningAbsoluteEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 100);
 
-    m_drivingPIDController = m_drivingSparkMax.getPIDController();
-    m_turningPIDController = m_turningSparkMax.getPIDController();
-    m_drivingPIDController.setFeedbackDevice(m_drivingEncoder);
-    m_turningPIDController.setFeedbackDevice(m_turningEncoder);
+    m_drivingPIDController = m_drivingSparkMax.getClosedLoopController();
+    m_turningPIDController = m_turningSparkMax.getClosedLoopController();
 
     // Apply position and velocity conversion factors for the driving encoder. The
     // native units for position and velocity are rotations and RPM, respectively,
     // but we want meters and meters per second to use with WPILib's swerve APIs.
-    m_drivingEncoder.setPositionConversionFactor(
+    m_drivingMotorConfig.encoder.positionConversionFactor(
         NeoSwerveModuleConstants.DRIVING_ENCODER_POSITION_FACTOR_METERS_PER_ROTATION);
-    m_drivingEncoder.setVelocityConversionFactor(
+        m_drivingMotorConfig.encoder.velocityConversionFactor(
         NeoSwerveModuleConstants.DRIVING_ENCODER_VELOCITY_FACTOR_METERS_PER_SECOND_PER_RPM);
 
     // Apply position and velocity conversion factors for the turning encoder. We
     // want these in radians and radians per second to use with WPILib's swerve APIs.
-    m_turningEncoder.setPositionConversionFactor(
+    m_turningMotorConfig.encoder.positionConversionFactor(
         NeoSwerveModuleConstants.TURNING_ENCODER_POSITION_FACTOR_RADIANS_PER_ROTATION);
-    m_turningEncoder.setVelocityConversionFactor(
+    m_turningMotorConfig.encoder.velocityConversionFactor(
         NeoSwerveModuleConstants.TURNING_ENCODER_VELOCITY_FACTOR_RADIANS_PER_SECOND_PER_RPM);
 
     // Invert the turning controller, since the output shaft rotates in the opposite direction of
@@ -90,41 +92,36 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
     // to 10 degrees will go through 0 rather than the other direction which is a
     // longer route.
-    m_turningPIDController.setPositionPIDWrappingEnabled(true);
-    m_turningPIDController.setPositionPIDWrappingMinInput(
+    m_turningMotorConfig.closedLoop.positionWrappingEnabled(true);
+    m_turningMotorConfig.closedLoop.positionWrappingMinInput(
         NeoSwerveModuleConstants.TURNING_ENCODER_POSITION_PID_MIN_INPUT_RADIANS);
-    m_turningPIDController.setPositionPIDWrappingMaxInput(
+        m_turningMotorConfig.closedLoop.positionWrappingMaxInput(
         NeoSwerveModuleConstants.TURNING_ENCODER_POSITION_PID_MAX_INPUT_RADIANS);
 
     // Set the PID gains for the driving motor.
-    m_drivingPIDController.setP(NeoSwerveModuleConstants.DRIVING_P.get());
-    m_drivingPIDController.setI(NeoSwerveModuleConstants.DRIVING_I.get());
-    m_drivingPIDController.setD(NeoSwerveModuleConstants.DRIVING_D.get());
-    m_drivingPIDController.setFF(NeoSwerveModuleConstants.DRIVING_FF.get());
-    m_drivingPIDController.setOutputRange(
+    m_drivingMotorConfig.closedLoop.p(NeoSwerveModuleConstants.DRIVING_P.get());
+    m_drivingMotorConfig.closedLoop.i(NeoSwerveModuleConstants.DRIVING_I.get());
+    m_drivingMotorConfig.closedLoop.d(NeoSwerveModuleConstants.DRIVING_D.get());
+    m_drivingMotorConfig.closedLoop.velocityFF(NeoSwerveModuleConstants.DRIVING_FF.get());
+    m_drivingMotorConfig.closedLoop.outputRange(
         NeoSwerveModuleConstants.DRIVING_MIN_OUTPUT_NORMALIZED,
         NeoSwerveModuleConstants.DRIVING_MAX_OUTPUT_NORMALIZED);
 
     // Set the PID gains for the turning motor.
-    m_turningPIDController.setP(NeoSwerveModuleConstants.TURNING_P.get());
-    m_turningPIDController.setI(NeoSwerveModuleConstants.TURNING_I.get());
-    m_turningPIDController.setD(NeoSwerveModuleConstants.TURNING_D.get());
-    m_turningPIDController.setFF(NeoSwerveModuleConstants.TURNING_FF.get());
-    m_turningPIDController.setOutputRange(
+    m_turningMotorConfig.closedLoop.p(NeoSwerveModuleConstants.TURNING_P.get());
+    m_turningMotorConfig.closedLoop.i(NeoSwerveModuleConstants.TURNING_I.get());
+    m_turningMotorConfig.closedLoop.d(NeoSwerveModuleConstants.TURNING_D.get());
+    m_turningMotorConfig.closedLoop.velocityFF(NeoSwerveModuleConstants.TURNING_FF.get());
+    m_turningMotorConfig.closedLoop.outputRange(
         NeoSwerveModuleConstants.TURNING_MIN_OUTPUT_NORMALIZED,
         NeoSwerveModuleConstants.TURNING_MAX_OUTPUT_NORMALIZED);
 
-    m_drivingSparkMax.setIdleMode(NeoSwerveModuleConstants.DRIVING_MOTOR_IDLE_MODE);
-    m_turningSparkMax.setIdleMode(NeoSwerveModuleConstants.TURNING_MOTOR_IDLE_MODE);
-    m_drivingSparkMax.setSmartCurrentLimit(
+    m_drivingMotorConfig.idleMode(IdleMode.kBrake);
+    m_turningMotorConfig.idleMode(IdleMode.kBrake);
+    m_drivingMotorConfig.smartCurrentLimit(
         NeoSwerveModuleConstants.DRIVING_MOTOR_CURRENT_LIMIT_AMPS);
-    m_turningSparkMax.setSmartCurrentLimit(
+    m_turningMotorConfig.smartCurrentLimit(
         NeoSwerveModuleConstants.TURNING_MOTOR_CURRENT_LIMIT_AMPS);
-
-    // Save the SPARK MAX configurations. If a SPARK MAX browns out during
-    // operation, it will maintain the above configurations.
-    m_drivingSparkMax.burnFlash();
-    m_turningSparkMax.burnFlash();
 
     m_desiredState.angle = new Rotation2d(m_turningEncoder.getPosition());
     m_drivingEncoder.setPosition(0);
@@ -195,16 +192,10 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
   @Override
   public void setDesiredState(SwerveModuleState desiredState) {
-    SwerveModuleState optimizedState =
-        SwerveModuleState.optimize(desiredState, new Rotation2d(m_turningEncoder.getPosition()));
+    m_desiredState.optimize(new Rotation2d(m_turningEncoder.getPosition()));
 
-    optimizedState.speedMetersPerSecond *= optimizedState.angle.minus(new Rotation2d(m_turningEncoder.getPosition())).getCos();
-
-    // NOTE: Changed from working swerve code. Original just set this to desired state
-    m_desiredState = optimizedState;
-
-    if (Math.abs(optimizedState.speedMetersPerSecond) < 0.001
-        && Math.abs(optimizedState.angle.getRadians() - m_turningEncoder.getPosition())
+    if (Math.abs(m_desiredState.speedMetersPerSecond) < 0.001
+        && Math.abs(m_desiredState.angle.getRadians() - m_turningEncoder.getPosition())
             < Rotation2d.fromDegrees(1).getRadians()) {
       m_drivingSparkMax.set(0);
       m_turningSparkMax.set(0);
@@ -212,9 +203,9 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     }
 
     m_drivingPIDController.setReference(
-        optimizedState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
+      m_desiredState.speedMetersPerSecond, ControlType.kVelocity);
     m_turningPIDController.setReference(
-        optimizedState.angle.getRadians(), CANSparkMax.ControlType.kPosition);
+        m_desiredState.angle.getRadians(), ControlType.kPosition);
   }
 
   @Override
@@ -233,10 +224,16 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          m_drivingPIDController.setP(Constants.NeoSwerveModuleConstants.DRIVING_P.get());
-          m_drivingPIDController.setI(Constants.NeoSwerveModuleConstants.DRIVING_I.get());
-          m_drivingPIDController.setD(Constants.NeoSwerveModuleConstants.DRIVING_D.get());
-          m_drivingPIDController.setFF(Constants.NeoSwerveModuleConstants.DRIVING_FF.get());
+          m_drivingMotorConfig.closedLoop.p(Constants.NeoSwerveModuleConstants.DRIVING_P.get());
+          m_drivingMotorConfig.closedLoop.i(Constants.NeoSwerveModuleConstants.DRIVING_I.get());
+          m_drivingMotorConfig.closedLoop.d(Constants.NeoSwerveModuleConstants.DRIVING_D.get());
+          m_drivingMotorConfig.closedLoop.velocityFF(Constants.NeoSwerveModuleConstants.DRIVING_FF.get());
+          m_drivingSparkMax.configure(m_drivingMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+
+          // m_drivingPIDController.setP(Constants.NeoSwerveModuleConstants.DRIVING_P.get());
+          // m_drivingPIDController.setI(Constants.NeoSwerveModuleConstants.DRIVING_I.get());
+          // m_drivingPIDController.setD(Constants.NeoSwerveModuleConstants.DRIVING_D.get());
+          // m_drivingPIDController.setFF(Constants.NeoSwerveModuleConstants.DRIVING_FF.get());
         },
         Constants.NeoSwerveModuleConstants.DRIVING_P,
         Constants.NeoSwerveModuleConstants.DRIVING_I,
@@ -246,10 +243,11 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          m_turningPIDController.setP(Constants.NeoSwerveModuleConstants.TURNING_P.get());
-          m_turningPIDController.setI(Constants.NeoSwerveModuleConstants.TURNING_I.get());
-          m_turningPIDController.setD(Constants.NeoSwerveModuleConstants.TURNING_D.get());
-          m_turningPIDController.setFF(Constants.NeoSwerveModuleConstants.TURNING_FF.get());
+          m_turningMotorConfig.closedLoop.p(Constants.NeoSwerveModuleConstants.TURNING_P.get());
+          m_turningMotorConfig.closedLoop.i(Constants.NeoSwerveModuleConstants.TURNING_I.get());
+          m_turningMotorConfig.closedLoop.d(Constants.NeoSwerveModuleConstants.TURNING_D.get());
+          m_turningMotorConfig.closedLoop.velocityFF(Constants.NeoSwerveModuleConstants.TURNING_FF.get());
+          m_drivingSparkMax.configure(m_turningMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         },
         Constants.NeoSwerveModuleConstants.TURNING_P,
         Constants.NeoSwerveModuleConstants.TURNING_I,

@@ -1,10 +1,13 @@
 package frc.robot.subsystems.Shooter.Flywheel;
 
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.utils.LoggedTunableNumber;
@@ -12,36 +15,39 @@ import frc.robot.utils.TempuratureConverter;
 import org.littletonrobotics.junction.Logger;
 
 public class FlywheelIONeo implements FlywheelIO {
-  private CANSparkMax leftWheelNeo;
-  private CANSparkMax rightWheelNeo;
-  private SparkPIDController leftWheelPID;
-  private SparkPIDController rightWheelPID;
+  private SparkMax leftWheelNeo;
+  private SparkMax rightWheelNeo;
+  private SparkClosedLoopController leftWheelPID;
+  private SparkClosedLoopController rightWheelPID;
+
+  SparkMaxConfig leftWheelConfig = new SparkMaxConfig();
+  SparkMaxConfig rightWheelConfig = new SparkMaxConfig();
 
   public FlywheelIONeo(int leftWheelNeoID, int rightWheelNeoID) {
 
-    leftWheelNeo = new CANSparkMax(leftWheelNeoID, MotorType.kBrushless);
-    leftWheelNeo.setIdleMode(IdleMode.kCoast);
-    leftWheelNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
-    leftWheelNeo.burnFlash();
+    leftWheelNeo = new SparkMax(leftWheelNeoID, MotorType.kBrushless);
+    leftWheelConfig.idleMode(IdleMode.kCoast);
+    leftWheelConfig.smartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+    leftWheelConfig.closedLoop.p(ShooterConstants.FLYWHEEL_SPEED_P.get());
+    leftWheelConfig.closedLoop.i(ShooterConstants.FLYWHEEL_SPEED_I.get());
+    leftWheelConfig.closedLoop.d(ShooterConstants.FLYWHEEL_SPEED_D.get());
+    leftWheelConfig.closedLoop.velocityFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+    leftWheelConfig.closedLoop.outputRange(0, 1);
+    leftWheelNeo.configure(leftWheelConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    rightWheelNeo = new CANSparkMax(rightWheelNeoID, MotorType.kBrushless);
-    rightWheelNeo.setIdleMode(IdleMode.kCoast);
-    rightWheelNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
-    rightWheelNeo.burnFlash();
+    rightWheelNeo = new SparkMax(rightWheelNeoID, MotorType.kBrushless);
+    rightWheelConfig.idleMode(IdleMode.kCoast);
+    rightWheelConfig.smartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+    rightWheelConfig.closedLoop.p(ShooterConstants.FLYWHEEL_SPEED_P.get());
+    rightWheelConfig.closedLoop.i(ShooterConstants.FLYWHEEL_SPEED_I.get());
+    rightWheelConfig.closedLoop.d(ShooterConstants.FLYWHEEL_SPEED_D.get());
+    rightWheelConfig.closedLoop.velocityFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+    rightWheelConfig.closedLoop.outputRange(0, 1);
+    rightWheelNeo.configure(rightWheelConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    leftWheelPID = leftWheelNeo.getPIDController();
-    leftWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());
-    leftWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
-    leftWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
-    leftWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
-    leftWheelPID.setOutputRange(0, 1);
+    leftWheelPID = leftWheelNeo.getClosedLoopController();
 
-    rightWheelPID = rightWheelNeo.getPIDController();
-    rightWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());
-    rightWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
-    rightWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
-    rightWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
-    rightWheelPID.setOutputRange(0, 1);
+    rightWheelPID = rightWheelNeo.getClosedLoopController();
   }
 
   @Override
@@ -83,10 +89,11 @@ public class FlywheelIONeo implements FlywheelIO {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          leftWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());
-          leftWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
-          leftWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
-          leftWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+          leftWheelConfig.closedLoop.p(ShooterConstants.FLYWHEEL_SPEED_P.get());
+          leftWheelConfig.closedLoop.i(ShooterConstants.FLYWHEEL_SPEED_I.get());
+          leftWheelConfig.closedLoop.d(ShooterConstants.FLYWHEEL_SPEED_D.get());
+          leftWheelConfig.closedLoop.velocityFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+          leftWheelNeo.configure(leftWheelConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         },
         ShooterConstants.FLYWHEEL_SPEED_P,
         ShooterConstants.FLYWHEEL_SPEED_I,
@@ -96,10 +103,11 @@ public class FlywheelIONeo implements FlywheelIO {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          rightWheelPID.setP(ShooterConstants.FLYWHEEL_SPEED_P.get());
-          rightWheelPID.setI(ShooterConstants.FLYWHEEL_SPEED_I.get());
-          rightWheelPID.setD(ShooterConstants.FLYWHEEL_SPEED_D.get());
-          rightWheelPID.setFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+          rightWheelConfig.closedLoop.p(ShooterConstants.FLYWHEEL_SPEED_P.get());
+          rightWheelConfig.closedLoop.i(ShooterConstants.FLYWHEEL_SPEED_I.get());
+          rightWheelConfig.closedLoop.d(ShooterConstants.FLYWHEEL_SPEED_D.get());
+          rightWheelConfig.closedLoop.velocityFF(ShooterConstants.FLYWHEEL_SPEED_FF.get());
+          leftWheelNeo.configure(rightWheelConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         },
         ShooterConstants.FLYWHEEL_SPEED_P,
         ShooterConstants.FLYWHEEL_SPEED_I,

@@ -1,20 +1,13 @@
 package frc.robot.subsystems.Shooter.Flywheel;
 
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import edu.wpi.first.math.MathUtil;
 
 public class FlywheelIOSim implements FlywheelIO  {
-    private final DCMotorSim leftWheelSim = new DCMotorSim(
-    DCMotor.getNEO(1),
-    Constants.ShooterConstants.Simulation.FLYWHEEL_GEARING.get(),
-    Constants.ShooterConstants.Simulation.FLYWHEEL_MOI.get());
- 
-    private final DCMotorSim rightWheelSim = new DCMotorSim(
-    DCMotor.getNEO(1),
-    Constants.ShooterConstants.Simulation.FLYWHEEL_GEARING.get(), 
-    Constants.ShooterConstants.Simulation.FLYWHEEL_MOI.get());
+    //TODO: Setup motor sim classes.
+    private final DCMotorSim leftWheelSim = new DCMotorSim(null, null, null);
+    private final DCMotorSim rightWheelSim = new DCMotorSim(null, null, null);
     
     @Override
     public void setSpeed(double leftSpeed, double rightSpeed) {

@@ -1,20 +1,12 @@
 package frc.robot.subsystems.Shooter.Feeder;
 
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Constants;
 import edu.wpi.first.math.MathUtil;
 
 public class FeederIOSim implements FeederIO {
-    private final DCMotorSim rollerTopSim = new DCMotorSim(
-    DCMotor.getNEO(1),
-    Constants.ShooterConstants.Simulation.FEEDER_GEARING.get(),
-    Constants.ShooterConstants.Simulation.FEEDER_MOI.get());
- 
-    private final DCMotorSim rollerBottomSim = new DCMotorSim(
-    DCMotor.getNEO(1),
-    Constants.ShooterConstants.Simulation.FEEDER_GEARING.get(), 
-    Constants.ShooterConstants.Simulation.FEEDER_GEARING.get());
+    //TODO: Setup motor sim classes.
+    private final DCMotorSim rollerTopSim = new DCMotorSim(null, null, null);
+    private final DCMotorSim rollerBottomSim = new DCMotorSim(null, null, null);
 
     @Override
     public void setVoltage(double voltage) {

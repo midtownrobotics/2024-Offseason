@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -50,11 +49,12 @@ public class Drivetrain extends SubsystemBase {
 
   private ChassisSpeeds pathplannerChassisSpeeds = new ChassisSpeeds(); // Robot Relative
 
-  private PIDController autoAimPID = new PIDController(0.2, 0, 0.01);
+  private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
+  private PIDController noteAimPID = new PIDController(0.002, 0, 0);
 
   private PIDController alignZeroPID = new PIDController(ShooterConstants.ALIGN_ZERO_P.get(), 0, 0);
 
-  private boolean speedBoost;
+  // private boolean speedBoost;
 
   public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight, Supplier<Boolean> beamBreakBrokenSupplier) {
     m_swerveDrivetrainIO = swerveDrivetrainIO;
@@ -69,10 +69,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   private boolean lockedToNote = false;
-
-  private PIDController autoPickUpX = new PIDController(0, 0, 0);
-  private PIDController autoPickUpY = new PIDController(0.21, 0, 0);
-  private PIDController noteAimPID = new PIDController(0.07, 0, 0);
 
   @Override
   public void periodic() {
@@ -107,8 +103,6 @@ public class Drivetrain extends SubsystemBase {
             lockedToNote = true;
             xAssist = 1;
           }
-
-
 
           ChassisSpeeds speeds = new ChassisSpeeds(xAssist+driverChassisSpeeds.vxMetersPerSecond, yAssist+driverChassisSpeeds.vyMetersPerSecond, rotAssist+driverChassisSpeeds.omegaRadiansPerSecond);
 
@@ -187,9 +181,9 @@ public class Drivetrain extends SubsystemBase {
     this.state = state;
   }
 
-  public void setBoost(boolean boost) {
-    speedBoost = boost;
-  }
+  // public void setBoost(boolean boost) {
+  //   speedBoost = boost;
+  // }
 
   // public void setDriverDesired(double driveX, double driveY, double driveOmega) {
   //     this.driveX = driveX;
