@@ -68,10 +68,6 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
 
     m_drivingPIDController = m_drivingSparkMax.getClosedLoopController();
     m_turningPIDController = m_turningSparkMax.getClosedLoopController();
-    
-    // TODO: I COMMENTED OUT THE FOLLOWING LINES BECAUSE I DIDNT KNOW HOW TO REPLICATE THEM BUT IT MIGHT STILL WORK IDK -Gray
-    // m_drivingPIDController.setFeedbackDevice(m_drivingEncoder);
-    // m_turningPIDController.setFeedbackDevice(m_turningEncoder);
 
     // Apply position and velocity conversion factors for the driving encoder. The
     // native units for position and velocity are rotations and RPM, respectively,
