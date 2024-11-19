@@ -96,30 +96,30 @@ public class AutonFactory extends VirtualSubsystem {
 
     // TODO: Setup pathplanner configurations
 
-    ModuleConfig pathplannerModuleConfig = new ModuleConfig(null, null, 0, null, null, 0);
+    // ModuleConfig pathplannerModuleConfig = new ModuleConfig(null, null, 0, null, null, 0);
 
-    RobotConfig pathPlannerRobotConfig = new RobotConfig(null, null, pathplannerModuleConfig, null);
+    // RobotConfig pathPlannerRobotConfig = new RobotConfig(null, null, pathplannerModuleConfig, null);
 
-    AutoBuilder.configure(
-        m_drivetrain::getPose, // Robot pose supplier
-        m_drivetrain
-            ::resetOdometry, // Method to reset odometry (will be called if your auto has a starting
-        // pose)
-        m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        m_drivetrain
-            ::setPathPlannerDesired, // Method that will drive the robot given ROBOT RELATIVE
-        // ChassisSpeeds
-        pathFollowerConfig,
-        pathPlannerRobotConfig,
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        },
-        m_drivetrain // Reference to this subsystem to set requirements
-        );
+    // AutoBuilder.configure(
+    //     m_drivetrain::getPose, // Robot pose supplier
+    //     m_drivetrain
+    //         ::resetOdometry, // Method to reset odometry (will be called if your auto has a starting
+    //     // pose)
+    //     m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+    //     m_drivetrain
+    //         ::setPathPlannerDesired, // Method that will drive the robot given ROBOT RELATIVE
+    //     // ChassisSpeeds
+    //     pathFollowerConfig,
+    //     pathPlannerRobotConfig,
+    //     () -> {
+    //       var alliance = DriverStation.getAlliance();
+    //       if (alliance.isPresent()) {
+    //         return alliance.get() == DriverStation.Alliance.Red;
+    //       }
+    //       return false;
+    //     },
+    //     m_drivetrain // Reference to this subsystem to set requirements
+    //     );
 
     m_currentAutonCommand = buildAutonCommand();
     PathPlannerLogging.setLogCurrentPoseCallback(
@@ -138,8 +138,9 @@ public class AutonFactory extends VirtualSubsystem {
     }
 
     System.out.println("Building Auto");
-    Command autoCommand = AutoBuilder.buildAuto(path);
-    return autoCommand;
+    // Command autoCommand = AutoBuilder.buildAuto(path);
+    // return autoCommand;
+    return Commands.none();
   }
 
   private Command buildAutonCommand() {
