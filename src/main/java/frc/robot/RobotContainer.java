@@ -73,6 +73,10 @@ public class RobotContainer {
       new CommandXboxController(Ports.driverControllerPort);
   private final CommandXboxController operator =
       new CommandXboxController(Ports.operatorControllerPort);
+  private final CommandXboxController master =
+      new CommandXboxController(Ports.masterControllerPort);
+  
+  private boolean subordinateActive = false;
 
   public static double deadzone(double a, double b, double c, double zone) {
     if (Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2) + Math.pow(c, 2)) > zone) {
@@ -86,155 +90,256 @@ public class RobotContainer {
   private boolean operatorPovDown = false;
 
   private void configureBindings() {
+    // A sort of "dead-man's switch"; subordinate controller is only active if master controller's right trigger is held.
+    master
+      .rightTrigger(0.5)
+      .onTrue(
+        new StartEndCommand(
+          () -> subordinateActive = true, 
+          () -> subordinateActive = false
+        )
+      );
 
     drivetrain.setDefaultCommand(
-        new RunCommand(
-            () -> {
-              double driverX =
-                  RobotContainer.deadzone(
-                          -driver.getLeftY(),
-                          -driver.getLeftX(),
-                          -driver.getRightX(),
-                          Constants.JOYSTICK_THRESHOLD)
-                      * Constants.CONTROL_LIMITER;
-              double driverY =
-                  RobotContainer.deadzone(
-                          -driver.getLeftX(),
-                          -driver.getLeftY(),
-                          -driver.getRightX(),
-                          Constants.JOYSTICK_THRESHOLD)
-                      * Constants.CONTROL_LIMITER;
-              double driverRot =
-                  RobotContainer.deadzone(
-                          -driver.getRightX(),
-                          -driver.getLeftY(),
-                          -driver.getLeftX(),
-                          Constants.JOYSTICK_THRESHOLD)
-                      * Constants.CONTROL_LIMITER;
+      new RunCommand(
+        () -> {
+          CommandXboxController activeController = subordinateActive ? driver : master;
+          double limiter = subordinateActive ? Constants.SUBORDINATE_LIMITER : Constants.CONTROL_LIMITER;
 
-              // drivetrain.setDriverDesired(
-              //   driverX, driverY, driverRot
-              // );
-              double pigeonValue = drivetrain.getAngle();
-              if (drivingMode != null && drivingMode.get() != null && drivingMode.get().equals("robot")) {
-                pigeonValue = 0;
-              }
+          double driverX =
+            RobotContainer.deadzone(
+              -activeController.getLeftY(),
+              -activeController.getLeftX(),
+              -activeController.getRightX(),
+              Constants.JOYSTICK_THRESHOLD
+            ) * limiter;
+          double driverY =
+            RobotContainer.deadzone(
+              -activeController.getLeftX(),
+              -activeController.getLeftY(),
+              -activeController.getRightX(),
+              Constants.JOYSTICK_THRESHOLD
+            ) * limiter;
+          double driverRot =
+            RobotContainer.deadzone(
+              -activeController.getRightX(),
+              -activeController.getLeftY(),
+              -activeController.getLeftX(),
+              Constants.JOYSTICK_THRESHOLD
+            ) * limiter;
 
-              driverRot *= NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
+          // drivetrain.setDriverDesired(
+          //   driverX, driverY, driverRot
+          // );
+          double pigeonValue = drivetrain.getAngle();
+          if (drivingMode != null && drivingMode.get() != null && drivingMode.get().equals("robot")) {
+            pigeonValue = 0;
+          }
 
-              if (boostDrivetrain) {
-                driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
-                driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
-              } else {
-                driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
-                driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
-              }
+          driverRot *= NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
 
-              drivetrain.setDriverDesired(ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
-            },
-            drivetrain));
+          if (boostDrivetrain) {
+            driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
+            driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
+          } else {
+            driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
+            driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
+          }
 
+          drivetrain.setDriverDesired(ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
+        },
+        drivetrain 
+      )
+    );
     climber.setDefaultCommand(
-        new RunCommand(
-            () -> {
-              double operatorLeft = Constants.deadzone(-operator.getLeftY());
-              double operatorRight = Constants.deadzone(-operator.getRightY());
-              if (operatorLeft == 0 && operatorRight == 0) {
-                if (operatorPovUp) {
-                  climber.setPower(1, 1);
-                } else if (operatorPovDown) {
-                  climber.setPower(-1, -1);
-                } else {
-                  climber.setPower(0, 0);
-                }
-              } else {
-                climber.setPower(operatorLeft, operatorRight);
-              }
-            },
-            climber));
+      new RunCommand(
+        () -> {
+          double operatorLeft = Constants.deadzone(-operator.getLeftY());
+          double operatorRight = Constants.deadzone(-operator.getRightY());
+          if (operatorLeft == 0 && operatorRight == 0) {
+            if (operatorPovUp) {
+              climber.setPower(1, 1);
+            } else if (operatorPovDown) {
+              climber.setPower(-1, -1);
+            } else {
+              climber.setPower(0, 0);
+            }
+          } else {
+            climber.setPower(operatorLeft, operatorRight);
+          }
+        },
+        climber
+      )
+    );
+    
+    // Subordinate controls, active if subordinateActive is true
+    driver
+      .a().and(() -> subordinateActive)
+      .onTrue(
+        new InstantCommand(
+          () -> drivetrain.resetHeading()
+        )
+      );
 
     driver
-        .a()
-        .onTrue(
-          new InstantCommand(
-            () -> drivetrain.resetHeading()
-            ));
+      .x().and(() -> subordinateActive)
+      .whileTrue(
+        new StartEndCommand(
+          () -> drivetrain.setState(DriveState.X),
+          () -> drivetrain.setState(DriveState.MANUAL),
+          drivetrain
+        )
+      );
 
     driver
-        .x()
-        .whileTrue(
-            new StartEndCommand(
-                () -> drivetrain.setState(DriveState.X),
-                () -> drivetrain.setState(DriveState.MANUAL),
-                drivetrain));
-
-    driver
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> drivetrain.setState(DriveState.NOTE_AUTO_PICKUP),
-                () -> drivetrain.setState(DriveState.MANUAL)
-              ));
+      .leftBumper().and(() -> subordinateActive)
+      .whileTrue(
+        new StartEndCommand(
+          () -> drivetrain.setState(DriveState.NOTE_AUTO_PICKUP),
+          () -> drivetrain.setState(DriveState.MANUAL)
+        )
+      );
           
     driver
-        .y()
-        .onTrue(
-            new InstantCommand(
-                () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
-                drivetrain
-            )
+      .y().and(() -> subordinateActive)
+      .onTrue(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
+          drivetrain
         )
-        .onFalse(new InstantCommand(
-                () -> drivetrain.setState(DriveState.MANUAL),
-                drivetrain
-            )
-        );
+      )
+      .onFalse(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.MANUAL),
+          drivetrain
+        )
+      );
 
     driver
-        .leftTrigger()
-        .whileTrue(
-            new StartEndCommand(
-                () -> boostDrivetrain = true, 
-                () -> boostDrivetrain = false
-                ));
-
-    driver
-        .b()
-        .onTrue(
-            new InstantCommand(
-                () -> drivetrain.setState(DriveState.ALIGN_ZERO),
-                drivetrain
-            )
+      .leftTrigger().and(() -> subordinateActive)
+      .whileTrue(
+        new StartEndCommand(
+          () -> boostDrivetrain = true, 
+          () -> boostDrivetrain = false
         )
-        .onFalse(new InstantCommand(
-                () -> drivetrain.setState(DriveState.MANUAL),
-                drivetrain
-            )
-        );
+      );
+    driver
+      .b().and(() -> subordinateActive)
+      .onTrue(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.ALIGN_ZERO),
+          drivetrain
+        )
+      )
+      .onFalse(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.MANUAL),
+          drivetrain
+        )
+      );
+    
+    // Master controls, active if subordinateActive is false
+    master
+      .a().and(() -> !subordinateActive)
+      .onTrue(
+        new InstantCommand(
+          () -> drivetrain.resetHeading()
+        )
+      );
+
+    master
+      .x().and(() -> !subordinateActive)
+      .whileTrue(
+        new StartEndCommand(
+          () -> drivetrain.setState(DriveState.X),
+          () -> drivetrain.setState(DriveState.MANUAL),
+          drivetrain
+        )
+      );
+
+    master
+      .leftBumper().and(() -> !subordinateActive)
+      .whileTrue(
+        new StartEndCommand(
+          () -> drivetrain.setState(DriveState.NOTE_AUTO_PICKUP),
+          () -> drivetrain.setState(DriveState.MANUAL)
+        )
+      );
+          
+    master
+      .y().and(() -> !subordinateActive)
+      .onTrue(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
+          drivetrain
+        )
+      )
+      .onFalse(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.MANUAL),
+          drivetrain
+        )
+      );
+
+    master
+      .leftTrigger().and(() -> !subordinateActive)
+      .whileTrue(
+        new StartEndCommand(
+          () -> boostDrivetrain = true, 
+          () -> boostDrivetrain = false
+        )
+      );
+    master
+      .b().and(() -> !subordinateActive)
+      .onTrue(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.ALIGN_ZERO),
+          drivetrain
+        )
+      )
+      .onFalse(
+        new InstantCommand(
+          () -> drivetrain.setState(DriveState.MANUAL),
+          drivetrain
+        )
+      );
+    
+    // Operator controls, need no override as they aren't that dangerous
+    operator
+      .povUp()
+      .whileTrue(
+        new StartEndCommand(
+          () -> operatorPovUp = true,
+          () -> operatorPovUp = false
+        )
+      );
 
     operator
-        .povUp()
-        .whileTrue(new StartEndCommand(() -> operatorPovUp = true, () -> operatorPovUp = false));
+      .povDown()
+      .whileTrue(
+        new StartEndCommand(
+          () -> operatorPovDown = true,
+          () -> operatorPovDown = false
+        )
+      );
 
     operator
-        .povDown()
-        .whileTrue(new StartEndCommand(() -> operatorPovDown = true, () -> operatorPovDown = false));
-
-    operator
-        .rightBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> {
-                  if (intake.currentSetState != IntakeState.NOTE_HELD) {
-                    intake.setState(IntakeState.INTAKING);
-                  }
-                },
-                () -> {
-                  if (intake.currentSetState != IntakeState.NOTE_HELD) {
-                    intake.setState(IntakeState.IDLE);
-                  }
-                },
-                intake));
+      .rightBumper()
+      .whileTrue(
+        new StartEndCommand(
+          () -> {
+            if (intake.currentSetState != IntakeState.NOTE_HELD) {
+              intake.setState(IntakeState.INTAKING);
+            }
+          },
+          () -> {
+            if (intake.currentSetState != IntakeState.NOTE_HELD) {
+              intake.setState(IntakeState.IDLE);
+            }
+          },
+          intake
+        )
+      );
     // operator.leftBumper().onTrue(new InstantCommand(() -> {
     //     // intake.setState(IntakeState.GRITS_FEEDING);
     //     shooter.setState(ShooterState.GRITS_FEEDING_REVVING);
@@ -268,81 +373,91 @@ public class RobotContainer {
     //             intake,
     //             shooter));
     operator
-        .leftBumper()
-        .whileTrue(
-            new StartEndCommand(
-                () -> {intake.setState(IntakeState.VOMITING);
-                       shooter.setState(ShooterState.VOMITING);},
-                () -> {intake.setState(IntakeState.IDLE);
-                       shooter.setState(ShooterState.IDLE);},
-                intake,
-                shooter));
+      .leftBumper()
+      .whileTrue(
+        new StartEndCommand(
+          () -> {
+            intake.setState(IntakeState.VOMITING);
+            shooter.setState(ShooterState.VOMITING);
+          },
+          () -> {
+            intake.setState(IntakeState.IDLE);
+            shooter.setState(ShooterState.IDLE);
+          },
+          intake,
+          shooter
+        )
+      );
 
     operator
-        .leftTrigger()
-        .whileTrue(
-            new StartEndCommand(
-                () -> {intake.setState(IntakeState.VOMITING);
-                       shooter.setState(ShooterState.VOMITING);},
-                () -> {intake.setState(IntakeState.IDLE);
-                       shooter.setState(ShooterState.IDLE);},
-                intake,
-                shooter));
+      .leftTrigger()
+      .whileTrue(
+        new StartEndCommand(
+          () -> {
+            intake.setState(IntakeState.VOMITING);
+            shooter.setState(ShooterState.VOMITING);
+          },
+          () -> {
+            intake.setState(IntakeState.IDLE);
+            shooter.setState(ShooterState.IDLE);
+          },
+          intake,
+          shooter
+        )
+      );
 
     operator
-        .rightTrigger()
-        .whileTrue(
-            new StartEndCommand(
-                () -> {
-                  
-                  switch (shooter.currentState) {
-                    case SUBWOOFER_REVVING:
-                      shooter.setState(ShooterState.SUBWOOFER);
-                      intake.setState(IntakeState.SHOOTING);
-                      break;
-                    case AMP_REVVING:
-                      shooter.setState(ShooterState.AMP);
-                      intake.setState(IntakeState.SHOOTING);
-                      break;
-                    case AUTO_AIM_REVVING:
-                      shooter.setState(ShooterState.AUTO_AIM);
-                      intake.setState(IntakeState.SHOOTING);
-                      break;
-                    default:
-                      break;
-                  }
-                },
-                () -> {
-                  intake.setState(IntakeState.IDLE);
-                  switch (shooter.currentState) {
-                    case SUBWOOFER:
-                      shooter.setState(ShooterState.SUBWOOFER_REVVING);
-                      break;
-                    case AMP:
-                      shooter.setState(ShooterState.AMP_REVVING);
-                      break;
-                    case AUTO_AIM:
-                      shooter.setState(ShooterState.AUTO_AIM_REVVING);
-                      break;
-                    default:
-                      break;
-                  }
-                },
-                shooter,
-                intake));
-
+      .rightTrigger()
+      .whileTrue(
+        new StartEndCommand(
+          () -> {
+            switch (shooter.currentState) {
+              case SUBWOOFER_REVVING:
+                shooter.setState(ShooterState.SUBWOOFER);
+                intake.setState(IntakeState.SHOOTING);
+                break;
+              case AMP_REVVING:
+                shooter.setState(ShooterState.AMP);
+                intake.setState(IntakeState.SHOOTING);
+                break;
+              case AUTO_AIM_REVVING:
+                shooter.setState(ShooterState.AUTO_AIM);
+                intake.setState(IntakeState.SHOOTING);
+                break;
+              default:
+                break;
+            }
+          },
+          () -> {
+            intake.setState(IntakeState.IDLE);
+            switch (shooter.currentState) {
+              case SUBWOOFER:
+                shooter.setState(ShooterState.SUBWOOFER_REVVING);
+                break;
+              case AMP:
+                shooter.setState(ShooterState.AMP_REVVING);
+                break;
+              case AUTO_AIM:
+                shooter.setState(ShooterState.AUTO_AIM_REVVING);
+                break;
+              default:
+                break;
+            }
+          },
+          shooter,
+          intake));
     operator
-        .a()
-        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.SUBWOOFER_REVVING), shooter));
+      .a()
+      .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.SUBWOOFER_REVVING), shooter));
     operator
-        .x()
-        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AMP_REVVING), shooter));
+      .x()
+      .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AMP_REVVING), shooter));
     operator
-        .y()
-        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AUTO_AIM_REVVING), shooter));
+      .y()
+      .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AUTO_AIM_REVVING), shooter));
     operator
-        .b()
-        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.IDLE), shooter));
+      .b()
+      .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.IDLE), shooter));
     // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     // joystick.b().whileTrue(drivetrain
     //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),
