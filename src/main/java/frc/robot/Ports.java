@@ -4,6 +4,7 @@ public final class Ports {
 
   public static final int driverControllerPort = 0;
   public static final int operatorControllerPort = 1;
+  public static final int masterControllerPort = 2; // get a real port
 
   public static final class ShooterPorts {
     public static final int leftFlywheel = 32; // CAN

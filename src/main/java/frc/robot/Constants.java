@@ -12,6 +12,7 @@ public final class Constants {
 
     public static final double JOYSTICK_THRESHOLD = 0.1;
     public static final double CONTROL_LIMITER = 1;
+    public static final double SUBORDINATE_LIMITER = 0.5; // limiter effective when subordinate controller is active
 	public static final double THEORETICAL_RESTING_VOLTAGE = 12;
     public static final double RUMBLE_DURATION = 1;
 
