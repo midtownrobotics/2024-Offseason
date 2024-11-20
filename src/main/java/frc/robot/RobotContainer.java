@@ -94,12 +94,12 @@ public class RobotContainer {
     master
       .rightBumper()
       .onTrue(
-        new RunCommand(
+        new InstantCommand(
           () -> subordinateActive = true
         )
       )
       .onFalse(
-        new RunCommand(
+        new InstantCommand(
           () -> subordinateActive = false
         )
       );
