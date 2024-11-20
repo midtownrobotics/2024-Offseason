@@ -15,6 +15,7 @@ public class FeederIONeo implements FeederIO {
     rollerTopNeo = new CANSparkMax(rollerTopID, MotorType.kBrushless);
     rollerTopNeo.setIdleMode(IdleMode.kCoast);
     rollerTopNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+    rollerTopNeo.setInverted(true);
     rollerTopNeo.burnFlash();
 
     rollerBottomNeo = new CANSparkMax(rollerBottomID, MotorType.kBrushless);

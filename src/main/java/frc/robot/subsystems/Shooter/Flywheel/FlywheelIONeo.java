@@ -22,6 +22,7 @@ public class FlywheelIONeo implements FlywheelIO {
     leftWheelNeo = new CANSparkMax(leftWheelNeoID, MotorType.kBrushless);
     leftWheelNeo.setIdleMode(IdleMode.kCoast);
     leftWheelNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+    leftWheelNeo.setInverted(true);
     leftWheelNeo.burnFlash();
 
     rightWheelNeo = new CANSparkMax(rightWheelNeoID, MotorType.kBrushless);
