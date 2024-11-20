@@ -92,7 +92,7 @@ public class RobotContainer {
   private void configureBindings() {
     // A sort of "dead-man's switch"; subordinate controller is only active if master controller's right trigger is held.
     master
-      .rightTrigger()
+      .rightBumper()
       .onTrue(
         new RunCommand(
           () -> subordinateActive = true
