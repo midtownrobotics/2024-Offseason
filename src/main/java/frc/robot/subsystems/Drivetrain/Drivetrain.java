@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -93,24 +94,30 @@ public class Drivetrain extends SubsystemBase {
     switch (state) {
       case NOTE_AUTO_PICKUP:
         if (!beamBreakBrokenSupplier.get()) {
-          double rotAssist = noteAimPID.calculate(m_limelight.getTxFront());
-          double xAssist = 0;
-          // double yAssist = MathUtil.clamp(autoPickUpY.calculate(m_limelight.getTxFront()), -1, 1);
-          double yAssist = 0;
-          // double desiredX = 0.0;
+          // double rotAssist = noteAimPID.calculate(m_limelight.getTxFront());
+          // double xAssist = 0;
+          // // double yAssist = MathUtil.clamp(autoPickUpY.calculate(m_limelight.getTxFront()), -1, 1);
+          // double yAssist = 0;
+          // // double desiredX = 0.0;
 
-          if (lockedToNote) {
-            xAssist = 0.5;
+          // if (lockedToNote) {
+          //   xAssist = 0.5;
+          // }
+
+          // if (m_limelight.isValidTargetNote() && Math.abs(m_limelight.getTxFront()) < 3) {
+          //   lockedToNote = true;
+          //   xAssist = 1;
+          // }
+
+          if (driverChassisSpeeds.vxMetersPerSecond == 0 && driverChassisSpeeds.vyMetersPerSecond == 0) {
+            double rotAssist = noteAimPID.calculate(m_limelight.getTxFront());
+            ChassisSpeeds speeds = new ChassisSpeeds(driverChassisSpeeds.vxMetersPerSecond, driverChassisSpeeds.vyMetersPerSecond, driverChassisSpeeds.omegaRadiansPerSecond + rotAssist);
           }
 
-          if (m_limelight.isValidTargetNote() && Math.abs(m_limelight.getTxFront()) < 3) {
-            lockedToNote = true;
-            xAssist = 1;
-          }
+          double driverTheta = Units.radiansToDegrees(Math.atan2(-driverChassisSpeeds.vyMetersPerSecond, driverChassisSpeeds.vxMetersPerSecond));
+          double thetaDifference = Math.abs(m_limelight.getTxFront() - driverTheta);
 
-
-
-          ChassisSpeeds speeds = new ChassisSpeeds(xAssist+driverChassisSpeeds.vxMetersPerSecond, yAssist+driverChassisSpeeds.vyMetersPerSecond, rotAssist+driverChassisSpeeds.omegaRadiansPerSecond);
+          ChassisSpeeds speeds = new ChassisSpeeds(driverChassisSpeeds.vxMetersPerSecond, driverChassisSpeeds.vyMetersPerSecond, thetaDifference+driverChassisSpeeds.omegaRadiansPerSecond);
 
           m_swerveDrivetrainIO.chassisDrive(speeds);
         } else {
