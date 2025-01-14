@@ -139,6 +139,10 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           getSwerveModulePositions(),
           new Pose2d());
 
+  private final LoggedTunableNumber stdevx = new LoggedTunableNumber("Limelight/stdevx", 1.2);
+  private final LoggedTunableNumber stdevy = new LoggedTunableNumber("Limelight/stdevy", 1.2);
+  private final LoggedTunableNumber stdevomega = new LoggedTunableNumber("Limelight/stdevomega", 9999999);
+
   public SwerveDrivetrainIONeo() {
     Pigeon2Configuration config = new Pigeon2Configuration();
     config.Pigeon2Features.EnableCompass = false;
@@ -151,7 +155,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
     m_turnPidController.enableContinuousInput(-180, 180);
     m_turnPidController.setTolerance(DEGREE_THRESHOLD);
 
-    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1.2, 1.2, 9999999));
 
     m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get());
     m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
@@ -189,6 +193,14 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           m_rearRight.calibrateVirtualPosition(REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get());
         },
         REAR_RIGHT_VIRTUAL_OFFSET_RADIANS);
+
+        LoggedTunableNumber.ifChanged(hashCode(), (double[] newStdevs) -> {
+          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdevx.get(), stdevy.get(), stdevomega.get()));
+        }, stdevx, stdevy, stdevomega);
+
+
+    Logger.recordOutput("Drive/Tag7Offsets/X", getPose().getTranslation().getX() - -0.038099999999999995);
+    Logger.recordOutput("Drive/Tag7Offsets/Y", getPose().getTranslation().getY() - 5.547867999999999);
 
     m_frontLeft.updateInputs(m_frontLeftInputs);
     m_frontRight.updateInputs(m_frontRightInputs);

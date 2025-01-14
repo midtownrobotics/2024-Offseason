@@ -27,7 +27,8 @@ public class Drivetrain extends SubsystemBase {
     SPEAKER_AUTO_ALIGN,
     ALIGN_ZERO,
     X,
-    TUNING
+    TUNING,
+    DRIVE_TO_POINT
   }
 
   private final SwerveDrivetrainIO m_swerveDrivetrainIO;
@@ -46,6 +47,7 @@ public class Drivetrain extends SubsystemBase {
   // private double driveY;
   // private double driveOmega;
   private ChassisSpeeds pathplannerChassisSpeeds = new ChassisSpeeds(); // Robot Relative
+  private ChassisSpeeds driveToPointChassisSpeeds = new ChassisSpeeds(); // Robot Relative
 
   private PIDController autoAimPID = new PIDController(0.02, 0, 0.001);
 
@@ -128,6 +130,9 @@ public class Drivetrain extends SubsystemBase {
         );
         // m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
         break;
+      case DRIVE_TO_POINT:
+          m_swerveDrivetrainIO.drive(driveToPointChassisSpeeds, false, false);
+          break;
       case X:
         // m_swerveDrivetrainIO.drive(4,
         //     0,
@@ -203,6 +208,11 @@ public class Drivetrain extends SubsystemBase {
   public void setPathPlannerDesired(ChassisSpeeds speeds) {
     pathplannerChassisSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     Logger.recordOutput("Drive/PathPlannerSpeed", pathplannerChassisSpeeds);
+  }
+
+  public void setDriveToPointDesired(ChassisSpeeds speeds) {
+    driveToPointChassisSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+    Logger.recordOutput("Drive/PathPlannerSpeed", driveToPointChassisSpeeds);
   }
 
   public double getAngle() {

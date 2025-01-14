@@ -21,7 +21,7 @@ public class LimelightIOLimelight3 implements LimelightIO {
 
   private double[] getAprilTagPoseCameraSpace() {
     return networkTable
-        .getEntry("targetpose_cameraspace")
+        .getEntry("targetpose_robotspace")
         .getDoubleArray(new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
   }
 
@@ -30,7 +30,7 @@ public class LimelightIOLimelight3 implements LimelightIO {
   }
 
   private double getAprilTagZCameraSpace() {
-    return getAprilTagPoseCameraSpace()[2];
+    return getAprilTagPoseCameraSpace()[1];
   }
 
   public double getDistance() { // returns in cm

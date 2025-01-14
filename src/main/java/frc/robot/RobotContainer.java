@@ -6,8 +6,17 @@ package frc.robot;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -18,6 +27,7 @@ import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
 // import frc.robot.generated.TunerConstants;
 import frc.robot.RobotState.State;
+import frc.robot.commands.DriveToPoint;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
@@ -53,6 +63,11 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
 import frc.robot.utils.AutonFactory;
 
 public class RobotContainer {
+
+  public static final double kTrackWidthX = Units.inchesToMeters(15.25);
+  public static final double kTrackWidthY = Units.inchesToMeters(16.25);
+  public static final double kDriveBaseRadius =
+      Math.hypot(kTrackWidthX / 2.0, kTrackWidthY / 2.0);
 
   private Climber climber;
   private Shooter shooter;
@@ -182,7 +197,7 @@ public class RobotContainer {
         .b()
         .onTrue(
             new InstantCommand(
-                () -> drivetrain.setState(DriveState.ALIGN_ZERO),
+                () -> drivetrain.setState(DriveState.DRIVE_TO_POINT),
                 drivetrain
             )
         )
@@ -190,7 +205,21 @@ public class RobotContainer {
                 () -> drivetrain.setState(DriveState.MANUAL),
                 drivetrain
             )
-        );
+        )
+        /**
+          "x": -0.038099999999999995,
+          "y": 5.547867999999999,
+         */
+        .whileTrue(new DriveToPoint(drivetrain, new Pose2d(
+          new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(1, 0)),
+          new Rotation2d()
+        )));
+        // .whileTrue(
+        //   AutoBuilder.pathfindToPose(new Pose2d(
+        //     new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(1, 0)),
+        //     new Rotation2d()
+        //     ), new PathConstraints(1, 1, .5, .5))
+        // );
 
     operator
         .povUp()
@@ -423,6 +452,13 @@ public class RobotContainer {
     drivingMode = new LoggedDashboardChooser<String>("Driving Mode");
     drivingMode.addDefaultOption("Field Relative", "field");
     drivingMode.addOption("Robot Relative", "robot");
+
+    // AutoBuilder.configureHolonomic(
+    //   drivetrain::getPose,
+    //   drivetrain::resetOdometry,
+    //   drivetrain::getRobotRelativeSpeeds,
+    //   drivetrain::setDriveToPointDesired,
+    //   new HolonomicPathFollowerConfig(new PIDConstants(5), new PIDConstants(2.5, 0.06), 2, kDriveBaseRadius, new ReplanningConfig()), () -> false, drivetrain);
   }
 
   public RobotContainer() {
