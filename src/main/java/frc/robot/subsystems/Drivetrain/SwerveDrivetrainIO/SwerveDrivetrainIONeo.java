@@ -141,7 +141,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
   private final LoggedTunableNumber stdevx = new LoggedTunableNumber("Limelight/stdevx", 1.2);
   private final LoggedTunableNumber stdevy = new LoggedTunableNumber("Limelight/stdevy", 1.2);
-  private final LoggedTunableNumber stdevomega = new LoggedTunableNumber("Limelight/stdevomega", 9999999);
+  private final LoggedTunableNumber stdevomega = new LoggedTunableNumber("Limelight/stdevomega", 5);
 
   public SwerveDrivetrainIONeo() {
     Pigeon2Configuration config = new Pigeon2Configuration();
@@ -155,7 +155,7 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
     m_turnPidController.enableContinuousInput(-180, 180);
     m_turnPidController.setTolerance(DEGREE_THRESHOLD);
 
-    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1.2, 1.2, 9999999));
+    m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(1.2, 1.2, 5));
 
     m_frontLeft.calibrateVirtualPosition(FRONT_LEFT_VIRTUAL_OFFSET_RADIANS.get());
     m_frontRight.calibrateVirtualPosition(FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS.get());

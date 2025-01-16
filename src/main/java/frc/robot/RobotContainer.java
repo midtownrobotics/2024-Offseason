@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -27,7 +29,9 @@ import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
 // import frc.robot.generated.TunerConstants;
 import frc.robot.RobotState.State;
+import frc.robot.commands.AnkitPoint;
 import frc.robot.commands.DriveToPoint;
+import frc.robot.commands.RohanPoint;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
@@ -61,6 +65,7 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
 import frc.robot.utils.AutonFactory;
+import frc.robot.utils.LoggedTunableNumber;
 
 public class RobotContainer {
 
@@ -193,6 +198,9 @@ public class RobotContainer {
                 () -> drivetrain.setBoost(false)
                 ));
 
+                LoggedTunableNumber targetX = new LoggedTunableNumber("Drive/AnkitPoint/TargetX", 1);
+                LoggedTunableNumber targetY = new LoggedTunableNumber("Drive/AnkitPoint/TargetY", 0);
+                LoggedTunableNumber targetYaw = new LoggedTunableNumber("Drive/AnkitPoint/TargetYaw", 0);
     driver
         .b()
         .onTrue(
@@ -210,9 +218,9 @@ public class RobotContainer {
           "x": -0.038099999999999995,
           "y": 5.547867999999999,
          */
-        .whileTrue(new DriveToPoint(drivetrain, new Pose2d(
-          new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(1, 0)),
-          new Rotation2d()
+        .whileTrue(new AnkitPoint(drivetrain, () -> new Pose2d(
+          new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(targetX.get(), targetY.get())),
+          Rotation2d.fromDegrees(targetYaw.get())
         )));
         // .whileTrue(
         //   AutoBuilder.pathfindToPose(new Pose2d(
