@@ -1,4 +1,3 @@
-
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
@@ -19,11 +18,10 @@ public class DriveToPoint extends Command {
   public static final double kMaxLinearAcceleration = 3; // meters per second squared
   public static final double kTrackWidthX = Units.inchesToMeters(15.25);
   public static final double kTrackWidthY = Units.inchesToMeters(16.25);
-  public static final double kDriveBaseRadius =
-      Math.hypot(kTrackWidthX / 2.0, kTrackWidthY / 2.0);
+  public static final double kDriveBaseRadius = Math.hypot(kTrackWidthX / 2.0, kTrackWidthY / 2.0);
   public static final double kMaxAngularSpeed = 0.9;
   public static final double kMaxAngularAcceleration = 0.9;
-  
+
   private Drivetrain m_drive;
   private Pose2d m_targetPose;
 
@@ -32,16 +30,14 @@ public class DriveToPoint extends Command {
           4.5,
           0.0,
           0.04,
-          new TrapezoidProfile.Constraints(
-              kMaxLinearSpeed, kMaxLinearAcceleration));
+          new TrapezoidProfile.Constraints(kMaxLinearSpeed, kMaxLinearAcceleration));
 
   private ProfiledPIDController m_headingController =
       new ProfiledPIDController(
           2.0,
           0.0,
           0.0,
-          new TrapezoidProfile.Constraints(
-              kMaxAngularSpeed, kMaxAngularAcceleration));
+          new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAcceleration));
 
   private double m_ffMinRadius = 0.2, m_ffMaxRadius = 1.1;
 

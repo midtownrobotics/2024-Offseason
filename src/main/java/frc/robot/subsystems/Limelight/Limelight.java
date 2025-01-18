@@ -1,7 +1,6 @@
 package frc.robot.subsystems.Limelight;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
@@ -50,10 +49,10 @@ public class Limelight extends SubsystemBase {
   public LimelightHelpers.PoseEstimate getMegatagPose(Pose2d estimatedPose) {
     LimelightHelpers.SetRobotOrientation(
         "limelight", estimatedPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
-    LimelightHelpers.PoseEstimate mt2 =
-        LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
 
-    if (RobotState.isAutonomous() && !autonVisionEnabled) return null; // For now ignore vision in auto
+    if (RobotState.isAutonomous() && !autonVisionEnabled)
+      return null; // For now ignore vision in auto
 
     if (mt2 == null || mt2.pose == null || mt2.tagCount == 0) {
       Pose2d nullPose = null;

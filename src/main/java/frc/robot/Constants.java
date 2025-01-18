@@ -1,19 +1,19 @@
 package frc.robot;
 
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.utils.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardBoolean;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public final class Constants {
 
-    public static final double JOYSTICK_THRESHOLD = 0.1;
-    public static final double CONTROL_LIMITER = 1;
-	public static final double THEORETICAL_RESTING_VOLTAGE = 12;
-    public static final double RUMBLE_DURATION = 1;
+  public static final double JOYSTICK_THRESHOLD = 0.1;
+  public static final double CONTROL_LIMITER = 1;
+  public static final double THEORETICAL_RESTING_VOLTAGE = 12;
+  public static final double RUMBLE_DURATION = 1;
 
   public static enum Mode {
     REAL,
@@ -23,37 +23,43 @@ public final class Constants {
 
   public static Mode getMode() {
     if (RobotBase.isReal()) {
-        return Mode.REAL;
+      return Mode.REAL;
     } else {
-        return Mode.SIM;
+      return Mode.SIM;
     }
   }
 
   public static final boolean tuningMode = true;
 
   public static final class AutonConstants {
-    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_LENGTH_SEC", 1.0);
-    public static LoggedDashboardNumber AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC", 1.0);
-    public static LoggedDashboardNumber AUTON_SHOOT_AUTO_AIM_LENGTH_SEC = new LoggedDashboardNumber("Auton/Constants/AUTON_SHOOT_AUTO_AIM_LENGTH_SEC", 1.0);
-    public static LoggedDashboardNumber AUTO_AIM_TOLERANCE = new LoggedDashboardNumber("Auton/Constants/AUTO_AIM_TOLERANCE", 10.0);
-
+    public static LoggedNetworkNumber AUTON_SHOOT_SUBWOOFER_LENGTH_SEC =
+        new LoggedNetworkNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_LENGTH_SEC", 1.0);
+    public static LoggedNetworkNumber AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC =
+        new LoggedNetworkNumber("Auton/Constants/AUTON_SHOOT_SUBWOOFER_REV_LENGTH_SEC", 1.0);
+    public static LoggedNetworkNumber AUTON_SHOOT_AUTO_AIM_LENGTH_SEC =
+        new LoggedNetworkNumber("Auton/Constants/AUTON_SHOOT_AUTO_AIM_LENGTH_SEC", 1.0);
+    public static LoggedNetworkNumber AUTO_AIM_TOLERANCE =
+        new LoggedNetworkNumber("Auton/Constants/AUTO_AIM_TOLERANCE", 10.0);
   }
 
-  public static final LoggedDashboardNumber deadzone =
-      new LoggedDashboardNumber("CONTROLLER_DEADZONE", 0.1);
+  public static final LoggedNetworkNumber deadzone =
+      new LoggedNetworkNumber("CONTROLLER_DEADZONE", 0.1);
 
   public static final double deadzone(double input) {
     return Math.abs(input) > deadzone.get() ? input : 0;
   }
 
   public static final class IntakeConstants {
-    public static LoggedDashboardNumber BEAMBREAK_DELAY =
-        new LoggedDashboardNumber("Intake/Constants/BEAMBREAK_DELAY", 1);
-    public static LoggedDashboardNumber CONTROLLER_RUMBLE_TIME =
-        new LoggedDashboardNumber("Intake/Constants/CONTROLLER_RUMBLE_TIME", 12);
+    public static LoggedNetworkNumber BEAMBREAK_DELAY =
+        new LoggedNetworkNumber("Intake/Constants/BEAMBREAK_DELAY", 1);
+    public static LoggedNetworkNumber CONTROLLER_RUMBLE_TIME =
+        new LoggedNetworkNumber("Intake/Constants/CONTROLLER_RUMBLE_TIME", 12);
 
-		public static double MOI = 0.00005; // TODO: Actually figure out what the MOI (an hour of erik explaing something to you that somehow ends with a vector)
-		public static double GEARING = 5.26; // TODO: Figure this out too (should be on the side of the gearbox)
+    public static double MOI =
+        0.00005; // TODO: Actually figure out what the MOI (an hour of erik explaing something to
+    // you that somehow ends with a vector)
+    public static double GEARING =
+        5.26; // TODO: Figure this out too (should be on the side of the gearbox)
   }
 
   public static final class MotorConstants {
@@ -66,23 +72,22 @@ public final class Constants {
       new LoggedDashboardBoolean("USE_KRAKEN_DRIVETRAIN", false);
 
   public static final class ShooterConstants {
-    public static LoggedDashboardNumber INTAKING_ROLLER_VOLTAGE =
-        new LoggedDashboardNumber("Shooter/Constants/INTAKING_ROLLER_VOLTAGE", 1.2);
+    public static LoggedNetworkNumber INTAKING_ROLLER_VOLTAGE =
+        new LoggedNetworkNumber("Shooter/Constants/INTAKING_ROLLER_VOLTAGE", 1.2);
 
-    public static LoggedDashboardNumber SPEAKER_ANGLE =
-        new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ANGLE", 0.852);
-    public static LoggedDashboardNumber SPEAKER_SPEED =
-        new LoggedDashboardNumber("Shooter/Constants/SPEAKER_SPEED", 3100);
-    public static LoggedDashboardNumber SPEAKER_ROLLER_VOLTAGE =
-        new LoggedDashboardNumber("Shooter/Constants/SPEAKER_ROLLER_VOLTAGE", 12);
+    public static LoggedNetworkNumber SPEAKER_ANGLE =
+        new LoggedNetworkNumber("Shooter/Constants/SPEAKER_ANGLE", 0.852);
+    public static LoggedNetworkNumber SPEAKER_SPEED =
+        new LoggedNetworkNumber("Shooter/Constants/SPEAKER_SPEED", 3100);
+    public static LoggedNetworkNumber SPEAKER_ROLLER_VOLTAGE =
+        new LoggedNetworkNumber("Shooter/Constants/SPEAKER_ROLLER_VOLTAGE", 12);
 
-    public static LoggedDashboardNumber AMP_ANGLE =
-        new LoggedDashboardNumber("Shooter/Constants/AMP_ANGLE", 0.812);
-    public static LoggedDashboardNumber AMP_SPEED =
-        new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED", 430);
-    public static LoggedDashboardNumber AMP_ROLLER_VOLTAGE =
-        new LoggedDashboardNumber(
-            "Shooter/Constants/AMP_ROLLER_VOLTAGE", AMP_SPEED.get() / 700 * 12);
+    public static LoggedNetworkNumber AMP_ANGLE =
+        new LoggedNetworkNumber("Shooter/Constants/AMP_ANGLE", 0.812);
+    public static LoggedNetworkNumber AMP_SPEED =
+        new LoggedNetworkNumber("Shooter/Constants/AMP_SPEED", 430);
+    public static LoggedNetworkNumber AMP_ROLLER_VOLTAGE =
+        new LoggedNetworkNumber("Shooter/Constants/AMP_ROLLER_VOLTAGE", AMP_SPEED.get() / 700 * 12);
 
     public static LoggedTunableNumber FLYWHEEL_SPEED_P =
         new LoggedTunableNumber("Shooter/Constants/FLYWHEEL_SPEED_P", 0.0005);
@@ -100,24 +105,32 @@ public final class Constants {
     public static LoggedTunableNumber PIVOT_D =
         new LoggedTunableNumber("Shooter/Constants/PIVOT_D", 0);
 
-    public static LoggedDashboardNumber MIN_PIVOT_ANGLE =
-        new LoggedDashboardNumber("Shooter/Constants/MIN_PIVOT_ANGLE", 0.81);
-    public static LoggedDashboardNumber MAX_PIVOT_ANGLE =
-        new LoggedDashboardNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 1.12);
+    public static LoggedNetworkNumber MIN_PIVOT_ANGLE =
+        new LoggedNetworkNumber("Shooter/Constants/MIN_PIVOT_ANGLE", 0.81);
+    public static LoggedNetworkNumber MAX_PIVOT_ANGLE =
+        new LoggedNetworkNumber("Shooter/Constants/MAX_PIVOT_ANGLE", 1.12);
 
-    public static LoggedTunableNumber ALIGN_ZERO_P = new LoggedTunableNumber("Shooter/Constants/ALIGN_ZERO_P", 0.01);
-    
-    public static LoggedDashboardNumber PIVOT_ANGLE_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/PIVOT_ANGLE_TOLERANCE", 0.02);
-    public static LoggedDashboardNumber AMP_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/AMP_SPEED_TOLERANCE", 15);
-    public static LoggedDashboardNumber SPEAKER_SPEED_TOLERANCE = new LoggedDashboardNumber("Shooter/Constants/SUBWOOFER_SPEED_TOLERANCE", 50);
+    public static LoggedTunableNumber ALIGN_ZERO_P =
+        new LoggedTunableNumber("Shooter/Constants/ALIGN_ZERO_P", 0.01);
 
-		public static final class Simulation {
-			public static LoggedDashboardNumber FLYWHEEL_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_GEARING", 5.26);
-			public static LoggedDashboardNumber FLYWHEEL_MOI = new LoggedDashboardNumber("Shooter/Constants/Simulation/FLYWHEEL_MOI", .00005);
+    public static LoggedNetworkNumber PIVOT_ANGLE_TOLERANCE =
+        new LoggedNetworkNumber("Shooter/Constants/PIVOT_ANGLE_TOLERANCE", 0.02);
+    public static LoggedNetworkNumber AMP_SPEED_TOLERANCE =
+        new LoggedNetworkNumber("Shooter/Constants/AMP_SPEED_TOLERANCE", 15);
+    public static LoggedNetworkNumber SPEAKER_SPEED_TOLERANCE =
+        new LoggedNetworkNumber("Shooter/Constants/SUBWOOFER_SPEED_TOLERANCE", 50);
 
-			public static LoggedDashboardNumber FEEDER_GEARING = new LoggedDashboardNumber("Shooter/Constants/Simulation/FEEDER_GEARING", 5.26);
-			public static LoggedDashboardNumber FEEDER_MOI = new LoggedDashboardNumber("Shooter/Constants/Simulation/FEEDER_MOI", .00005);
-		}
+    public static final class Simulation {
+      public static LoggedNetworkNumber FLYWHEEL_GEARING =
+          new LoggedNetworkNumber("Shooter/Constants/Simulation/FLYWHEEL_GEARING", 5.26);
+      public static LoggedNetworkNumber FLYWHEEL_MOI =
+          new LoggedNetworkNumber("Shooter/Constants/Simulation/FLYWHEEL_MOI", .00005);
+
+      public static LoggedNetworkNumber FEEDER_GEARING =
+          new LoggedNetworkNumber("Shooter/Constants/Simulation/FEEDER_GEARING", 5.26);
+      public static LoggedNetworkNumber FEEDER_MOI =
+          new LoggedNetworkNumber("Shooter/Constants/Simulation/FEEDER_MOI", .00005);
+    }
   }
 
   public static final class NeoDrivetrainConstants {
