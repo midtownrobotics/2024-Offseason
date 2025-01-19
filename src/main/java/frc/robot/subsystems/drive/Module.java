@@ -13,6 +13,11 @@
 
 package frc.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,6 +25,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.MotorLog;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -127,5 +133,19 @@ public class Module {
   /** Returns the module velocity in rad/sec. */
   public double getFFCharacterizationVelocity() {
     return inputs.driveVelocityRadPerSec;
+  }
+
+  public void logDriveMotor(MotorLog driveLog) {
+    driveLog.linearPosition(Meters.of(getPosition().distanceMeters));
+    driveLog.linearVelocity(MetersPerSecond.of(getVelocityMetersPerSec()));
+    driveLog.voltage(Volts.of(inputs.driveAppliedVolts));
+    driveLog.current(Amps.of(inputs.driveCurrentAmps));
+  }
+
+  public void logTurnMotor(MotorLog turnLog) {
+    turnLog.angularPosition(getAngle().getMeasure());
+    turnLog.angularVelocity(RadiansPerSecond.of(inputs.turnVelocityRadPerSec));
+    turnLog.voltage(Volts.of(inputs.turnAppliedVolts));
+    turnLog.current(Amps.of(inputs.turnCurrentAmps));
   }
 }

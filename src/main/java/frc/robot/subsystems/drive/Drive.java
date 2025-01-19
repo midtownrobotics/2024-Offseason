@@ -55,6 +55,8 @@ public class Drive extends SubsystemBase {
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] modules = new Module[4]; // FL, FR, BL, BR
+  private static final String[] moduleNames =
+      new String[] {"FrontLeft", "FrontRight", "BackLeft", "BackRight"};
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
@@ -120,7 +122,16 @@ public class Drive extends SubsystemBase {
                 null,
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
-                (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+                (voltage) -> runCharacterization(voltage.in(Volts)),
+                (log) -> {
+                  for (int i = 0; i < 4; i++) {
+                    var module = modules[i];
+                    var name = moduleNames[i];
+                    module.logDriveMotor(log.motor("%s/DriveMotor".formatted(name)));
+                    module.logTurnMotor(log.motor("%s/TurnMotor".formatted(name)));
+                  }
+                },
+                this));
   }
 
   @Override
