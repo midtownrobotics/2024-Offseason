@@ -1,7 +1,13 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.utils.LoggedTunableNumber;
@@ -66,6 +72,11 @@ public final class Constants {
     public static int CURRENT_LIMIT_550 = 35;
     public static int CURRENT_LIMIT_1650 = 60;
   }
+
+  public static Transform3d kLimelightRobotToCamera =
+      new Transform3d(
+          new Translation3d(Inches.of(4), Inches.of(-5.7), Inches.of(22.5)),
+          new Rotation3d(Degrees.zero(), Degrees.of(-24), Degrees.of(180)));
 
   // if true kraken drivetrain is used otherwise neo is used
   public static LoggedDashboardBoolean USE_KRAKEN_DRIVETRAIN =

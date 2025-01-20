@@ -5,17 +5,16 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
-  private final DCMotorSim m_driveMotor =
-      new DCMotorSim(
-          DCMotor.getNEO(1), Constants.NeoSwerveModuleConstants.DRIVING_MOTOR_REDUCTION, 0.025);
-  private final DCMotorSim m_turnMotor =
-      new DCMotorSim(
-          DCMotor.getNEO(1), Constants.NeoSwerveModuleConstants.TURNING_MOTOR_REDUCTION, 0.004);
+  private final DCMotorSim m_driveMotor = null;
+  // new DCMotorSim(
+  //     DCMotor.getNEO(1), Constants.NeoSwerveModuleConstants.DRIVING_MOTOR_REDUCTION, 0.025);
+  private final DCMotorSim m_turnMotor = null;
+  // new DCMotorSim(
+  //     DCMotor.getNEO(1), Constants.NeoSwerveModuleConstants.TURNING_MOTOR_REDUCTION, 0.004);
 
   private final PIDController m_drivingPIDController = new PIDController(0.4, 0, 0, 0.02);
   private final PIDController m_turningPIDController =
