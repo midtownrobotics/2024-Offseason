@@ -14,8 +14,7 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.subsystems.drive.DriveConstants.*;
@@ -136,8 +135,8 @@ public class Module {
   }
 
   public void logDriveMotor(MotorLog driveLog) {
-    driveLog.linearPosition(Meters.of(getPosition().distanceMeters));
-    driveLog.linearVelocity(MetersPerSecond.of(getVelocityMetersPerSec()));
+    driveLog.angularPosition(Radians.of(inputs.drivePositionRad));
+    driveLog.angularVelocity(RadiansPerSecond.of(inputs.driveVelocityRadPerSec));
     driveLog.voltage(Volts.of(inputs.driveAppliedVolts));
     driveLog.current(Amps.of(inputs.driveCurrentAmps));
   }
