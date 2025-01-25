@@ -1,4 +1,3 @@
-
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
@@ -13,9 +12,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.utils.LoggedTunablePIDController;
-
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 
 public class AnkitPoint extends Command {
@@ -23,11 +20,10 @@ public class AnkitPoint extends Command {
   public static final double kMaxLinearAcceleration = 3; // meters per second squared
   public static final double kTrackWidthX = Units.inchesToMeters(15.25);
   public static final double kTrackWidthY = Units.inchesToMeters(16.25);
-  public static final double kDriveBaseRadius =
-      Math.hypot(kTrackWidthX / 2.0, kTrackWidthY / 2.0);
+  public static final double kDriveBaseRadius = Math.hypot(kTrackWidthX / 2.0, kTrackWidthY / 2.0);
   public static final double kMaxAngularSpeed = 0.9;
   public static final double kMaxAngularAcceleration = 0.9;
-  
+
   private Drivetrain m_drive;
   private Supplier<Pose2d> m_targetPose;
 
@@ -36,19 +32,17 @@ public class AnkitPoint extends Command {
           4.5,
           0.0,
           0.04,
-          new TrapezoidProfile.Constraints(
-              kMaxLinearSpeed, kMaxLinearAcceleration));
+          new TrapezoidProfile.Constraints(kMaxLinearSpeed, kMaxLinearAcceleration));
 
   private ProfiledPIDController m_headingController =
       new ProfiledPIDController(
           2.0,
           0.0,
           0.0,
-          new TrapezoidProfile.Constraints(
-              kMaxAngularSpeed, kMaxAngularAcceleration));
+          new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAcceleration));
 
-  private LoggedTunablePIDController m_thetaController = new LoggedTunablePIDController("/RohanPoint/Theta", 1, 0, .1);
-
+  private LoggedTunablePIDController m_thetaController =
+      new LoggedTunablePIDController("/RohanPoint/Theta", 1, 0, .1);
 
   private double m_ffMinRadius = 0.2, m_ffMaxRadius = 1.1;
 
@@ -78,7 +72,8 @@ public class AnkitPoint extends Command {
             0.0,
             -new Translation2d(fieldRelative.vxMetersPerSecond, fieldRelative.vyMetersPerSecond)
                 .rotateBy(
-                    m_targetPose.get()
+                    m_targetPose
+                        .get()
                         .getTranslation()
                         .minus(currentPose.getTranslation())
                         .getAngle()
@@ -86,7 +81,7 @@ public class AnkitPoint extends Command {
                 .getX()));
     m_headingController.reset(
         currentPose.getRotation().getRadians(), fieldRelative.omegaRadiansPerSecond);
-        m_thetaController.getController().reset();
+    m_thetaController.getController().reset();
   }
 
   @Override
@@ -96,8 +91,7 @@ public class AnkitPoint extends Command {
     Pose2d currentPose = m_drive.getPose();
     Translation2d linearError = targetPose.getTranslation().minus(currentPose.getTranslation());
 
-    double currentDistance =
-        currentPose.getTranslation().getDistance(targetPose.getTranslation());
+    double currentDistance = currentPose.getTranslation().getDistance(targetPose.getTranslation());
     double ffScaler =
         MathUtil.clamp(
             (currentDistance - m_ffMinRadius) / (m_ffMaxRadius - m_ffMinRadius), 0.0, 1.0);
@@ -118,9 +112,6 @@ public class AnkitPoint extends Command {
       headingVelocity = 0.0;
     }
 
-
-
-
     // evil math
     // blame 254 for making this because i dont fully understand it
     Translation2d driveVelocity =
@@ -131,18 +122,22 @@ public class AnkitPoint extends Command {
             .transformBy(new Transform2d(driveVelocityScalar, 0.0, new Rotation2d()))
             .getTranslation();
 
-
     // RohanPOint
     double thetaVelocity = 0;
     if (!m_thetaController.getController().atSetpoint()) {
-      thetaVelocity = m_thetaController.getController().calculate(currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-  }
-  ChassisSpeeds speeds =
-      ChassisSpeeds.fromFieldRelativeSpeeds(
-          driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation());
+      thetaVelocity =
+          m_thetaController
+              .getController()
+              .calculate(
+                  currentPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+    }
+    ChassisSpeeds speeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation());
     m_drive.setDriveToPointDesired(speeds);
 
-    Logger.recordOutput("RohanPoint/HeadingError", m_thetaController.getController().getPositionError());
+    Logger.recordOutput(
+        "RohanPoint/HeadingError", m_thetaController.getController().getPositionError());
     Logger.recordOutput("RohanPoint/HeadingVelocity", thetaVelocity);
 
     Logger.recordOutput("DriveToPoint/TargetPose", targetPose);

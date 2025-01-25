@@ -9,7 +9,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class Intake extends SubsystemBase {
   private RollerIO rollerIO;
-  private LoggedDashboardNumber rollerSpeed = new LoggedDashboardNumber("Intake/Tuning/rollerSpeed");
+  private LoggedDashboardNumber rollerSpeed =
+      new LoggedDashboardNumber("Intake/Tuning/rollerSpeed");
   private RollerIOInputsAutoLogged rollerIOInputs = new RollerIOInputsAutoLogged();
   private BeamBreak beamBreak;
 
@@ -21,7 +22,6 @@ public class Intake extends SubsystemBase {
     NOTE_HELD,
     SHOOTING
   }
-  
 
   public IntakeState currentSetState = IntakeState.IDLE;
 

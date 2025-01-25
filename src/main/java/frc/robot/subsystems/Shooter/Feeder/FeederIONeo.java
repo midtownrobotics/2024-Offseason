@@ -1,26 +1,39 @@
 package frc.robot.subsystems.Shooter.Feeder;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.TempuratureConverter;
 
 public class FeederIONeo implements FeederIO {
 
-  private CANSparkMax rollerTopNeo;
-  private CANSparkMax rollerBottomNeo;
+  private SparkMax rollerTopNeo;
+  private SparkMax rollerBottomNeo;
 
   public FeederIONeo(int rollerTopID, int rollerBottomID) {
-    rollerTopNeo = new CANSparkMax(rollerTopID, MotorType.kBrushless);
-    rollerTopNeo.setIdleMode(IdleMode.kCoast);
-    rollerTopNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
-    rollerTopNeo.burnFlash();
+    SparkBaseConfig rollerTopConfig =
+        new SparkMaxConfig()
+            .idleMode(IdleMode.kCoast)
+            .inverted(true)
+            .smartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
+    SparkBaseConfig rollerBottomConfig =
+        new SparkMaxConfig()
+            .idleMode(IdleMode.kCoast)
+            .inverted(true)
+            .smartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
 
-    rollerBottomNeo = new CANSparkMax(rollerBottomID, MotorType.kBrushless);
-    rollerBottomNeo.setIdleMode(IdleMode.kCoast);
-    rollerBottomNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_550);
-    rollerBottomNeo.burnFlash();
+    rollerTopNeo = new SparkMax(rollerTopID, MotorType.kBrushless);
+    rollerTopNeo.configure(
+        rollerTopConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    rollerBottomNeo = new SparkMax(rollerBottomID, MotorType.kBrushless);
+    rollerBottomNeo.configure(
+        rollerBottomConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override

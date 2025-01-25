@@ -2,12 +2,7 @@ package frc.robot.utils;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.PathPlannerLogging;
-import com.pathplanner.lib.util.ReplanningConfig;
-
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -21,9 +16,7 @@ import frc.robot.commands.auton.ShootSubwoofer;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Limelight.Limelight;
-
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
-
 import java.util.List;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -78,48 +71,44 @@ public class AutonFactory extends VirtualSubsystem {
   }
 
   private void updateHolonomicConfig() {
-    HolonomicPathFollowerConfig pathFollowerConfig =
-        new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in
-            // your Constants class
-            new PIDConstants(
-                PATHPLANNER_TRANSLATION_P.get(),
-                PATHPLANNER_TRANSLATION_I.get(),
-                PATHPLANNER_TRANSLATION_D.get()), // Translation PID constants
-            new PIDConstants(
-                PATHPLANNER_ROTATION_P.get(),
-                PATHPLANNER_ROTATION_I.get(),
-                PATHPLANNER_ROTATION_D.get()), // Rotation PID constants
-            4.5, // Max module speed, in m/s
-            0.377, // Drive base radius in meters. Distance from robot center to furthest module.
-            new ReplanningConfig() // Default path replanning config. See the API for the options
-            // here
-            );
+    // var pathFollowerConfig = new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this
+    // should likely live in
+    //     // your Constants class
+    //     new PIDConstants(
+    //         PATHPLANNER_TRANSLATION_P.get(),
+    //         PATHPLANNER_TRANSLATION_I.get(),
+    //         PATHPLANNER_TRANSLATION_D.get()), // Translation PID constants
+    //     new PIDConstants(
+    //         PATHPLANNER_ROTATION_P.get(),
+    //         PATHPLANNER_ROTATION_I.get(),
+    //         PATHPLANNER_ROTATION_D.get()), // Rotation PID constants
+    // );
 
-    AutoBuilder.configureHolonomic(
-        m_drivetrain::getPose, // Robot pose supplier
-        m_drivetrain
-            ::resetOdometry, // Method to reset odometry (will be called if your auto has a starting
-        // pose)
-        m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-        m_drivetrain
-            ::setPathPlannerDesired, // Method that will drive the robot given ROBOT RELATIVE
-        // ChassisSpeeds
-        pathFollowerConfig,
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        },
-        m_drivetrain // Reference to this subsystem to set requirements
-        );
+    // AutoBuilder.configure(
+    //     m_drivetrain::getPose, // Robot pose supplier
+    //     m_drivetrain::resetOdometry, // Method to reset odometry (will be called if your auto has
+    // a starting
+    //     // pose)
+    //     m_drivetrain::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+    //     m_drivetrain::setPathPlannerDesired, // Method that will drive the robot given ROBOT
+    // RELATIVE
+    //     // ChassisSpeeds
+    //     pathFollowerConfig,
+    //     () -> {
+    //       var alliance = DriverStation.getAlliance();
+    //       if (alliance.isPresent()) {
+    //         return alliance.get() == DriverStation.Alliance.Red;
+    //       }
+    //       return false;
+    //     },
+    //     m_drivetrain // Reference to this subsystem to set requirements
+    // );
 
-    m_currentAutonCommand = buildAutonCommand();
-    PathPlannerLogging.setLogCurrentPoseCallback(
-        (pose) -> Logger.recordOutput("PathPlanner/currentPose", pose));
-    PathPlannerLogging.setLogTargetPoseCallback(
-        (pose) -> Logger.recordOutput("PathPlanner/nextPose", pose));
+    // m_currentAutonCommand = buildAutonCommand();
+    // PathPlannerLogging.setLogCurrentPoseCallback(
+    //     (pose) -> Logger.recordOutput("PathPlanner/currentPose", pose));
+    // PathPlannerLogging.setLogTargetPoseCallback(
+    //     (pose) -> Logger.recordOutput("PathPlanner/nextPose", pose));
   }
 
   private Command buildAutonCommand(String path) {
@@ -180,81 +169,78 @@ public class AutonFactory extends VirtualSubsystem {
   public void registerNamedCommands() {
     if (Robot.isSimulation()) return;
     NamedCommands.registerCommand(
-      "Idle",
-      new InstantCommand(
-        () -> {
-          m_robotState.setState(State.IDLE);
-        }));
-  
-    NamedCommands.registerCommand(
-      "Rev",
-      new InstantCommand(
-        () -> {
-          m_robotState.setState(State.SUBWOOFER_REVVING);
-        }));
-  
-    NamedCommands.registerCommand(
-      "SubwooferRev",
-      new InstantCommand(() -> m_robotState.setState(State.SUBWOOFER_REVVING)));
-  
-    NamedCommands.registerCommand(
-      "SubwooferShoot",
-      new FunctionalCommand(
-        () -> m_robotState.setState(State.SUBWOOFER_REVSHOOT),
-        () -> {},
-        (interrupted) -> {},
-        () -> {
-          return m_robotState.getShooterState() == ShooterState.SUBWOOFER;
-        }
-      ).andThen(new WaitCommand(0.1).andThen(new InstantCommand(() -> m_robotState.setState(State.INTAKE_REVVING)))));
-  
-    NamedCommands.registerCommand(
-      "Intake",
-      new InstantCommand(
-        () -> {
-          m_robotState.setState(State.INTAKE_REVVING);
-        }));
-  
-    NamedCommands.registerCommand(
-      "EnableVision",
-      new InstantCommand(
-        () -> {
-          m_limelight.setAutonVisionEnabled(true);
-        }));
-  
-    NamedCommands.registerCommand(
-      "DisableVision",
-      new InstantCommand(
-        () -> {
-          m_limelight.setAutonVisionEnabled(false);
-        }));
-  
-    NamedCommands.registerCommand(
-      "AutoAimRotate",
-      new AlignWithSpeaker(m_limelight, m_drivetrain));
-  
-    NamedCommands.registerCommand(
-      "AutoAimRevShoot",
-      new FunctionalCommand(
-        () -> m_robotState.setState(State.AUTO_AIM_REVSHOOT),
-        () -> {},
-        (interrupted) -> {},
-        () -> {
-          return m_robotState.getShooterState() == ShooterState.AUTO_AIM;
-        }
-      ).andThen(
-        new WaitCommand(0.1).andThen(
-          new InstantCommand(
-            () -> m_robotState.setState(State.INTAKE_REVVING)
-          )
-        )
-      ));
+        "Idle",
+        new InstantCommand(
+            () -> {
+              m_robotState.setState(State.IDLE);
+            }));
 
-      NamedCommands.registerCommand(
+    NamedCommands.registerCommand(
+        "Rev",
+        new InstantCommand(
+            () -> {
+              m_robotState.setState(State.SUBWOOFER_REVVING);
+            }));
+
+    NamedCommands.registerCommand(
+        "SubwooferRev", new InstantCommand(() -> m_robotState.setState(State.SUBWOOFER_REVVING)));
+
+    NamedCommands.registerCommand(
+        "SubwooferShoot",
+        new FunctionalCommand(
+                () -> m_robotState.setState(State.SUBWOOFER_REVSHOOT),
+                () -> {},
+                (interrupted) -> {},
+                () -> {
+                  return m_robotState.getShooterState() == ShooterState.SUBWOOFER;
+                })
+            .andThen(
+                new WaitCommand(0.1)
+                    .andThen(
+                        new InstantCommand(() -> m_robotState.setState(State.INTAKE_REVVING)))));
+
+    NamedCommands.registerCommand(
+        "Intake",
+        new InstantCommand(
+            () -> {
+              m_robotState.setState(State.INTAKE_REVVING);
+            }));
+
+    NamedCommands.registerCommand(
+        "EnableVision",
+        new InstantCommand(
+            () -> {
+              m_limelight.setAutonVisionEnabled(true);
+            }));
+
+    NamedCommands.registerCommand(
+        "DisableVision",
+        new InstantCommand(
+            () -> {
+              m_limelight.setAutonVisionEnabled(false);
+            }));
+
+    NamedCommands.registerCommand("AutoAimRotate", new AlignWithSpeaker(m_limelight, m_drivetrain));
+
+    NamedCommands.registerCommand(
+        "AutoAimRevShoot",
+        new FunctionalCommand(
+                () -> m_robotState.setState(State.AUTO_AIM_REVSHOOT),
+                () -> {},
+                (interrupted) -> {},
+                () -> {
+                  return m_robotState.getShooterState() == ShooterState.AUTO_AIM;
+                })
+            .andThen(
+                new WaitCommand(0.1)
+                    .andThen(
+                        new InstantCommand(() -> m_robotState.setState(State.INTAKE_REVVING)))));
+
+    NamedCommands.registerCommand(
         "EnableAlignedFollowPath",
-        new InstantCommand(() -> {
-          m_drivetrain.setState(DriveState.FOLLOW_PATH_ALIGNED);
-        })
-      );
+        new InstantCommand(
+            () -> {
+              m_drivetrain.setState(DriveState.FOLLOW_PATH_ALIGNED);
+            }));
   }
 }

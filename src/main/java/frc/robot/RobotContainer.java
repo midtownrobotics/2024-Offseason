@@ -4,18 +4,10 @@
 
 package frc.robot;
 
-import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
-
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
@@ -27,11 +19,8 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
-// import frc.robot.generated.TunerConstants;
 import frc.robot.RobotState.State;
 import frc.robot.commands.AnkitPoint;
-import frc.robot.commands.DriveToPoint;
-import frc.robot.commands.RohanPoint;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
@@ -52,9 +41,7 @@ import frc.robot.subsystems.Intake.Roller.RollerIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
-import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
-import frc.robot.subsystems.Shooter.Shooter;
-import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOPhoton;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOSim;
@@ -64,15 +51,17 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import frc.robot.utils.AutonFactory;
 import frc.robot.utils.LoggedTunableNumber;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
 
   public static final double kTrackWidthX = Units.inchesToMeters(15.25);
   public static final double kTrackWidthY = Units.inchesToMeters(16.25);
-  public static final double kDriveBaseRadius =
-      Math.hypot(kTrackWidthX / 2.0, kTrackWidthY / 2.0);
+  public static final double kDriveBaseRadius = Math.hypot(kTrackWidthX / 2.0, kTrackWidthY / 2.0);
 
   private Climber climber;
   private Shooter shooter;
@@ -85,6 +74,9 @@ public class RobotContainer {
   private Drivetrain drivetrain;
 
   private RobotState robotState;
+
+  private AprilTagFieldLayout m_aprilTagFieldLayout =
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
   private final CommandXboxController driver =
       new CommandXboxController(Ports.driverControllerPort);
@@ -133,7 +125,9 @@ public class RobotContainer {
               //   driverX, driverY, driverRot
               // );
               double pigeonValue = drivetrain.getAngle();
-              if (drivingMode != null && drivingMode.get() != null && drivingMode.get().equals("robot")) {
+              if (drivingMode != null
+                  && drivingMode.get() != null
+                  && drivingMode.get().equals("robot")) {
                 pigeonValue = 0;
               }
 
@@ -143,31 +137,7 @@ public class RobotContainer {
             },
             drivetrain));
 
-    climber.setDefaultCommand(
-        new RunCommand(
-            () -> {
-              double operatorLeft = Constants.deadzone(-operator.getLeftY());
-              double operatorRight = Constants.deadzone(-operator.getRightY());
-              if (operatorLeft == 0 && operatorRight == 0) {
-                if (operatorPovUp) {
-                  climber.setPower(1, 1);
-                } else if (operatorPovDown) {
-                  climber.setPower(-1, -1);
-                } else {
-                  climber.setPower(0, 0);
-                }
-              } else {
-                climber.setPower(operatorLeft, operatorRight);
-              }
-            },
-            climber));
-
-    driver
-        .a()
-        .onTrue(
-          new InstantCommand(
-            () -> drivetrain.resetHeading()
-            ));
+    driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
 
     driver
         .x()
@@ -180,54 +150,42 @@ public class RobotContainer {
         .y()
         .onTrue(
             new InstantCommand(
-                () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN),
-                drivetrain
-            )
-        )
-        .onFalse(new InstantCommand(
-                () -> drivetrain.setState(DriveState.MANUAL),
-                drivetrain
-            )
-        );
+                () -> drivetrain.setState(DriveState.SPEAKER_AUTO_ALIGN), drivetrain))
+        .onFalse(new InstantCommand(() -> drivetrain.setState(DriveState.MANUAL), drivetrain));
 
     driver
         .leftTrigger()
         .whileTrue(
-            new StartEndCommand(
-                () -> drivetrain.setBoost(true), 
-                () -> drivetrain.setBoost(false)
-                ));
+            new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
 
-                LoggedTunableNumber targetX = new LoggedTunableNumber("Drive/AnkitPoint/TargetX", 1);
-                LoggedTunableNumber targetY = new LoggedTunableNumber("Drive/AnkitPoint/TargetY", 0);
-                LoggedTunableNumber targetYaw = new LoggedTunableNumber("Drive/AnkitPoint/TargetYaw", 0);
+    LoggedTunableNumber targetX = new LoggedTunableNumber("Drive/AnkitPoint/TargetX", 1);
+    LoggedTunableNumber targetY = new LoggedTunableNumber("Drive/AnkitPoint/TargetY", 0);
+    LoggedTunableNumber targetYaw = new LoggedTunableNumber("Drive/AnkitPoint/TargetYaw", 0);
     driver
         .b()
         .onTrue(
-            new InstantCommand(
-                () -> drivetrain.setState(DriveState.DRIVE_TO_POINT),
-                drivetrain
-            )
-        )
-        .onFalse(new InstantCommand(
-                () -> drivetrain.setState(DriveState.MANUAL),
-                drivetrain
-            )
-        )
-        /**
-          "x": -0.038099999999999995,
-          "y": 5.547867999999999,
-         */
-        .whileTrue(new AnkitPoint(drivetrain, () -> new Pose2d(
-          new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(targetX.get(), targetY.get())),
-          Rotation2d.fromDegrees(targetYaw.get())
-        )));
-        // .whileTrue(
-        //   AutoBuilder.pathfindToPose(new Pose2d(
-        //     new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(1, 0)),
-        //     new Rotation2d()
-        //     ), new PathConstraints(1, 1, .5, .5))
-        // );
+            new InstantCommand(() -> drivetrain.setState(DriveState.DRIVE_TO_POINT), drivetrain))
+        .onFalse(new InstantCommand(() -> drivetrain.setState(DriveState.MANUAL), drivetrain))
+        /** "x": -0.038099999999999995, "y": 5.547867999999999, */
+        .whileTrue(
+            new AnkitPoint(
+                drivetrain,
+                () ->
+                    m_aprilTagFieldLayout
+                        .getTagPose(2)
+                        .get()
+                        .toPose2d()
+                        .transformBy(
+                            new Transform2d(
+                                new Translation2d(targetX.get(), targetY.get()),
+                                new Rotation2d()))));
+    // .whileTrue(
+    //   AutoBuilder.pathfindToPose(new Pose2d(
+    //     new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(1,
+    // 0)),
+    //     new Rotation2d()
+    //     ), new PathConstraints(1, 1, .5, .5))
+    // );
 
     operator
         .povUp()
@@ -235,7 +193,8 @@ public class RobotContainer {
 
     operator
         .povDown()
-        .whileTrue(new StartEndCommand(() -> operatorPovDown = true, () -> operatorPovDown = false));
+        .whileTrue(
+            new StartEndCommand(() -> operatorPovDown = true, () -> operatorPovDown = false));
 
     operator
         .rightBumper()
@@ -288,10 +247,14 @@ public class RobotContainer {
         .leftBumper()
         .whileTrue(
             new StartEndCommand(
-                () -> {intake.setState(IntakeState.VOMITING);
-                       shooter.setState(ShooterState.VOMITING);},
-                () -> {intake.setState(IntakeState.IDLE);
-                       shooter.setState(ShooterState.IDLE);},
+                () -> {
+                  intake.setState(IntakeState.VOMITING);
+                  shooter.setState(ShooterState.VOMITING);
+                },
+                () -> {
+                  intake.setState(IntakeState.IDLE);
+                  shooter.setState(ShooterState.IDLE);
+                },
                 intake,
                 shooter));
 
@@ -299,10 +262,14 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new StartEndCommand(
-                () -> {intake.setState(IntakeState.VOMITING);
-                       shooter.setState(ShooterState.VOMITING);},
-                () -> {intake.setState(IntakeState.IDLE);
-                       shooter.setState(ShooterState.IDLE);},
+                () -> {
+                  intake.setState(IntakeState.VOMITING);
+                  shooter.setState(ShooterState.VOMITING);
+                },
+                () -> {
+                  intake.setState(IntakeState.IDLE);
+                  shooter.setState(ShooterState.IDLE);
+                },
                 intake,
                 shooter));
 
@@ -311,7 +278,6 @@ public class RobotContainer {
         .whileTrue(
             new StartEndCommand(
                 () -> {
-                  
                   switch (shooter.currentState) {
                     case SUBWOOFER_REVVING:
                       shooter.setState(ShooterState.SUBWOOFER);
@@ -350,16 +316,16 @@ public class RobotContainer {
 
     operator
         .a()
-        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.SUBWOOFER_REVVING), shooter));
+        .whileTrue(
+            new InstantCommand(() -> shooter.setState(ShooterState.SUBWOOFER_REVVING), shooter));
     operator
         .x()
         .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AMP_REVVING), shooter));
     operator
         .y()
-        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.AUTO_AIM_REVVING), shooter));
-    operator
-        .b()
-        .whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.IDLE), shooter));
+        .whileTrue(
+            new InstantCommand(() -> shooter.setState(ShooterState.AUTO_AIM_REVVING), shooter));
+    operator.b().whileTrue(new InstantCommand(() -> shooter.setState(ShooterState.IDLE), shooter));
     // joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     // joystick.b().whileTrue(drivetrain
     //     .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(),
@@ -378,11 +344,11 @@ public class RobotContainer {
 
     LimelightIO limelightIO;
 
-    if (Constants.getMode() == Constants.Mode.REAL) {
+    if (Constants.getMode() == Constants.Mode.REAL && false) {
       limelightIO =
           new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight"));
     } else {
-      limelightIO = new LimelightIOSim();
+      limelightIO = new LimelightIOPhoton("limelight", Constants.kLimelightRobotToCamera);
     }
 
     limelight = new Limelight(limelightIO);
@@ -433,7 +399,8 @@ public class RobotContainer {
     ClimberIO climberIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
-      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+      climberIO =
+          new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
     } else {
       climberIO = new ClimberIOSim();
     }
@@ -455,7 +422,15 @@ public class RobotContainer {
     }
 
     // Robot State
-    robotState = new RobotState(shooter, climber, intake, drivetrain, beamBreak, Ports.driverControllerPort, Ports.operatorControllerPort);
+    robotState =
+        new RobotState(
+            shooter,
+            climber,
+            intake,
+            drivetrain,
+            beamBreak,
+            Ports.driverControllerPort,
+            Ports.operatorControllerPort);
 
     drivingMode = new LoggedDashboardChooser<String>("Driving Mode");
     drivingMode.addDefaultOption("Field Relative", "field");
@@ -466,7 +441,8 @@ public class RobotContainer {
     //   drivetrain::resetOdometry,
     //   drivetrain::getRobotRelativeSpeeds,
     //   drivetrain::setDriveToPointDesired,
-    //   new HolonomicPathFollowerConfig(new PIDConstants(5), new PIDConstants(2.5, 0.06), 2, kDriveBaseRadius, new ReplanningConfig()), () -> false, drivetrain);
+    //   new HolonomicPathFollowerConfig(new PIDConstants(5), new PIDConstants(2.5, 0.06), 2,
+    // kDriveBaseRadius, new ReplanningConfig()), () -> false, drivetrain);
   }
 
   public RobotContainer() {

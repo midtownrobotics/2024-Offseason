@@ -1,25 +1,34 @@
 package frc.robot.subsystems.Climber.ClimberIO;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.utils.TempuratureConverter;
 
 public class ClimberIONeo implements ClimberIO {
-  private CANSparkMax rightClimber;
-  private CANSparkMax leftClimber;
+  private SparkMax rightClimber;
+  private SparkMax leftClimber;
 
   private double leftDesiredPower;
   private double rightDesiredPower;
 
   public ClimberIONeo(int rightClimberID, int leftClimberID) {
-    rightClimber = new CANSparkMax(rightClimberID, MotorType.kBrushless);
-    leftClimber = new CANSparkMax(leftClimberID, MotorType.kBrushless);
+    rightClimber = new SparkMax(rightClimberID, MotorType.kBrushless);
+    leftClimber = new SparkMax(leftClimberID, MotorType.kBrushless);
 
-    rightClimber.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
-    rightClimber.burnFlash();
-    leftClimber.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
-    leftClimber.burnFlash();
+    SparkBaseConfig rightConfig =
+        new SparkMaxConfig().smartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+    SparkBaseConfig leftConfig =
+        new SparkMaxConfig().smartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+
+    rightClimber.configure(
+        rightConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    leftClimber.configure(
+        leftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void setPower(double rightPower, double leftPower) {

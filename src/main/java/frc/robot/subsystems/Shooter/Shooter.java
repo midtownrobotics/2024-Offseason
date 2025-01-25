@@ -1,8 +1,5 @@
 package frc.robot.subsystems.Shooter;
 
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -15,6 +12,8 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOInputsAutoLogged;
 import frc.robot.utils.ApriltagHelper;
 import frc.robot.utils.ShooterUtils;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 public class Shooter extends SubsystemBase {
 
@@ -165,7 +164,7 @@ public class Shooter extends SubsystemBase {
         flywheelIO.setSpeed(0, 0);
         feederIO.setVoltage(0);
         pivotIO.setAngle(Constants.ShooterConstants.SPEAKER_ANGLE.get());
-        break;  
+        break;
       default:
         break;
     }

@@ -1,8 +1,12 @@
 package frc.robot.subsystems.Shooter.Pivot;
 
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -13,15 +17,18 @@ import frc.robot.utils.TempuratureConverter;
 import org.littletonrobotics.junction.Logger;
 
 public class PivotIONeo implements PivotIO {
-  private CANSparkMax pivotNeo;
+  private SparkMax pivotNeo;
   private PIDController pivotPID;
   private DutyCycleEncoder pivotEncoder;
 
   public PivotIONeo(int pivotNeoID, int pivotEncoderDIOID) {
-    pivotNeo = new CANSparkMax(pivotNeoID, MotorType.kBrushless);
-    pivotNeo.setIdleMode(IdleMode.kCoast);
-    pivotNeo.setSmartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
-    pivotNeo.burnFlash();
+    SparkBaseConfig pivotConfig =
+        new SparkMaxConfig()
+            .idleMode(IdleMode.kCoast)
+            .smartCurrentLimit(MotorConstants.CURRENT_LIMIT_1650);
+
+    pivotNeo = new SparkMax(pivotNeoID, MotorType.kBrushless);
+    pivotNeo.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     pivotEncoder = new DutyCycleEncoder(new DigitalInput(pivotEncoderDIOID));
 
@@ -37,9 +44,10 @@ public class PivotIONeo implements PivotIO {
     inputs.pivotOutputVoltage = pivotNeo.getBusVoltage() * pivotNeo.getAppliedOutput();
     inputs.pivotIsOn = Math.abs(pivotNeo.getAppliedOutput()) > 0.01;
     inputs.pivotVelocityRPM = pivotNeo.getEncoder().getVelocity();
-    inputs.pivotTempFahrenheit = TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
+    inputs.pivotTempFahrenheit =
+        TempuratureConverter.celsiusToFahrenheit(pivotNeo.getMotorTemperature());
     inputs.pivotCurrentAmps = pivotNeo.getOutputCurrent();
-    inputs.encoderReading = pivotEncoder.getAbsolutePosition();
+    inputs.encoderReading = pivotEncoder.get();
 
     inputs.editedEncoderReading = getAngle();
   }
@@ -71,11 +79,11 @@ public class PivotIONeo implements PivotIO {
 
   @Override
   public double getAngle() {
-    double encoderReading = pivotEncoder.getAbsolutePosition();
+    double encoderReading = pivotEncoder.get();
     if (encoderReading < 0.5) {
       encoderReading++;
     }
-    
+
     return encoderReading;
   }
 

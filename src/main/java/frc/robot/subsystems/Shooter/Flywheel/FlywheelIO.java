@@ -17,8 +17,11 @@ public interface FlywheelIO {
     public double rightCurrentAmps = 0.0;
   }
 
-    public void setSpeed(double leftSpeed, double rightSpeed);
-    public void updateInputs(FlywheelIOInputs inputs);
-    public void updatePIDControllers();
-    public double getSpeed();
+  public void setSpeed(double leftSpeed, double rightSpeed);
+
+  public void updateInputs(FlywheelIOInputs inputs);
+
+  public void updatePIDControllers();
+
+  public double getSpeed();
 }

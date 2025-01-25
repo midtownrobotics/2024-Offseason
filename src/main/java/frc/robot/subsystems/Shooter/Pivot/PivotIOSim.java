@@ -11,6 +11,6 @@ public class PivotIOSim implements PivotIO {
 
   @Override
   public double getAngle() {
-      return 0;
+    return 0;
   }
 }

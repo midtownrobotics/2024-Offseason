@@ -2,8 +2,8 @@ package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
-
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -12,9 +12,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.Constants.NeoDrivetrainConstants;
-import frc.robot.LimelightHelpers;
 import frc.robot.Ports;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIONeo;
@@ -29,21 +29,22 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   private static final LoggedTunableNumber FRONT_LEFT_VIRTUAL_OFFSET_RADIANS =
       new LoggedTunableNumber(
           "Drive/Tuning/FrontLeftOffset",
-          0.125
-              + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when
+          -3.00967); // adjust as needed so that virtual (turn) position of wheel is zero when
   // straight
   private static final LoggedTunableNumber FRONT_RIGHT_VIRTUAL_OFFSET_RADIANS =
       new LoggedTunableNumber(
           "Drive/Tuning/FrontRightOffset",
-          2.657
+          2.68139
               + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when
   // straight
   private static final LoggedTunableNumber REAR_LEFT_VIRTUAL_OFFSET_RADIANS =
       new LoggedTunableNumber(
           "Drive/Tuning/RearLeftOffset",
-          0.8); // adjust as needed so that virtual (turn) position of wheel is zero when straight
+          -2.35466
+              + Math.PI); // adjust as needed so that virtual (turn) position of wheel is zero when
+  // straight
   private static final LoggedTunableNumber REAR_RIGHT_VIRTUAL_OFFSET_RADIANS =
-      new LoggedTunableNumber("Drive/Tuning/RearRightOffset", 1.78);
+      new LoggedTunableNumber("Drive/Tuning/RearRightOffset", -1.34836 + Math.PI);
   private static final int GYRO_ORIENTATION = 1; // might be able to merge with kGyroReversed
 
   // private static final double FIELD_LENGTH_INCHES = 54 * 12 + 1; // 54ft 1in
@@ -58,13 +59,14 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
   // private static final double MAX_TURN_PCT_OUTPUT = 0.4; // 0.4;
 
   private static final double TURN_PROPORTIONAL_GAIN = 0.001; // 0.01;
+
   private static final double TURN_INTEGRAL_GAIN = 0.0;
   private static final double TURN_DERIVATIVE_GAIN = 0.0; // 0.0001
 
   private static final int DEGREE_THRESHOLD = 10; // 3;
 
   // private static final int TURN_ON_TARGET_MINIMUM_COUNT =
-      // 10; // number of times/iterations we need to be on target to really be on target
+  // 10; // number of times/iterations we need to be on target to really be on target
 
   /** END TURN SETTINGS */
 
@@ -194,13 +196,20 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
         },
         REAR_RIGHT_VIRTUAL_OFFSET_RADIANS);
 
-        LoggedTunableNumber.ifChanged(hashCode(), (double[] newStdevs) -> {
-          m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(stdevx.get(), stdevy.get(), stdevomega.get()));
-        }, stdevx, stdevy, stdevomega);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        (double[] newStdevs) -> {
+          m_poseEstimator.setVisionMeasurementStdDevs(
+              VecBuilder.fill(stdevx.get(), stdevy.get(), stdevomega.get()));
+        },
+        stdevx,
+        stdevy,
+        stdevomega);
 
-
-    Logger.recordOutput("Drive/Tag7Offsets/X", getPose().getTranslation().getX() - -0.038099999999999995);
-    Logger.recordOutput("Drive/Tag7Offsets/Y", getPose().getTranslation().getY() - 5.547867999999999);
+    Logger.recordOutput(
+        "Drive/Tag7Offsets/X", getPose().getTranslation().getX() - -0.038099999999999995);
+    Logger.recordOutput(
+        "Drive/Tag7Offsets/Y", getPose().getTranslation().getY() - 5.547867999999999);
 
     m_frontLeft.updateInputs(m_frontLeftInputs);
     m_frontRight.updateInputs(m_frontRightInputs);
@@ -367,20 +376,25 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
     // m_poseEstimator.update(Rotation2d.fromDegrees(0), getSwerveModulePositions());
   }
 
-  public void updateOdometryWithVision(Limelight limelight) {
-    LimelightHelpers.PoseEstimate mt2 = limelight.getMegatagPose(getPose());
-
-    if (mt2 != null) {
-      m_poseEstimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-      Logger.recordOutput("Limelight/MegatagPose", mt2.pose);
-    }
+  public void addVisionMeasurement(Pose2d pose, double timestampSeconds, Vector<N3> stdDevs) {
+    m_poseEstimator.addVisionMeasurement(pose, timestampSeconds, stdDevs);
   }
 
-
   public void updatePIDControllers() {
-    m_frontLeft.updatePIDControllers();
-    m_frontRight.updatePIDControllers();
-    m_rearLeft.updatePIDControllers();
-    m_rearRight.updatePIDControllers();
+    // m_frontLeft.updatePIDControllers();
+    // m_frontRight.updatePIDControllers();
+    // m_rearLeft.updatePIDControllers();
+    // m_rearRight.updatePIDControllers();
+  }
+
+  @Override
+  public void updateOdometryWithVision(Limelight limelight) {
+    if (limelight.getLatestPose() == null) {
+      return;
+    }
+    addVisionMeasurement(
+        limelight.getLatestPose().toPose2d(),
+        limelight.getLatestTimestamp(),
+        limelight.getLatestStdDevs());
   }
 }

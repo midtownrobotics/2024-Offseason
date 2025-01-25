@@ -35,7 +35,7 @@ public class BeamBreak extends SubsystemBase {
     } else if (!beamBreakIO.getIsBroken()) {
       brokenLastCycle = false;
     }
-    
+
     beamBreakIO.updateInputs(beamBreakIOInputs);
   }
 }

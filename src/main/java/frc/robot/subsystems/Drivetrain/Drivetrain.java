@@ -1,10 +1,8 @@
 package frc.robot.subsystems.Drivetrain;
 
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -15,8 +13,10 @@ import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.utils.AllianceFlipUtil;
-import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.ApriltagHelper.Tags;
+import frc.robot.utils.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -35,10 +35,12 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveIOInputsAutoLogged swerveIOInputs = new SwerveIOInputsAutoLogged();
   private final Limelight m_limelight;
 
-  private LoggedDashboardNumber vxMetersPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vxMetersPerSecond");
-  private LoggedDashboardNumber vyMetersPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vyMetersPerSecond");
-  private LoggedDashboardNumber omegaRadiansPerSecond = new LoggedDashboardNumber("Drivetrain/Tuning/vxMetersPerSecond");
-
+  private LoggedNetworkNumber vxMetersPerSecond =
+      new LoggedNetworkNumber("Drivetrain/Tuning/vxMetersPerSecond");
+  private LoggedNetworkNumber vyMetersPerSecond =
+      new LoggedNetworkNumber("Drivetrain/Tuning/vyMetersPerSecond");
+  private LoggedNetworkNumber omegaRadiansPerSecond =
+      new LoggedNetworkNumber("Drivetrain/Tuning/vxMetersPerSecond");
 
   private DriveState state = DriveState.MANUAL;
 
@@ -68,9 +70,12 @@ public class Drivetrain extends SubsystemBase {
   @Override
   public void periodic() {
 
-    LoggedTunableNumber.ifChanged(hashCode(), () -> {
-      alignZeroPID.setP(ShooterConstants.ALIGN_ZERO_P.get());
-    }, ShooterConstants.ALIGN_ZERO_P);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          alignZeroPID.setP(ShooterConstants.ALIGN_ZERO_P.get());
+        },
+        ShooterConstants.ALIGN_ZERO_P);
 
     m_swerveDrivetrainIO.updatePIDControllers();
 
@@ -102,37 +107,36 @@ public class Drivetrain extends SubsystemBase {
         // m_swerveDrivetrainIO.drive(driveX, driveY, driveOmega, true, false, speedBoost);
         break;
       case FOLLOW_PATH_ALIGNED:
-          if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
-            double desiredOmega = autoAimPID.calculate(m_limelight.getTx());
+        if (m_limelight.isValidTarget(Tags.SPEAKER_CENTER.getId())) {
+          double desiredOmega = autoAimPID.calculate(m_limelight.getTx());
 
-            // if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            //   desiredOmega *= -1;
-            // }
+          // if (DriverStation.getAlliance().get() == Alliance.Blue) {
+          //   desiredOmega *= -1;
+          // }
 
-            m_swerveDrivetrainIO.drive(
-                pathplannerChassisSpeeds.vxMetersPerSecond,
-                pathplannerChassisSpeeds.vyMetersPerSecond,
-                desiredOmega,
-                false,
-                false,
-                speedBoost);
-            break;
-          }
-      // INTENTIONAL FALL THROUGH
+          m_swerveDrivetrainIO.drive(
+              pathplannerChassisSpeeds.vxMetersPerSecond,
+              pathplannerChassisSpeeds.vyMetersPerSecond,
+              desiredOmega,
+              false,
+              false,
+              speedBoost);
+          break;
+        }
+        // INTENTIONAL FALL THROUGH
       case FOLLOW_PATH:
         m_swerveDrivetrainIO.drive(
-          pathplannerChassisSpeeds.vxMetersPerSecond,
-          pathplannerChassisSpeeds.vyMetersPerSecond,
-          0, // PathPlanner banned from rotating robot
-          false,
-          false,
-          speedBoost
-        );
+            pathplannerChassisSpeeds.vxMetersPerSecond,
+            pathplannerChassisSpeeds.vyMetersPerSecond,
+            0, // PathPlanner banned from rotating robot
+            false,
+            false,
+            speedBoost);
         // m_swerveDrivetrainIO.drive(pathplannerChassisSpeeds, false, true);
         break;
       case DRIVE_TO_POINT:
-          m_swerveDrivetrainIO.drive(driveToPointChassisSpeeds, false, false);
-          break;
+        m_swerveDrivetrainIO.drive(driveToPointChassisSpeeds, false, false);
+        break;
       case X:
         // m_swerveDrivetrainIO.drive(4,
         //     0,
@@ -158,9 +162,11 @@ public class Drivetrain extends SubsystemBase {
             false,
             false,
             speedBoost);
-      break;
+        break;
       case TUNING:
-        setDriverDesired(new ChassisSpeeds(vxMetersPerSecond.get(), vyMetersPerSecond.get(), omegaRadiansPerSecond.get()));
+        setDriverDesired(
+            new ChassisSpeeds(
+                vxMetersPerSecond.get(), vyMetersPerSecond.get(), omegaRadiansPerSecond.get()));
     }
 
     // Logger.recordOutput("Drive/DrivetrainState", state.toString());
@@ -171,6 +177,10 @@ public class Drivetrain extends SubsystemBase {
     swerveIOInputs.state = state;
     // swerveIOInputs.pose = getPose();
     Logger.processInputs("Drive", swerveIOInputs);
+
+    Logger.recordOutput("Drive/Pose", getPose());
+    Logger.recordOutput(
+        "Drive/CameraPose", new Pose3d(getPose()).transformBy(Constants.kLimelightRobotToCamera));
   }
 
   public void setState(DriveState state) {

@@ -1,6 +1,6 @@
 package frc.robot.subsystems.Limelight.LimelightIO;
 
-import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface LimelightIO {
@@ -13,7 +13,9 @@ public interface LimelightIO {
     public double distance = 0.0;
     public double angleOffset = 0.0;
     public double tx = 0;
-    public Pose2d latestPose;
+    public Pose3d latestPose = new Pose3d();
+    public double latestTimestampSeconds = 0.0;
+    public double[] stdDevs = {0, 0, 0};
   }
 
   double getAngleOffset();
