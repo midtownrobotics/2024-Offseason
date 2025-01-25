@@ -1,11 +1,14 @@
 package frc.robot.subsystems.Drivetrain;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
@@ -80,7 +83,6 @@ public class Drivetrain extends SubsystemBase {
     m_swerveDrivetrainIO.updatePIDControllers();
 
     m_swerveDrivetrainIO.updateOdometry();
-    m_swerveDrivetrainIO.updateOdometryWithVision(m_limelight);
 
     switch (state) {
       case SPEAKER_AUTO_ALIGN:
@@ -255,5 +257,14 @@ public class Drivetrain extends SubsystemBase {
   public ChassisSpeeds getRobotRelativeSpeedsNoOmega() {
     ChassisSpeeds speeds = getRobotRelativeSpeeds();
     return new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, 0);
+  }
+
+  /** Adds a new timestamped vision measurement. */
+  public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
+    m_swerveDrivetrainIO.addVisionMeasurement(
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 }

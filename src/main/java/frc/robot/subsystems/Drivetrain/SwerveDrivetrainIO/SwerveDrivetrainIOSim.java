@@ -1,17 +1,19 @@
 package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOSim;
-import frc.robot.subsystems.Limelight.Limelight;
 import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
@@ -167,5 +169,11 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
   }
 
   @Override
-  public void updateOdometryWithVision(Limelight limelight) {}
+  public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'addVisionMeasurement'");
+  }
 }

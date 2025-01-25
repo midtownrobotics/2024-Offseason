@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -40,8 +39,7 @@ import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
-import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
-import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOPhoton;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOSim;
@@ -53,6 +51,10 @@ import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.utils.AutonFactory;
 import frc.robot.utils.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -68,6 +70,7 @@ public class RobotContainer {
   private Intake intake;
   private BeamBreak beamBreak;
   private Limelight limelight;
+  private Vision vision;
   private AutonFactory m_autonFactory;
   private LoggedDashboardChooser<String> drivingMode;
 
@@ -342,13 +345,18 @@ public class RobotContainer {
 
     // Limelight
 
-    LimelightIO limelightIO;
+    LimelightIO limelightIO = new LimelightIOSim();
+    VisionIO visionIO;
 
     if (Constants.getMode() == Constants.Mode.REAL && false) {
-      limelightIO =
-          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight"));
+      // limelightIO = new
+      // LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight"));
+      // visionIO = new VisionIOLimelight(null, null)
     } else {
-      limelightIO = new LimelightIOPhoton("limelight", Constants.kLimelightRobotToCamera);
+      // limelightIO = new LimelightIOPhoton("limelight", Constants.kLimelightRobotToCamera);
+      visionIO =
+          new VisionIOPhotonVision(
+              VisionConstants.kLimelightName, VisionConstants.kLimelightRobotToCamera);
     }
 
     limelight = new Limelight(limelightIO);
@@ -443,6 +451,8 @@ public class RobotContainer {
     //   drivetrain::setDriveToPointDesired,
     //   new HolonomicPathFollowerConfig(new PIDConstants(5), new PIDConstants(2.5, 0.06), 2,
     // kDriveBaseRadius, new ReplanningConfig()), () -> false, drivetrain);
+
+    vision = new Vision(drivetrain::addVisionMeasurement, visionIO);
   }
 
   public RobotContainer() {

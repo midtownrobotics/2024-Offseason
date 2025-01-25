@@ -1,15 +1,17 @@
 package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIO;
-import frc.robot.subsystems.Limelight.Limelight;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveDrivetrainIO {
@@ -113,5 +115,11 @@ public interface SwerveDrivetrainIO {
 
   void updateOdometry();
 
-  void updateOdometryWithVision(Limelight limelight);
+  // void updateOdometryWithVision(Limelight limelight);
+
+  /** Adds a new timestamped vision measurement. */
+  public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs);
 }

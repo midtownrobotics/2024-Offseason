@@ -2,6 +2,7 @@ package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.PIDController;
@@ -12,13 +13,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.WPIUtilJNI;
 import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.Ports;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIONeo;
-import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.LoggedTunableNumber;
 import frc.robot.utils.NeoSwerveUtils;
@@ -387,14 +388,12 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
     // m_rearRight.updatePIDControllers();
   }
 
-  @Override
-  public void updateOdometryWithVision(Limelight limelight) {
-    if (limelight.getLatestPose() == null) {
-      return;
-    }
-    addVisionMeasurement(
-        limelight.getLatestPose().toPose2d(),
-        limelight.getLatestTimestamp(),
-        limelight.getLatestStdDevs());
+  /** Adds a new timestamped vision measurement. */
+  public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters,
+      double timestampSeconds,
+      Matrix<N3, N1> visionMeasurementStdDevs) {
+    m_poseEstimator.addVisionMeasurement(
+        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 }
