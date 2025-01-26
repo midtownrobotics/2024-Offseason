@@ -389,9 +389,12 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
   @Override
   public void updateOdometryWithVision(Limelight limelight) {
-    if (limelight.getLatestPose() == null) {
+    if (limelight.getMegatagPose(getPose()) == null) {
       return;
     }
+
+    Logger.recordOutput("Ankit/Pose", limelight.getLatestPose().toPose2d());
+
     addVisionMeasurement(
         limelight.getLatestPose().toPose2d(),
         limelight.getLatestTimestamp(),

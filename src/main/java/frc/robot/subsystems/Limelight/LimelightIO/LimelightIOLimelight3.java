@@ -1,6 +1,7 @@
 package frc.robot.subsystems.Limelight.LimelightIO;
 
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.Timer;
 
 public class LimelightIOLimelight3 implements LimelightIO {
   private NetworkTable networkTable;
@@ -60,5 +61,6 @@ public class LimelightIOLimelight3 implements LimelightIO {
     inputs.distance = getDistance();
     inputs.angleOffset = getAngleOffset() * (180 / Math.PI);
     inputs.tx = getTx();
+    inputs.latestTimestampSeconds = Timer.getFPGATimestamp();
   }
 }

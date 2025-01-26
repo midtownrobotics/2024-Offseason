@@ -11,6 +11,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
+import frc.robot.utils.LoggedTunablePIDController;
 import org.littletonrobotics.junction.Logger;
 
 public class DriveToPoint extends Command {
@@ -22,15 +23,15 @@ public class DriveToPoint extends Command {
   public static final double kMaxAngularSpeed = 0.9;
   public static final double kMaxAngularAcceleration = 0.9;
 
+  private LoggedTunablePIDController m_thetaController =
+      new LoggedTunablePIDController("/RohanPoint/Theta", 1, 0, .1);
+
   private Drivetrain m_drive;
   private Pose2d m_targetPose;
 
   private ProfiledPIDController m_driveController =
       new ProfiledPIDController(
-          4.5,
-          0.0,
-          0.04,
-          new TrapezoidProfile.Constraints(kMaxLinearSpeed, kMaxLinearAcceleration));
+          1, 0.0, 0.3, new TrapezoidProfile.Constraints(kMaxLinearSpeed, kMaxLinearAcceleration));
 
   private ProfiledPIDController m_headingController =
       new ProfiledPIDController(
@@ -39,7 +40,7 @@ public class DriveToPoint extends Command {
           0.0,
           new TrapezoidProfile.Constraints(kMaxAngularSpeed, kMaxAngularAcceleration));
 
-  private double m_ffMinRadius = 0.2, m_ffMaxRadius = 1.1;
+  private double m_ffMinRadius = 0.5, m_ffMaxRadius = 1.1;
 
   public DriveToPoint(Drivetrain drive, Pose2d targetPose) {
     m_drive = drive;
@@ -50,6 +51,9 @@ public class DriveToPoint extends Command {
 
     m_driveController.setTolerance(Units.inchesToMeters(0.5));
     m_headingController.setTolerance(Units.degreesToRadians(1));
+
+    m_thetaController.getController().enableContinuousInput(-Math.PI, Math.PI);
+    m_thetaController.getController().setTolerance(Units.degreesToRadians(0.5));
   }
 
   @Override
@@ -72,6 +76,8 @@ public class DriveToPoint extends Command {
                 .getX()));
     m_headingController.reset(
         currentPose.getRotation().getRadians(), fieldRelative.omegaRadiansPerSecond);
+
+    m_thetaController.getController().reset();
   }
 
   @Override
@@ -90,15 +96,23 @@ public class DriveToPoint extends Command {
       driveVelocityScalar = 0.0;
     }
 
-    double headingError = currentPose.getRotation().minus(m_targetPose.getRotation()).getRadians();
-    double headingVelocity =
-        m_headingController.getSetpoint().velocity * ffScaler
-            + m_headingController.calculate(
-                currentPose.getRotation().getRadians(), m_targetPose.getRotation().getRadians());
-
-    if (Math.abs(headingError) < m_headingController.getPositionTolerance() || !false) {
-      headingVelocity = 0.0;
+    double thetaVelocity = 0;
+    if (!m_thetaController.getController().atSetpoint() || true) {
+      thetaVelocity =
+          m_thetaController
+              .getController()
+              .calculate(
+                  currentPose.getRotation().getRadians(), m_targetPose.getRotation().getRadians());
     }
+
+    double headingError = currentPose.getRotation().minus(m_targetPose.getRotation()).getRadians();
+    // double headingVelocity = m_headingController.getSetpoint().velocity * ffScaler
+    //     + m_headingController.calculate(
+    //         currentPose.getRotation().getRadians(), m_targetPose.getRotation().getRadians());
+
+    // if (Math.abs(headingError) < m_headingController.getPositionTolerance() || false) {
+    //   headingVelocity = 0.0;
+    // }
 
     // evil math
     // blame 254 for making this because i dont fully understand it
@@ -111,7 +125,7 @@ public class DriveToPoint extends Command {
             .getTranslation();
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
-            driveVelocity.getX(), driveVelocity.getY(), headingVelocity, currentPose.getRotation());
+            driveVelocity.getX(), driveVelocity.getY(), thetaVelocity, currentPose.getRotation());
     m_drive.setDriveToPointDesired(speeds);
 
     Logger.recordOutput("DriveToPoint/TargetPose", m_targetPose);
@@ -119,7 +133,7 @@ public class DriveToPoint extends Command {
     Logger.recordOutput("DriveToPoint/HeadingError", headingError);
 
     Logger.recordOutput("DriveToPoint/DriveVelocityScalar", driveVelocityScalar);
-    Logger.recordOutput("DriveToPoint/HeadingVelocity", headingVelocity);
+    Logger.recordOutput("DriveToPoint/HeadingVelocity", thetaVelocity);
     Logger.recordOutput("DriveToPoint/DriveVelocityX", driveVelocity.getX());
     Logger.recordOutput("DriveToPoint/DriveVelocityY", driveVelocity.getY());
 

@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
 import frc.robot.RobotState.State;
-import frc.robot.commands.AnkitPoint;
+import frc.robot.commands.DriveToPoint;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
@@ -55,6 +55,7 @@ import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import frc.robot.utils.AutonFactory;
 import frc.robot.utils.LoggedTunableNumber;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
@@ -161,6 +162,7 @@ public class RobotContainer {
     LoggedTunableNumber targetX = new LoggedTunableNumber("Drive/AnkitPoint/TargetX", 1);
     LoggedTunableNumber targetY = new LoggedTunableNumber("Drive/AnkitPoint/TargetY", 0);
     LoggedTunableNumber targetYaw = new LoggedTunableNumber("Drive/AnkitPoint/TargetYaw", 0);
+    Logger.recordOutput("Drive/Tag7Pose", m_aprilTagFieldLayout.getTagPose(7).get().toPose2d());
     driver
         .b()
         .onTrue(
@@ -168,17 +170,16 @@ public class RobotContainer {
         .onFalse(new InstantCommand(() -> drivetrain.setState(DriveState.MANUAL), drivetrain))
         /** "x": -0.038099999999999995, "y": 5.547867999999999, */
         .whileTrue(
-            new AnkitPoint(
+            new DriveToPoint(
                 drivetrain,
-                () ->
-                    m_aprilTagFieldLayout
-                        .getTagPose(2)
-                        .get()
-                        .toPose2d()
-                        .transformBy(
-                            new Transform2d(
-                                new Translation2d(targetX.get(), targetY.get()),
-                                new Rotation2d()))));
+                m_aprilTagFieldLayout
+                    .getTagPose(7)
+                    .get()
+                    .toPose2d()
+                    .transformBy(
+                        new Transform2d(
+                            new Translation2d(targetX.get(), targetY.get()),
+                            Rotation2d.fromDegrees(180)))));
     // .whileTrue(
     //   AutoBuilder.pathfindToPose(new Pose2d(
     //     new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(1,
@@ -344,9 +345,9 @@ public class RobotContainer {
 
     LimelightIO limelightIO;
 
-    if (Constants.getMode() == Constants.Mode.REAL && false) {
+    if (Constants.getMode() == Constants.Mode.REAL && true) {
       limelightIO =
-          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight"));
+          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight-woody"));
     } else {
       limelightIO = new LimelightIOPhoton("limelight", Constants.kLimelightRobotToCamera);
     }
