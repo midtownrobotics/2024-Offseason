@@ -18,6 +18,7 @@ public final class Constants {
 
   public static final double JOYSTICK_THRESHOLD = 0.1;
   public static final double CONTROL_LIMITER = 1;
+  public static final double SUBOORDINATE_LIMITER = 0.5;
   public static final double THEORETICAL_RESTING_VOLTAGE = 12;
   public static final double RUMBLE_DURATION = 1;
 
@@ -89,7 +90,7 @@ public final class Constants {
     public static LoggedNetworkNumber SPEAKER_ANGLE =
         new LoggedNetworkNumber("Shooter/Constants/SPEAKER_ANGLE", 0.852);
     public static LoggedNetworkNumber SPEAKER_SPEED =
-        new LoggedNetworkNumber("Shooter/Constants/SPEAKER_SPEED", 3100);
+        new LoggedNetworkNumber("Shooter/Constants/SPEAKER_SPEED", 1500);
     public static LoggedNetworkNumber SPEAKER_ROLLER_VOLTAGE =
         new LoggedNetworkNumber("Shooter/Constants/SPEAKER_ROLLER_VOLTAGE", 12);
 

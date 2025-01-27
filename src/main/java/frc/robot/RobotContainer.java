@@ -83,6 +83,7 @@ public class RobotContainer {
       new CommandXboxController(Ports.driverControllerPort);
   private final CommandXboxController operator =
       new CommandXboxController(Ports.operatorControllerPort);
+  private final CommandXboxController master = new CommandXboxController(Ports.masterController);
 
   public static double deadzone(double a, double b, double c, double zone) {
     if (Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2) + Math.pow(c, 2)) > zone) {
@@ -95,32 +96,37 @@ public class RobotContainer {
   private boolean operatorPovUp = false;
   private boolean operatorPovDown = false;
 
+  private boolean suboordinateActive = false;
+
   private void configureBindings() {
 
     drivetrain.setDefaultCommand(
         new RunCommand(
             () -> {
+              CommandXboxController activeController = suboordinateActive ? driver : master;
+              double limiter =
+                  suboordinateActive ? Constants.CONTROL_LIMITER : Constants.SUBOORDINATE_LIMITER;
               double driverX =
                   RobotContainer.deadzone(
-                          -driver.getLeftY(),
-                          -driver.getLeftX(),
-                          -driver.getRightX(),
+                          -activeController.getLeftY(),
+                          -activeController.getLeftX(),
+                          -activeController.getRightX(),
                           Constants.JOYSTICK_THRESHOLD)
-                      * Constants.CONTROL_LIMITER;
+                      * limiter;
               double driverY =
                   RobotContainer.deadzone(
-                          -driver.getLeftX(),
-                          -driver.getLeftY(),
-                          -driver.getRightX(),
+                          -activeController.getLeftX(),
+                          -activeController.getLeftY(),
+                          -activeController.getRightX(),
                           Constants.JOYSTICK_THRESHOLD)
-                      * Constants.CONTROL_LIMITER;
+                      * limiter;
               double driverRot =
                   RobotContainer.deadzone(
-                          -driver.getRightX(),
-                          -driver.getLeftY(),
-                          -driver.getLeftX(),
+                          -activeController.getRightX(),
+                          -activeController.getLeftY(),
+                          -activeController.getLeftX(),
                           Constants.JOYSTICK_THRESHOLD)
-                      * Constants.CONTROL_LIMITER;
+                      * limiter;
 
               // drivetrain.setDriverDesired(
               //   driverX, driverY, driverRot
@@ -137,6 +143,11 @@ public class RobotContainer {
                       driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
             },
             drivetrain));
+
+    master
+        .rightBumper()
+        .onTrue(new InstantCommand(() -> suboordinateActive = true))
+        .onFalse(new InstantCommand(() -> suboordinateActive = false));
 
     driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
 
