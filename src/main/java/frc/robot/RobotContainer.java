@@ -105,7 +105,7 @@ public class RobotContainer {
             () -> {
               CommandXboxController activeController = suboordinateActive ? driver : master;
               double limiter =
-                  suboordinateActive ? Constants.CONTROL_LIMITER : Constants.SUBOORDINATE_LIMITER;
+                  suboordinateActive ? Constants.SUBOORDINATE_LIMITER : Constants.CONTROL_LIMITER;
               double driverX =
                   RobotContainer.deadzone(
                           -activeController.getLeftY(),
@@ -145,7 +145,7 @@ public class RobotContainer {
             drivetrain));
 
     master
-        .rightBumper()
+        .leftBumper()
         .onTrue(new InstantCommand(() -> suboordinateActive = true))
         .onFalse(new InstantCommand(() -> suboordinateActive = false));
 
