@@ -1,16 +1,11 @@
 package frc.robot.utils;
 
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.util.PathPlannerLogging;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +20,7 @@ import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
+import org.littletonrobotics.junction.Logger;
 
 public class AutonFactory {
 
@@ -33,12 +29,18 @@ public class AutonFactory {
   private final Limelight m_limelight;
   private final SendableChooser<Command> m_autoChooser;
 
-  private LoggedTunableNumber PATHPLANNER_TRANSLATION_P = new LoggedTunableNumber("PathPlanner/Translation_P", 2.5);
-  private LoggedTunableNumber PATHPLANNER_TRANSLATION_I = new LoggedTunableNumber("PathPlanner/Translation_I", 0);
-  private LoggedTunableNumber PATHPLANNER_TRANSLATION_D = new LoggedTunableNumber("PathPlanner/Translation_D", 0);
-  private LoggedTunableNumber PATHPLANNER_ROTATION_P = new LoggedTunableNumber("PathPlanner/ROTATION_P", 2);
-  private LoggedTunableNumber PATHPLANNER_ROTATION_I = new LoggedTunableNumber("PathPlanner/ROTATION_I", 0);
-  private LoggedTunableNumber PATHPLANNER_ROTATION_D = new LoggedTunableNumber("PathPlanner/ROTATION_D", 0);
+  private LoggedTunableNumber PATHPLANNER_TRANSLATION_P =
+      new LoggedTunableNumber("PathPlanner/Translation_P", 1.0);
+  private LoggedTunableNumber PATHPLANNER_TRANSLATION_I =
+      new LoggedTunableNumber("PathPlanner/Translation_I", 0);
+  private LoggedTunableNumber PATHPLANNER_TRANSLATION_D =
+      new LoggedTunableNumber("PathPlanner/Translation_D", 0);
+  private LoggedTunableNumber PATHPLANNER_ROTATION_P =
+      new LoggedTunableNumber("PathPlanner/ROTATION_P", 1.0);
+  private LoggedTunableNumber PATHPLANNER_ROTATION_I =
+      new LoggedTunableNumber("PathPlanner/ROTATION_I", 0);
+  private LoggedTunableNumber PATHPLANNER_ROTATION_D =
+      new LoggedTunableNumber("PathPlanner/ROTATION_D", 0);
 
   public AutonFactory(RobotState robotState, Drivetrain drivetrain, Limelight limelight) {
     this.m_drivetrain = drivetrain;
@@ -47,7 +49,8 @@ public class AutonFactory {
 
     registerNamedCommands();
 
-    PPHolonomicDriveController controller = new PPHolonomicDriveController(new PIDConstants(5), new PIDConstants(5));
+    PPHolonomicDriveController controller =
+        new PPHolonomicDriveController(new PIDConstants(1.0), new PIDConstants(1.0));
     RobotConfig robotConfig = null;
     try {
       robotConfig = RobotConfig.fromGUISettings();
@@ -62,9 +65,9 @@ public class AutonFactory {
         m_drivetrain::setPathPlannerDesired,
         controller,
         robotConfig,
-        DriverStation.getAlliance().map(x -> x.equals(Alliance.Red))::get,
+        () -> false,
         m_drivetrain // Reference to this subsystem to set requirements
-    );
+        );
 
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(m_autoChooser);
@@ -80,8 +83,7 @@ public class AutonFactory {
   }
 
   public void registerNamedCommands() {
-    if (Robot.isSimulation())
-      return;
+    if (Robot.isSimulation()) return;
     NamedCommands.registerCommand(
         "Idle",
         new InstantCommand(
@@ -102,14 +104,12 @@ public class AutonFactory {
     NamedCommands.registerCommand(
         "SubwooferShoot",
         new FunctionalCommand(
-            () -> m_robotState.setState(State.SUBWOOFER_REVSHOOT),
-            () -> {
-            },
-            (interrupted) -> {
-            },
-            () -> {
-              return m_robotState.getShooterState() == ShooterState.SUBWOOFER;
-            })
+                () -> m_robotState.setState(State.SUBWOOFER_REVSHOOT),
+                () -> {},
+                (interrupted) -> {},
+                () -> {
+                  return m_robotState.getShooterState() == ShooterState.SUBWOOFER;
+                })
             .andThen(
                 new WaitCommand(0.1)
                     .andThen(
@@ -141,14 +141,12 @@ public class AutonFactory {
     NamedCommands.registerCommand(
         "AutoAimRevShoot",
         new FunctionalCommand(
-            () -> m_robotState.setState(State.AUTO_AIM_REVSHOOT),
-            () -> {
-            },
-            (interrupted) -> {
-            },
-            () -> {
-              return m_robotState.getShooterState() == ShooterState.AUTO_AIM;
-            })
+                () -> m_robotState.setState(State.AUTO_AIM_REVSHOOT),
+                () -> {},
+                (interrupted) -> {},
+                () -> {
+                  return m_robotState.getShooterState() == ShooterState.AUTO_AIM;
+                })
             .andThen(
                 new WaitCommand(0.1)
                     .andThen(

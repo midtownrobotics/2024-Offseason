@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
-import frc.robot.RobotState.State;
 import frc.robot.commands.AnkitPoint;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
@@ -464,14 +463,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return m_autonFactory
-        .getAutonCommand()
-        .andThen(
-            () -> {
-              drivetrain.setState(DriveState.X);
-              robotState.setState(State.IDLE);
-            },
-            drivetrain);
+    return m_autonFactory.getAutonCommand();
   }
 
   public AutonFactory getAutonFactory() {
