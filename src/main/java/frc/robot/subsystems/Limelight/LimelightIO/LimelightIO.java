@@ -20,6 +20,8 @@ public interface LimelightIO {
 
   double getTx();
 
+  double getTy();
+
   double getDistance();
 
   int getId();

@@ -1,20 +1,13 @@
 package frc.robot.subsystems.Intake.Roller;
 
- import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import edu.wpi.first.math.MathUtil;
 
 public class RollerIOSim implements RollerIO {
-    private final DCMotorSim simRunInternal = new DCMotorSim(
-    DCMotor.getNeo550(1),
-    Constants.IntakeConstants.GEARING, 
-    Constants.IntakeConstants.MOI);
-
-    private final DCMotorSim simRunExternal = new DCMotorSim(
-    DCMotor.getNeo550(1),
-    Constants.IntakeConstants.GEARING,
-    Constants.IntakeConstants.MOI);
+    //TODO: Setup motor sim classes.
+    private final DCMotorSim simRunInternal = new DCMotorSim(null, null, null);
+    private final DCMotorSim simRunExternal = new DCMotorSim(null, null, null);
     
     
     @Override

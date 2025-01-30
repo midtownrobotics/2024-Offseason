@@ -5,17 +5,14 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
-  private final DCMotorSim m_driveMotor =
-      new DCMotorSim(
-          DCMotor.getNEO(1), Constants.NeoSwerveModuleConstants.DRIVING_MOTOR_REDUCTION, 0.025);
-  private final DCMotorSim m_turnMotor =
-      new DCMotorSim(
-          DCMotor.getNEO(1), Constants.NeoSwerveModuleConstants.TURNING_MOTOR_REDUCTION, 0.004);
+  //TODO: Setup motor sim classes.
+  private final DCMotorSim m_driveMotor = new DCMotorSim(null, null, null);
+  private final DCMotorSim m_turnMotor = new DCMotorSim(null, null, null);
+
 
   private final PIDController m_drivingPIDController = new PIDController(0.4, 0, 0, 0.02);
   private final PIDController m_turningPIDController =
@@ -56,14 +53,10 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
   @Override
   public void setDesiredState(SwerveModuleState desiredState) {
-    SwerveModuleState optimizedState =
-        SwerveModuleState.optimize(
-            desiredState, new Rotation2d(m_turnMotor.getAngularPositionRad()));
+    m_desiredState.optimize(new Rotation2d(m_turnMotor.getAngularPositionRad()));
 
-    m_desiredState = optimizedState;
-
-    if (Math.abs(optimizedState.speedMetersPerSecond) < 0.001
-        && Math.abs(optimizedState.angle.getRadians() - m_turnMotor.getAngularPositionRad())
+    if (Math.abs(m_desiredState.speedMetersPerSecond) < 0.001
+        && Math.abs(m_desiredState.angle.getRadians() - m_turnMotor.getAngularPositionRad())
             < Rotation2d.fromDegrees(1).getRadians()) {
       m_driveMotor.setInputVoltage(0);
       m_turnMotor.setInputVoltage(0);
@@ -71,16 +64,15 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     }
 
     double wheelRadius = Constants.NeoSwerveModuleConstants.WHEEL_DIAMETER_METERS / 2;
-    double velocityRadsPerSec = optimizedState.speedMetersPerSecond / wheelRadius;
+    double velocityRadsPerSec = m_desiredState.speedMetersPerSecond / wheelRadius;
     double driveVolts =
         m_drivingPIDController.calculate(
             m_driveMotor.getAngularVelocityRadPerSec(), velocityRadsPerSec);
     driveAppliedVolts = MathUtil.clamp(driveVolts, -12.0, 12.0);
     m_driveMotor.setInputVoltage(driveAppliedVolts);
 
-    double angleRads = optimizedState.angle.getRadians();
-    double turnVolts =
-        m_turningPIDController.calculate(m_turnMotor.getAngularPositionRad(), angleRads);
+    double angleRads = m_desiredState.angle.getRadians();
+    double turnVolts = m_turningPIDController.calculate(m_turnMotor.getAngularPositionRad(), angleRads);
     turnAppliedVolts = MathUtil.clamp(turnVolts, -12.0, 12.0);
     m_turnMotor.setInputVoltage(turnAppliedVolts);
   }

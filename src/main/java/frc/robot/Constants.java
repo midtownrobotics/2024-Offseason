@@ -1,6 +1,5 @@
 package frc.robot;
 
-import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -129,6 +128,7 @@ public final class Constants {
     public static final double MAX_ANGULAR_SPEED_RADIANS_PER_SECOND =
         10; // (Max 14.58) radians per second
 
+        
     public static final double DIRECTION_SLEW_RATE = 1.2; // radians per second
     public static final double MAGNITUDE_SLEW_RATE =
         1.8; // 2.0; //1.8; // percent per second (1 = 100%)
@@ -222,9 +222,6 @@ public final class Constants {
         new LoggedTunableNumber("Drivetrain/constants/TURNING_FF", 0);
     public static final double TURNING_MIN_OUTPUT_NORMALIZED = -1;
     public static final double TURNING_MAX_OUTPUT_NORMALIZED = 1;
-
-    public static final IdleMode DRIVING_MOTOR_IDLE_MODE = IdleMode.kBrake;
-    public static final IdleMode TURNING_MOTOR_IDLE_MODE = IdleMode.kBrake;
 
     public static final int DRIVING_MOTOR_CURRENT_LIMIT_AMPS = 40; // 50; // amps
     public static final int TURNING_MOTOR_CURRENT_LIMIT_AMPS = 20; // amps

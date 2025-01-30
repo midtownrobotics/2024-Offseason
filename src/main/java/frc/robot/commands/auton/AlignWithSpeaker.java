@@ -24,6 +24,6 @@ public class AlignWithSpeaker extends Command {
   @Override
   public boolean isFinished() {
     double tolerance = AutonConstants.AUTO_AIM_TOLERANCE.get();
-    return limelight.isValidTarget(ApriltagHelper.Tags.SPEAKER_CENTER.getId()) && Math.abs(limelight.getTx()) < tolerance;
+    return limelight.isValidTargetAprilTag(ApriltagHelper.Tags.SPEAKER_CENTER.getId()) && Math.abs(limelight.getTxBack()) < tolerance;
   }
 }

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
 // import frc.robot.generated.TunerConstants;
@@ -37,7 +38,7 @@ import frc.robot.subsystems.Intake.Roller.RollerIONeo;
 import frc.robot.subsystems.Intake.Roller.RollerIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
-import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight3;
+import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOLimelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
 import frc.robot.subsystems.Shooter.Shooter;
 import frc.robot.subsystems.Shooter.Shooter.ShooterState;
@@ -65,6 +66,8 @@ public class RobotContainer {
   private Drivetrain drivetrain;
 
   private RobotState robotState;
+
+  private boolean boostDrivetrain = false;
 
   private final CommandXboxController driver =
       new CommandXboxController(Ports.driverControllerPort);
@@ -117,9 +120,17 @@ public class RobotContainer {
                 pigeonValue = 0;
               }
 
-              drivetrain.setDriverDesired(
-                  ChassisSpeeds.fromFieldRelativeSpeeds(
-                      driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
+              driverRot *= NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
+
+              if (boostDrivetrain) {
+                driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
+                driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
+              } else {
+                driverX *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
+                driverY *= NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
+              }
+
+              drivetrain.setDriverDesired(ChassisSpeeds.fromFieldRelativeSpeeds(driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
             },
             drivetrain));
 
@@ -156,6 +167,15 @@ public class RobotContainer {
                 () -> drivetrain.setState(DriveState.X),
                 () -> drivetrain.setState(DriveState.MANUAL),
                 drivetrain));
+
+    driver
+        .leftBumper()
+        .whileTrue(
+            new StartEndCommand(
+                () -> drivetrain.setState(DriveState.NOTE_AUTO_PICKUP),
+                () -> drivetrain.setState(DriveState.MANUAL)
+              ));
+          
     driver
         .y()
         .onTrue(
@@ -174,8 +194,8 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new StartEndCommand(
-                () -> drivetrain.setBoost(true), 
-                () -> drivetrain.setBoost(false)
+                () -> boostDrivetrain = true, 
+                () -> boostDrivetrain = false
                 ));
 
     driver
@@ -339,16 +359,22 @@ public class RobotContainer {
 
     // Limelight
 
-    LimelightIO limelightIO;
+    LimelightIO limelightFrontIO;
+    LimelightIO limelightBackIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
-      limelightIO =
-          new LimelightIOLimelight3(NetworkTableInstance.getDefault().getTable("limelight"));
+      limelightFrontIO = new LimelightIOLimelight(NetworkTableInstance.getDefault().getTable("limelight-test"));
+      limelightBackIO = new LimelightIOLimelight(NetworkTableInstance.getDefault().getTable("limelight"));
+      limelightFrontIO = new LimelightIOLimelight(NetworkTableInstance.getDefault().getTable("limelight-test"));
+      limelightBackIO = new LimelightIOLimelight(NetworkTableInstance.getDefault().getTable("limelight"));
     } else {
-      limelightIO = new LimelightIOSim();
+      limelightFrontIO = new LimelightIOSim();
+      limelightBackIO = new LimelightIOSim();
+      limelightFrontIO = new LimelightIOSim();
+      limelightBackIO = new LimelightIOSim();
     }
 
-    limelight = new Limelight(limelightIO);
+    limelight = new Limelight(limelightFrontIO, limelightBackIO);
 
     // Shooter
 
@@ -412,9 +438,9 @@ public class RobotContainer {
     // drivetrain = new NeoSwerveDrivetrain();
     // }
     if (Robot.isSimulation()) {
-      drivetrain = new Drivetrain(new SwerveDrivetrainIOSim(), limelight);
+      drivetrain = new Drivetrain(new SwerveDrivetrainIOSim(), limelight, beamBreak::isBroken);
     } else {
-      drivetrain = new Drivetrain(new SwerveDrivetrainIONeo(), limelight);
+      drivetrain = new Drivetrain(new SwerveDrivetrainIONeo(), limelight, beamBreak::isBroken);
     }
 
     // Robot State
