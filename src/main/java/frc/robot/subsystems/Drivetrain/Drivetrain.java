@@ -1,5 +1,8 @@
 package frc.robot.subsystems.Drivetrain;
 
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,8 +21,6 @@ import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.ApriltagHelper.Tags;
 import frc.robot.utils.LoggedTunableNumber;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -38,12 +39,9 @@ public class Drivetrain extends SubsystemBase {
   private final SwerveIOInputsAutoLogged swerveIOInputs = new SwerveIOInputsAutoLogged();
   private final Limelight m_limelight;
 
-  private LoggedNetworkNumber vxMetersPerSecond =
-      new LoggedNetworkNumber("Drivetrain/Tuning/vxMetersPerSecond");
-  private LoggedNetworkNumber vyMetersPerSecond =
-      new LoggedNetworkNumber("Drivetrain/Tuning/vyMetersPerSecond");
-  private LoggedNetworkNumber omegaRadiansPerSecond =
-      new LoggedNetworkNumber("Drivetrain/Tuning/vxMetersPerSecond");
+  private LoggedNetworkNumber vxMetersPerSecond = new LoggedNetworkNumber("Drivetrain/Tuning/vxMetersPerSecond");
+  private LoggedNetworkNumber vyMetersPerSecond = new LoggedNetworkNumber("Drivetrain/Tuning/vyMetersPerSecond");
+  private LoggedNetworkNumber omegaRadiansPerSecond = new LoggedNetworkNumber("Drivetrain/Tuning/vxMetersPerSecond");
 
   private DriveState state = DriveState.MANUAL;
 
@@ -148,10 +146,10 @@ public class Drivetrain extends SubsystemBase {
         // ;
         m_swerveDrivetrainIO.drive(
             new SwerveModuleState[] {
-              new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-              new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-              new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-              new SwerveModuleState(0, Rotation2d.fromDegrees(45))
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45))
             });
         break;
       case ALIGN_ZERO:
@@ -248,9 +246,8 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
-    ChassisSpeeds output =
-        Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(
-            m_swerveDrivetrainIO.getSwerveModuleStates());
+    ChassisSpeeds output = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(
+        m_swerveDrivetrainIO.getSwerveModuleStates());
     return output;
   }
 

@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -42,8 +40,6 @@ import frc.robot.subsystems.Intake.Roller.RollerIOSim;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIO;
 import frc.robot.subsystems.Limelight.LimelightIO.LimelightIOSim;
-import frc.robot.subsystems.Shooter.Shooter;
-import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import frc.robot.subsystems.Shooter.Feeder.FeederIO;
 import frc.robot.subsystems.Shooter.Feeder.FeederIONeo;
 import frc.robot.subsystems.Shooter.Feeder.FeederIOSim;
@@ -53,12 +49,15 @@ import frc.robot.subsystems.Shooter.Flywheel.FlywheelIOSim;
 import frc.robot.subsystems.Shooter.Pivot.PivotIO;
 import frc.robot.subsystems.Shooter.Pivot.PivotIONeo;
 import frc.robot.subsystems.Shooter.Pivot.PivotIOSim;
+import frc.robot.subsystems.Shooter.Shooter;
+import frc.robot.subsystems.Shooter.Shooter.ShooterState;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonVision;
 import frc.robot.utils.AutonFactory;
 import frc.robot.utils.LoggedTunableNumber;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
 
@@ -79,10 +78,13 @@ public class RobotContainer {
 
   private RobotState robotState;
 
-  private AprilTagFieldLayout m_aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+  private AprilTagFieldLayout m_aprilTagFieldLayout =
+      AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
-  private final CommandXboxController driver = new CommandXboxController(Ports.driverControllerPort);
-  private final CommandXboxController operator = new CommandXboxController(Ports.operatorControllerPort);
+  private final CommandXboxController driver =
+      new CommandXboxController(Ports.driverControllerPort);
+  private final CommandXboxController operator =
+      new CommandXboxController(Ports.operatorControllerPort);
 
   public static double deadzone(double a, double b, double c, double zone) {
     if (Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2) + Math.pow(c, 2)) > zone) {
@@ -100,24 +102,27 @@ public class RobotContainer {
     drivetrain.setDefaultCommand(
         new RunCommand(
             () -> {
-              double driverX = RobotContainer.deadzone(
-                  -driver.getLeftY(),
-                  -driver.getLeftX(),
-                  -driver.getRightX(),
-                  Constants.JOYSTICK_THRESHOLD)
-                  * Constants.CONTROL_LIMITER;
-              double driverY = RobotContainer.deadzone(
-                  -driver.getLeftX(),
-                  -driver.getLeftY(),
-                  -driver.getRightX(),
-                  Constants.JOYSTICK_THRESHOLD)
-                  * Constants.CONTROL_LIMITER;
-              double driverRot = RobotContainer.deadzone(
-                  -driver.getRightX(),
-                  -driver.getLeftY(),
-                  -driver.getLeftX(),
-                  Constants.JOYSTICK_THRESHOLD)
-                  * Constants.CONTROL_LIMITER;
+              double driverX =
+                  RobotContainer.deadzone(
+                          -driver.getLeftY(),
+                          -driver.getLeftX(),
+                          -driver.getRightX(),
+                          Constants.JOYSTICK_THRESHOLD)
+                      * Constants.CONTROL_LIMITER;
+              double driverY =
+                  RobotContainer.deadzone(
+                          -driver.getLeftX(),
+                          -driver.getLeftY(),
+                          -driver.getRightX(),
+                          Constants.JOYSTICK_THRESHOLD)
+                      * Constants.CONTROL_LIMITER;
+              double driverRot =
+                  RobotContainer.deadzone(
+                          -driver.getRightX(),
+                          -driver.getLeftY(),
+                          -driver.getLeftX(),
+                          Constants.JOYSTICK_THRESHOLD)
+                      * Constants.CONTROL_LIMITER;
 
               // drivetrain.setDriverDesired(
               //   driverX, driverY, driverRot
@@ -168,14 +173,15 @@ public class RobotContainer {
         .whileTrue(
             new AnkitPoint(
                 drivetrain,
-                () -> m_aprilTagFieldLayout
-                    .getTagPose(2)
-                    .get()
-                    .toPose2d()
-                    .transformBy(
-                        new Transform2d(
-                            new Translation2d(targetX.get(), targetY.get()),
-                            new Rotation2d()))));
+                () ->
+                    m_aprilTagFieldLayout
+                        .getTagPose(2)
+                        .get()
+                        .toPose2d()
+                        .transformBy(
+                            new Transform2d(
+                                new Translation2d(targetX.get(), targetY.get()),
+                                new Rotation2d()))));
     // .whileTrue(
     //   AutoBuilder.pathfindToPose(new Pose2d(
     //     new Translation2d(-0.038099999999999995, 5.547867999999999).plus(new Translation2d(1,
@@ -347,8 +353,9 @@ public class RobotContainer {
       // visionIO = new VisionIOLimelight(null, null)
     } else {
       // limelightIO = new LimelightIOPhoton("limelight", Constants.kLimelightRobotToCamera);
-      visionIO = new VisionIOPhotonVision(
-          VisionConstants.kLimelightName, VisionConstants.kLimelightRobotToCamera);
+      visionIO =
+          new VisionIOPhotonVision(
+              VisionConstants.kLimelightName, VisionConstants.kLimelightRobotToCamera);
     }
 
     limelight = new Limelight(limelightIO);
@@ -399,7 +406,8 @@ public class RobotContainer {
     ClimberIO climberIO;
 
     if (Constants.getMode() == Constants.Mode.REAL) {
-      climberIO = new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
+      climberIO =
+          new ClimberIONeo(Ports.ClimberPorts.leftClimberID, Ports.ClimberPorts.rightClimberID);
     } else {
       climberIO = new ClimberIOSim();
     }
@@ -421,14 +429,15 @@ public class RobotContainer {
     }
 
     // Robot State
-    robotState = new RobotState(
-        shooter,
-        climber,
-        intake,
-        drivetrain,
-        beamBreak,
-        Ports.driverControllerPort,
-        Ports.operatorControllerPort);
+    robotState =
+        new RobotState(
+            shooter,
+            climber,
+            intake,
+            drivetrain,
+            beamBreak,
+            Ports.driverControllerPort,
+            Ports.operatorControllerPort);
 
     drivingMode = new LoggedDashboardChooser<String>("Driving Mode");
     drivingMode.addDefaultOption("Field Relative", "field");

@@ -24,15 +24,17 @@ import edu.wpi.first.math.geometry.Translation3d;
 
 public class VisionConstants {
   // AprilTag layout
-  public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+  public static AprilTagFieldLayout aprilTagLayout =
+      AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
   // Camera names, must match names configured on coprocessor
   public static String kLimelightName = "limelight";
 
   // Robot to camera transforms
-  public static Transform3d kLimelightRobotToCamera = new Transform3d(
-      new Translation3d(Inches.of(4), Inches.of(-5.7), Inches.of(22.5)),
-      new Rotation3d(Degrees.zero(), Degrees.of(-24), Degrees.of(180)));
+  public static Transform3d kLimelightRobotToCamera =
+      new Transform3d(
+          new Translation3d(Inches.of(4), Inches.of(-5.7), Inches.of(22.5)),
+          new Rotation3d(Degrees.zero(), Degrees.of(-24), Degrees.of(180)));
   // Basic filtering thresholds
   public static double maxAmbiguity = 0.3;
   public static double maxZError = 0.75;
@@ -44,11 +46,13 @@ public class VisionConstants {
 
   // Standard deviation multipliers for each camera
   // (Adjust to trust some cameras more than others)
-  public static double[] cameraStdDevFactors = new double[] {
-      1.0, // Camera 0
-  };
+  public static double[] cameraStdDevFactors =
+      new double[] {
+        1.0, // Camera 0
+      };
 
   // Multipliers to apply for MegaTag 2 observations
   public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
-  public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
+  public static double angularStdDevMegatag2Factor =
+      Double.POSITIVE_INFINITY; // No rotation data available
 }
