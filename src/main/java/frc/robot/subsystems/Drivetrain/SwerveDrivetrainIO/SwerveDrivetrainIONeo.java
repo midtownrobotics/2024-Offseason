@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.WPIUtilJNI;
+import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.Ports;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
@@ -306,36 +307,28 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
     }
 
     // Convert the commanded speeds into the correct units for the drivetrain
-    double maxSpeed;
-
-    if (speedBoost) {
-      maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED;
-    } else {
-      maxSpeed = NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
-    }
-
-    double xSpeedDelivered = xSpeedCommanded * maxSpeed;
-    double ySpeedDelivered = ySpeedCommanded * maxSpeed;
-
-    double rotDelivered =
-        m_currentRotation * NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
-
     SwerveModuleState[] swerveModuleStates =
         NeoDrivetrainConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
             fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(
-                    xSpeedDelivered,
-                    ySpeedDelivered,
-                    rotDelivered,
+                    xSpeedCommanded,
+                    ySpeedCommanded,
+                    m_currentRotation,
                     Rotation2d.fromDegrees(getPigeonYaw()))
-                : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
+                : new ChassisSpeeds(xSpeedCommanded, ySpeedCommanded, m_currentRotation));
 
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, maxSpeed);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, getMaxSpeed(speedBoost));
 
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
     m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
+
+  public static double getMaxSpeed(boolean boost) {
+    return boost
+        ? Constants.NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND_BOOSTED
+        : Constants.NeoDrivetrainConstants.MAX_SPEED_METERS_PER_SECOND;
   }
 
   @Override

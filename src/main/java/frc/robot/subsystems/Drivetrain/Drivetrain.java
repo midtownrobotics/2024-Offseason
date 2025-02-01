@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
+import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIONeo;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.utils.AllianceFlipUtil;
@@ -191,6 +192,14 @@ public class Drivetrain extends SubsystemBase {
 
   public void setBoost(boolean boost) {
     speedBoost = boost;
+  }
+
+  public boolean getBoost() {
+    return speedBoost;
+  }
+
+  public double getMaxSpeed() {
+    return SwerveDrivetrainIONeo.getMaxSpeed(speedBoost);
   }
 
   // public void setDriverDesired(double driveX, double driveY, double driveOmega) {

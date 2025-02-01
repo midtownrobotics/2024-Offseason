@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO;
 
+import org.littletonrobotics.junction.AutoLog;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -12,7 +14,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIO;
-import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveDrivetrainIO {
 
@@ -76,34 +77,33 @@ public interface SwerveDrivetrainIO {
 
   default SwerveModulePosition[] getSwerveModulePositions() {
     return new SwerveModulePosition[] {
-      getFrontLeftModule().getPosition(),
-      getFrontRightModule().getPosition(),
-      getRearLeftModule().getPosition(),
-      getRearRightModule().getPosition()
+        getFrontLeftModule().getPosition(),
+        getFrontRightModule().getPosition(),
+        getRearLeftModule().getPosition(),
+        getRearRightModule().getPosition()
     };
   }
 
   default SwerveModuleState[] getSwerveModuleStates() {
     return new SwerveModuleState[] {
-      getFrontLeftModule().getState(),
-      getFrontRightModule().getState(),
-      getRearLeftModule().getState(),
-      getRearRightModule().getState()
+        getFrontLeftModule().getState(),
+        getFrontRightModule().getState(),
+        getRearLeftModule().getState(),
+        getRearRightModule().getState()
     };
   }
 
   default SwerveModuleState[] getSwerveModuleDesiredStates() {
     return new SwerveModuleState[] {
-      getFrontLeftModule().getDesiredState(),
-      getFrontRightModule().getDesiredState(),
-      getRearLeftModule().getDesiredState(),
-      getRearRightModule().getDesiredState()
+        getFrontLeftModule().getDesiredState(),
+        getFrontRightModule().getDesiredState(),
+        getRearLeftModule().getDesiredState(),
+        getRearRightModule().getDesiredState()
     };
   }
 
   default ChassisSpeeds getRobotRelativeSpeeds() {
-    ChassisSpeeds output =
-        Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
+    ChassisSpeeds output = Constants.NeoDrivetrainConstants.DRIVE_KINEMATICS.toChassisSpeeds(getSwerveModuleStates());
     return output;
   }
 

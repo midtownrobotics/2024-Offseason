@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
@@ -123,6 +124,11 @@ public class RobotContainer {
                           Constants.JOYSTICK_THRESHOLD)
                       * Constants.CONTROL_LIMITER;
 
+              double vX = driverX * drivetrain.getMaxSpeed();
+              double vY = driverY * drivetrain.getMaxSpeed();
+              double vOmega =
+                  driverRot * Constants.NeoDrivetrainConstants.MAX_ANGULAR_SPEED_RADIANS_PER_SECOND;
+
               // drivetrain.setDriverDesired(
               //   driverX, driverY, driverRot
               // );
@@ -135,11 +141,18 @@ public class RobotContainer {
 
               drivetrain.setDriverDesired(
                   ChassisSpeeds.fromFieldRelativeSpeeds(
-                      driverX, driverY, driverRot, Rotation2d.fromDegrees(pigeonValue)));
+                      vX, vY, vOmega, Rotation2d.fromDegrees(pigeonValue)));
             },
             drivetrain));
 
-    driver.a().onTrue(new InstantCommand(() -> drivetrain.resetHeading()));
+    driver
+        .a()
+        .onTrue(
+            new InstantCommand(
+                    () -> drivetrain.setDriverDesired(new ChassisSpeeds(0.5, 0, 0)), drivetrain)
+                .withDeadline(new WaitCommand(2)))
+        .onFalse(
+            new InstantCommand(() -> drivetrain.setDriverDesired(new ChassisSpeeds()), drivetrain));
 
     driver
         .x()
