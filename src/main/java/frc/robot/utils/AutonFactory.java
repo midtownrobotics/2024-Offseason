@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Robot;
 import frc.robot.RobotState;
 import frc.robot.RobotState.State;
+import frc.robot.commands.WheelRadiusCharacterization;
+import frc.robot.commands.WheelRadiusCharacterization.Direction;
 import frc.robot.commands.auton.AlignWithSpeaker;
 import frc.robot.subsystems.Drivetrain.Drivetrain;
 import frc.robot.subsystems.Drivetrain.Drivetrain.DriveState;
@@ -70,6 +72,9 @@ public class AutonFactory {
         );
 
     m_autoChooser = AutoBuilder.buildAutoChooser();
+    m_autoChooser.addOption(
+        "Wheel Radius Characterization",
+        new WheelRadiusCharacterization(m_drivetrain, Direction.COUNTER_CLOCKWISE));
     SmartDashboard.putData(m_autoChooser);
 
     PathPlannerLogging.setLogCurrentPoseCallback(

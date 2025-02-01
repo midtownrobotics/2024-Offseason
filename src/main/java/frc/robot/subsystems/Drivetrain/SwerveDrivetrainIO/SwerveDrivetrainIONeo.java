@@ -105,6 +105,8 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
           REAR_RIGHT_VIRTUAL_OFFSET_RADIANS.get(),
           false);
 
+  private final SwerveModuleIONeo[] modules = {m_frontLeft, m_frontRight, m_rearLeft, m_rearRight};
+
   private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs =
       new SwerveModuleIOInputsAutoLogged();
   private final SwerveModuleIOInputsAutoLogged m_frontRightInputs =
@@ -358,6 +360,10 @@ public class SwerveDrivetrainIONeo implements SwerveDrivetrainIO {
 
   public Pose2d getPose() {
     return m_poseEstimator.getEstimatedPosition();
+  }
+
+  public SwerveModuleIONeo[] getModules() {
+    return modules;
   }
 
   public void resetOdometry(Pose2d pose) {

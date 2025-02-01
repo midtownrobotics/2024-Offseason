@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Ports.IntakePorts;
 import frc.robot.Ports.ShooterPorts;
 import frc.robot.commands.AnkitPoint;
+import frc.robot.commands.WheelRadiusCharacterization;
+import frc.robot.commands.WheelRadiusCharacterization.Direction;
 import frc.robot.subsystems.BeamBreak.BeamBreak;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIO;
 import frc.robot.subsystems.BeamBreak.BeamBreakIO.BeamBreakIODIO;
@@ -172,6 +174,10 @@ public class RobotContainer {
         .leftTrigger()
         .whileTrue(
             new StartEndCommand(() -> drivetrain.setBoost(true), () -> drivetrain.setBoost(false)));
+
+    driver
+        .rightTrigger()
+        .whileTrue(new WheelRadiusCharacterization(drivetrain, Direction.COUNTER_CLOCKWISE));
 
     LoggedTunableNumber targetX = new LoggedTunableNumber("Drive/AnkitPoint/TargetX", 1);
     LoggedTunableNumber targetY = new LoggedTunableNumber("Drive/AnkitPoint/TargetY", 0);

@@ -23,6 +23,7 @@ public interface SwerveModuleIO {
     public SwerveModuleState desiredState;
 
     public double offset;
+    public double drivingEncoderPosition;
     public double turningEncoderPosition;
     public double turningAbsolutePosition;
   }
@@ -34,6 +35,8 @@ public interface SwerveModuleIO {
   public void setDesiredState(SwerveModuleState desiredState);
 
   public SwerveModuleState getState();
+
+  public double getDrivePositionRads();
 
   public SwerveModulePosition getPosition();
 }

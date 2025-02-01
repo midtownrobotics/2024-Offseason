@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -44,8 +45,7 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     SparkMaxConfig driveConfig = new SparkMaxConfig();
     SparkMaxConfig turningConfig = new SparkMaxConfig();
 
-    driveConfig
-        .closedLoop
+    driveConfig.closedLoop
         .pidf(
             NeoSwerveModuleConstants.DRIVING_P.get(),
             NeoSwerveModuleConstants.DRIVING_I.get(),
@@ -120,19 +120,18 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     inputs.turningTempFahrenheit = m_turningSparkMax.getMotorTemperature();
     inputs.turningVelocityRPM = m_turningSparkMax.getEncoder().getVelocity();
     inputs.turningIsOn = Math.abs(m_turningSparkMax.getAppliedOutput()) > 0.01;
-    inputs.turningVoltage =
-        m_turningSparkMax.getAppliedOutput() * m_turningSparkMax.getBusVoltage();
+    inputs.turningVoltage = m_turningSparkMax.getAppliedOutput() * m_turningSparkMax.getBusVoltage();
 
     inputs.drivingCurrentAmps = m_drivingSparkMax.getOutputCurrent();
     inputs.drivingTempFahrenheit = m_drivingSparkMax.getMotorTemperature();
     inputs.drivingVelocityRPM = m_drivingSparkMax.getEncoder().getVelocity();
     inputs.drivingIsOn = Math.abs(m_drivingSparkMax.getAppliedOutput()) > 0.01;
-    inputs.drivingVoltage =
-        m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage();
+    inputs.drivingVoltage = m_drivingSparkMax.getAppliedOutput() * m_drivingSparkMax.getBusVoltage();
 
     inputs.currentState = getState();
     inputs.desiredState = getDesiredState();
     inputs.offset = offset;
+    inputs.drivingEncoderPosition = getDrivingEncoder().getPosition();
     inputs.turningEncoderPosition = getTurningEncoder().getPosition();
     inputs.turningAbsolutePosition = getAbsoluteTurningPosition();
   }
@@ -162,6 +161,11 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     return m_turningEncoder;
   }
 
+  public double getDrivePositionRads() {
+    return m_drivingEncoder.getPosition()
+        * 2 * Math.PI;
+  }
+
   public CANcoder getTurningAbsoluteEncoder() {
     return m_turningAbsoluteEncoder;
   }
@@ -180,8 +184,8 @@ public class SwerveModuleIONeo implements SwerveModuleIO {
     desiredState.optimize(new Rotation2d(m_turningEncoder.getPosition()));
 
     if (Math.abs(desiredState.speedMetersPerSecond) < 0.001
-        && Math.abs(desiredState.angle.getRadians() - m_turningEncoder.getPosition())
-            < Rotation2d.fromDegrees(1).getRadians()) {
+        && Math.abs(desiredState.angle.getRadians() - m_turningEncoder.getPosition()) < Rotation2d.fromDegrees(1)
+            .getRadians()) {
       m_drivingSparkMax.set(0);
       m_turningSparkMax.set(0);
       return;

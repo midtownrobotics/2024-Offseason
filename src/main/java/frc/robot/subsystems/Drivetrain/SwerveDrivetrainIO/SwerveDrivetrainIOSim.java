@@ -12,6 +12,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.simulation.AnalogGyroSim;
 import frc.robot.Constants;
 import frc.robot.Constants.NeoDrivetrainConstants;
+import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIO;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOInputsAutoLogged;
 import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIOSim;
 import org.littletonrobotics.junction.Logger;
@@ -22,6 +23,9 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
   private static final SwerveModuleIOSim m_frontRight = new SwerveModuleIOSim();
   private static final SwerveModuleIOSim m_rearLeft = new SwerveModuleIOSim();
   private static final SwerveModuleIOSim m_rearRight = new SwerveModuleIOSim();
+  private static final SwerveModuleIOSim[] modules = {
+    m_frontLeft, m_frontRight, m_rearLeft, m_rearRight
+  };
 
   private final SwerveModuleIOInputsAutoLogged m_frontLeftInputs =
       new SwerveModuleIOInputsAutoLogged();
@@ -130,6 +134,11 @@ public class SwerveDrivetrainIOSim implements SwerveDrivetrainIO {
   @Override
   public SwerveModuleIOSim getRearRightModule() {
     return m_rearRight;
+  }
+
+  @Override
+  public SwerveModuleIO[] getModules() {
+    return modules;
   }
 
   @Override

@@ -97,6 +97,11 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
   }
 
   @Override
+  public double getDrivePositionRads() {
+    return m_driveMotor.getAngularPositionRad();
+  }
+
+  @Override
   public SwerveModulePosition getPosition() {
     double distance =
         m_driveMotor.getAngularPositionRotations()

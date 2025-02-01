@@ -15,10 +15,12 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIO;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveDrivetrainIONeo;
 import frc.robot.subsystems.Drivetrain.SwerveDrivetrainIO.SwerveIOInputsAutoLogged;
+import frc.robot.subsystems.Drivetrain.SwerveModuleIO.SwerveModuleIO;
 import frc.robot.subsystems.Limelight.Limelight;
 import frc.robot.utils.AllianceFlipUtil;
 import frc.robot.utils.ApriltagHelper.Tags;
 import frc.robot.utils.LoggedTunableNumber;
+import java.util.Arrays;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -32,7 +34,8 @@ public class Drivetrain extends SubsystemBase {
     ALIGN_ZERO,
     X,
     TUNING,
-    DRIVE_TO_POINT
+    DRIVE_TO_POINT,
+    WHEEL_RADIUS_CHARACTERIZATION;
   }
 
   private final SwerveDrivetrainIO m_swerveDrivetrainIO;
@@ -60,6 +63,8 @@ public class Drivetrain extends SubsystemBase {
   private PIDController alignZeroPID = new PIDController(ShooterConstants.ALIGN_ZERO_P.get(), 0, 0);
 
   private boolean speedBoost;
+
+  private double characterizationInput;
 
   public Drivetrain(SwerveDrivetrainIO swerveDrivetrainIO, Limelight limelight) {
     m_swerveDrivetrainIO = swerveDrivetrainIO;
@@ -165,6 +170,9 @@ public class Drivetrain extends SubsystemBase {
             false,
             false,
             speedBoost);
+        break;
+      case WHEEL_RADIUS_CHARACTERIZATION:
+        m_swerveDrivetrainIO.drive(new ChassisSpeeds(0, 0, characterizationInput), false, false);
         break;
       case TUNING:
         setDriverDesired(
@@ -273,7 +281,18 @@ public class Drivetrain extends SubsystemBase {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    m_swerveDrivetrainIO.addVisionMeasurement(
-        visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    // m_swerveDrivetrainIO.addVisionMeasurement(
+    //     visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+  }
+
+  public double[] getWheelRadiusCharacterizationPosition() {
+    return Arrays.stream(m_swerveDrivetrainIO.getModules())
+        .mapToDouble(SwerveModuleIO::getDrivePositionRads)
+        .toArray();
+  }
+
+  public void runWheelRadiusCharacterization(double input) {
+    setState(DriveState.WHEEL_RADIUS_CHARACTERIZATION);
+    characterizationInput = input;
   }
 }
