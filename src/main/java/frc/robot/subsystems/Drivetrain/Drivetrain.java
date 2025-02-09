@@ -189,6 +189,8 @@ public class Drivetrain extends SubsystemBase {
     // swerveIOInputs.pose = getPose();
     Logger.processInputs("Drive", swerveIOInputs);
 
+    Logger.recordOutput("Drive/Gyro", getAngle());
+
     Logger.recordOutput("Drive/Pose", getPose());
     Logger.recordOutput(
         "Drive/CameraPose", new Pose3d(getPose()).transformBy(Constants.kLimelightRobotToCamera));

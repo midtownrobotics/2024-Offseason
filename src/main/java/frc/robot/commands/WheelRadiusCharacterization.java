@@ -7,7 +7,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,7 +59,7 @@ public class WheelRadiusCharacterization extends Command {
   @Override
   public void initialize() {
     // Reset
-    lastGyroYawRads = Units.degreesToRadians(gyroYawRadsSupplier.getAsDouble());
+    lastGyroYawRads = gyroYawRadsSupplier.getAsDouble();
     accumGyroYawRads = 0;
     currentEffectiveWheelRadius = 0;
 
@@ -76,14 +75,21 @@ public class WheelRadiusCharacterization extends Command {
         omegaLimiter.calculate(omegaDirection.value * characterizationSpeed.get()));
 
     // Get yaw and wheel positions
-    accumGyroYawRads += MathUtil.angleModulus(gyroYawRadsSupplier.getAsDouble() - lastGyroYawRads);
-    lastGyroYawRads = gyroYawRadsSupplier.getAsDouble();
+    // accumGyroYawRads = gyroYawRadsSupplier.getAsDouble() - lastGyroYawRads;
+    // accumGyroYawRads += MathUtil.angleModulus(gyroYawRadsSupplier.getAsDouble() -
+    // lastGyroYawRads);
+    // lastGyroYawRads = gyroYawRadsSupplier.getAsDouble();
+
+    accumGyroYawRads = gyroYawRadsSupplier.getAsDouble() - lastGyroYawRads;
     double averageWheelPosition = 0.0;
     double[] wheelPositiions = drive.getWheelRadiusCharacterizationPosition();
-    Logger.recordOutput("Drive/RadiusCharacterization/Positions", wheelPositiions);
+    double[] relWheelPositions = new double[4];
     for (int i = 0; i < 4; i++) {
       averageWheelPosition += Math.abs(wheelPositiions[i] - startWheelPositions[i]);
+      relWheelPositions[i] = wheelPositiions[i] - startWheelPositions[i];
     }
+
+    Logger.recordOutput("Drive/RadiusCharacterization/Positions", relWheelPositions);
     averageWheelPosition /= 4.0;
 
     currentEffectiveWheelRadius = (accumGyroYawRads * driveRadius) / averageWheelPosition;
@@ -92,6 +98,11 @@ public class WheelRadiusCharacterization extends Command {
     Logger.recordOutput(
         "Drive/RadiusCharacterization/CurrentWheelRadiusInches",
         Units.metersToInches(currentEffectiveWheelRadius));
+    Logger.recordOutput("Drive/RadiusCharacterization/Gyro", gyroYawRadsSupplier.getAsDouble());
+
+    if (accumGyroYawRads > 4 * Math.PI) {
+      cancel();
+    }
   }
 
   @Override

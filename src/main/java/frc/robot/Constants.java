@@ -224,11 +224,11 @@ public final class Constants {
         (2 * Math.PI); // radians
 
     public static final LoggedTunableNumber DRIVING_P =
-        new LoggedTunableNumber("Drivetrain/constants/DRIVING_P", 0.04);
+        new LoggedTunableNumber("Drivetrain/constants/DRIVING_P", 0.05);
     public static final LoggedTunableNumber DRIVING_I =
-        new LoggedTunableNumber("Drivetrain/constants/DRIVING_I", 0);
+        new LoggedTunableNumber("Drivetrain/constants/DRIVING_I", 0.0001);
     public static final LoggedTunableNumber DRIVING_D =
-        new LoggedTunableNumber("Drivetrain/constants/DRIVING_D", 0);
+        new LoggedTunableNumber("Drivetrain/constants/DRIVING_D", 0.07);
     public static final LoggedTunableNumber DRIVING_FF =
         new LoggedTunableNumber("Drivetrain/constants/DRIVING_FF", 1 / DRIVE_WHEEL_FREE_SPEED_RPS);
     public static final double DRIVING_MIN_OUTPUT_NORMALIZED = -1;
